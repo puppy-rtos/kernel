@@ -7,6 +7,7 @@
 #define __PUPPY_H__
 
 #include <puppy/toolchan.h>
+#include <puppy/util.h>
 
 #define P_UNUSED(x)                   ((void)x)
 

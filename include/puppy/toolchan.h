@@ -10,8 +10,26 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(__ARMCC_VERSION)           /* ARM Compiler */
 typedef unsigned long ssize_t;
+#endif
+
+typedef union {
+    long long       thelonglong;
+    long double     thelongdouble;
+    uintmax_t       theuintmax_t;
+    size_t          thesize_t;
+    uintptr_t       theuintptr_t;
+    void            *thepvoid;
+    void            (*thepfunc)(void);
+} p_max_align_t;
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
