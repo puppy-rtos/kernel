@@ -30,6 +30,23 @@ typedef volatile p_base_t p_atomic_t;    /**< Type for atomic */
 #define P_ESYSCALL      8 /* Interrupted system call */
 
 /**
+ * @ingroup BasicDef
+ *
+ * @def P_ALIGN(size, align)
+ * Return the most contiguous size aligned at specified width. P_ALIGN(13, 4)
+ * would return 16.
+ */
+#define P_ALIGN(size, align)           (((size) + (align) - 1) & ~((align) - 1))
+
+/**
+ * @ingroup BasicDef
+ *
+ * @def P_ALIGN_DOWN(size, align)
+ * Return the down number of aligned at specified width. P_ALIGN_DOWN(13, 4)
+ * would return 12.
+ */
+#define P_ALIGN_DOWN(size, align)      ((size) & ~((align) - 1))
+/**
  * erron api
  */
 int p_get_errno(void);
@@ -130,8 +147,10 @@ struct _thread_obj
     void        *param;
 
     /** arch-specifics: must always be at the end */
-    void        *arch;
+    struct arch_thread *arch;
 };
+
+
 p_obj_t p_thread_create(const char *name,
                         void (*entry)(void *parameter),
                         void    *parameter,
@@ -145,6 +164,7 @@ int p_thread_getattr(p_obj_t obj, p_thread_attr_t *attr);
 /* todo: int p_thread_delete(p_obj_t obj); */
 p_obj_t p_thread_self(void);
 
+void p_thread_entry(void (*entry)(void *parameter), void *param);
 void arch_new_thread(struct _thread_obj *thread,
                             void    *stack_addr,
                             uint32_t stack_size);

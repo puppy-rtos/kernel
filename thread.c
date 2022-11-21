@@ -9,7 +9,15 @@
 
 #define P_THREAD_SLICE_DEFAULT 10
 
-struct _thread_obj tlist[3];
+void p_thread_entry(void (*entry)(void *parameter), void *param)
+{
+    if (entry)
+    {
+        entry(param);
+    }
+    printk("_thread exit!_\r\n");
+    while (1);
+}
 
 void _thread_init(p_obj_t obj, const char *name,
                                 void (*entry)(void *param),
@@ -39,10 +47,7 @@ int p_thread_start(p_obj_t obj)
     // struct _thread_obj *thread = obj;
     
     p_schedule_insert(obj);
+    
+    p_schedule();
     return 0;
-}
-
-void thread_init_tc(void)
-{
-    //_thread_init();
 }
