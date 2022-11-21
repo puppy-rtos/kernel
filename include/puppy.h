@@ -8,12 +8,14 @@
 
 #include <puppy/toolchan.h>
 #include <puppy/util.h>
+#include <puppy/atomic.h>
 
 #define P_UNUSED(x)                   ((void)x)
 
 /* Puppy-RTOS object definitions */
 typedef void    *p_obj_t;
 typedef size_t   p_tick_t;
+typedef volatile size_t p_atomic_t;    /**< Type for atomic */
 
 /* Puppy-RTOS error code definitions */
 #define P_EOK           0 /* There is no error */
@@ -70,6 +72,17 @@ p_obj_t p_obj_ioctl(p_obj_t obj, int cmd, void *args);
 #define P_OBJ_UNLOCK(obj)            p_obj_ioctl(obj, P_CTL_CMD_UNLOCK, NULL);
 #define P_OBJ_LOCKED(obj)            p_obj_ioctl(obj, P_CTL_CMD_LOCKED, NULL);
 #define P_OBJ_TIMELOCK(obj, timeout) p_obj_ioctl(obj, P_CTL_CMD_TIMELOCK, (void*)timeout));
+
+/*
+ * atomic interfaces
+ */
+void arch_atomic_add(p_atomic_t *ptr, p_atomic_t val);
+void arch_atomic_sub(p_atomic_t *ptr, p_atomic_t val);
+void arch_atomic_or(p_atomic_t *ptr, p_atomic_t val);
+void arch_atomic_xor(p_atomic_t *ptr, p_atomic_t val);
+void arch_atomic_and(p_atomic_t *ptr, p_atomic_t val);
+void arch_atomic_nand(p_atomic_t *ptr, p_atomic_t val);
+p_atomic_t arch_atomic_cas(p_atomic_t *ptr, p_atomic_t oldval, p_atomic_t newval);
 
 /**
  * tick api
