@@ -13,9 +13,10 @@
 #define P_UNUSED(x)                   ((void)x)
 
 /* Puppy-RTOS object definitions */
-typedef void    *p_obj_t;
-typedef size_t   p_tick_t;
-typedef volatile size_t p_atomic_t;    /**< Type for atomic */
+typedef size_t            p_base_t;
+typedef void             *p_obj_t;
+typedef p_base_t          p_tick_t;
+typedef volatile p_base_t p_atomic_t;    /**< Type for atomic */
 
 /* Puppy-RTOS error code definitions */
 #define P_EOK           0 /* There is no error */
@@ -72,6 +73,10 @@ p_obj_t p_obj_ioctl(p_obj_t obj, int cmd, void *args);
 #define P_OBJ_UNLOCK(obj)            p_obj_ioctl(obj, P_CTL_CMD_UNLOCK, NULL);
 #define P_OBJ_LOCKED(obj)            p_obj_ioctl(obj, P_CTL_CMD_LOCKED, NULL);
 #define P_OBJ_TIMELOCK(obj, timeout) p_obj_ioctl(obj, P_CTL_CMD_TIMELOCK, (void*)timeout));
+
+p_base_t arch_irq_lock(void);
+void arch_irq_unlock(p_base_t key);
+bool arch_irq_locked(p_base_t key);
 
 /*
  * atomic interfaces
