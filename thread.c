@@ -18,6 +18,7 @@ void p_thread_entry(void (*entry)(void *parameter), void *param)
         entry(param);
     }
     printk("_thread exit!_\r\n");
+    p_thread_abort(p_thread_self());
     while (1);
 }
 
@@ -42,12 +43,29 @@ void _thread_init(p_obj_t obj, const char *name,
 
     arch_new_thread(thread, stack_addr, stack_size);
 }
+p_obj_t p_thread_self(void)
+{
+    return _g_curr_thread;
+}
+    
+
+int p_thread_abort(p_obj_t obj)
+{
+    struct _thread_obj *_thread = _g_curr_thread;
+    p_base_t key = arch_irq_lock();
+    
+//    p_sched_insert(_thread);
+    _thread->state = P_THREAD_STATE_DEAD;
+    p_sched();
+    
+    arch_irq_unlock(key);
+}
+
 int p_thread_yield(void)
 {
     struct _thread_obj *_thread = _g_curr_thread;
     p_base_t key = arch_irq_lock();
 
-    p_sched_remove(_thread);
     p_sched_insert(_thread);
     p_sched();
     

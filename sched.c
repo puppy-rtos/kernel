@@ -27,6 +27,11 @@ int p_sched(void)
             }
             _g_next_thread = _thread;
             p_list_remove(ready_queue.head);
+            if (_g_curr_thread->state == P_THREAD_STATE_RUN)
+            {
+                _g_curr_thread->state = P_THREAD_STATE_READY;
+                p_list_append(&ready_queue, &_g_curr_thread->tnode);
+            }
         }
 
         arch_swap();

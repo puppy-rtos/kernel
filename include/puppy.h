@@ -85,6 +85,7 @@ struct p_obj
 void p_obj_init(p_obj_t obj, const char *name, uint8_t type);
 p_obj_t p_obj_find(const char *name);
 p_obj_t p_obj_ioctl(p_obj_t obj, int cmd, void *args);
+void p_obj_deinit(p_obj_t obj);
 
 #define P_OBJ_LOCK(obj)              p_obj_ioctl(obj, P_CTL_CMD_LOCK, NULL);
 #define P_OBJ_UNLOCK(obj)            p_obj_ioctl(obj, P_CTL_CMD_UNLOCK, NULL);
@@ -163,7 +164,8 @@ int p_thread_control(p_obj_t obj, int cmd, void *argv);
 int p_thread_getattr(p_obj_t obj, p_thread_attr_t *attr);
 /* todo: int p_thread_delete(p_obj_t obj); */
 p_obj_t p_thread_self(void);
-
+int p_thread_abort(p_obj_t obj);
+                        
 void p_thread_entry(void (*entry)(void *parameter), void *param);
 void arch_new_thread(struct _thread_obj *thread,
                             void    *stack_addr,
