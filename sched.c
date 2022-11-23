@@ -9,25 +9,44 @@
 p_list_t ready_queue = P_LIST_STATIC_INIT(&ready_queue);
 struct _thread_obj *_g_curr_thread;
 struct _thread_obj *_g_next_thread;
-
-int p_schedule(void)
+static int sched_lock = 0;
+int p_sched(void)
 {
+    struct _thread_obj *_thread;
     p_base_t key = arch_irq_lock();
 
-    if (!_g_next_thread)
+    if (sched_lock == 0)
     {
-        _g_next_thread = p_list_entry(ready_queue.head, struct _thread_obj, tnode);
-        p_list_remove(ready_queue.head);
-    }
-    _g_next_thread->state = P_THREAD_STATE_RUN;
+        if (!_g_next_thread)
+        {
+            _thread = p_list_entry(ready_queue.head, struct _thread_obj, tnode);
+            if (_thread == _g_curr_thread)
+            {
+                arch_irq_unlock(key);
+                return 0;
+            }
+            _g_next_thread = _thread;
+            p_list_remove(ready_queue.head);
+        }
 
-    arch_swap();
+        arch_swap();
+    }
 
     arch_irq_unlock(key);
-    return -1;
+    return 0;
 }
 
-int p_schedule_insert(p_obj_t thread)
+void p_sched_lock(void)
+{
+    sched_lock = 1;
+}
+void p_sched_unlock(void)
+{
+    sched_lock = 0;
+    p_sched();
+}
+
+int p_sched_insert(p_obj_t thread)
 {
     struct _thread_obj *_thread = thread;
     p_base_t key = arch_irq_lock();
@@ -39,8 +58,26 @@ int p_schedule_insert(p_obj_t thread)
     return 0;
 }
 
-int rt_schedule_remove(p_obj_t thread)
+int p_sched_remove(p_obj_t thread)
 {
+    struct _thread_obj *_thread = thread;
+    p_base_t key = arch_irq_lock();
 
-    return -1;
+    p_list_remove(&_thread->tnode);
+
+    arch_irq_unlock(key);
+    return 0;
+}
+
+void p_sched_swap_out_cb(p_obj_t thread)
+{
+    
+    _g_curr_thread = NULL;
+}
+
+void p_sched_swap_in_cb(p_obj_t thread)
+{
+    _g_next_thread->state = P_THREAD_STATE_RUN;
+    _g_curr_thread = _g_next_thread;
+    _g_next_thread = NULL;
 }

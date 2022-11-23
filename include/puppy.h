@@ -169,9 +169,12 @@ void arch_new_thread(struct _thread_obj *thread,
                             void    *stack_addr,
                             uint32_t stack_size);
 
-int p_schedule_insert(p_obj_t thread);
-int rt_schedule_remove(p_obj_t thread);
-                            
+int p_sched(void);
+int p_sched_insert(p_obj_t thread);
+int p_sched_remove(p_obj_t thread);
+void p_sched_swap_out_cb(p_obj_t thread);
+void p_sched_swap_in_cb(p_obj_t thread);
+
 /**
  * sem api
  */

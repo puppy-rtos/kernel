@@ -9,6 +9,8 @@
 
 #define P_THREAD_SLICE_DEFAULT 10
 
+extern struct _thread_obj *_g_curr_thread;
+
 void p_thread_entry(void (*entry)(void *parameter), void *param)
 {
     if (entry)
@@ -40,14 +42,24 @@ void _thread_init(p_obj_t obj, const char *name,
 
     arch_new_thread(thread, stack_addr, stack_size);
 }
+int p_thread_yield(void)
+{
+    struct _thread_obj *_thread = _g_curr_thread;
+    p_base_t key = arch_irq_lock();
 
+    p_sched_remove(_thread);
+    p_sched_insert(_thread);
+    p_sched();
+    
+    arch_irq_unlock(key);
+}
 
 int p_thread_start(p_obj_t obj)
 {
     // struct _thread_obj *thread = obj;
     
-    p_schedule_insert(obj);
+    p_sched_insert(obj);
     
-    p_schedule();
+    p_sched();
     return 0;
 }
