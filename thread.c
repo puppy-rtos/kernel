@@ -15,17 +15,15 @@ extern struct _thread_obj *_g_curr_thread;
 
 void p_thread_entry(void (*entry)(void *parameter), void *param)
 {
-	arch_irq_unlock(0);
     if (entry)
     {
         entry(param);
     }
-    printk("_thread exit!_\r\n");
     p_thread_abort(p_thread_self());
     while (1);
 }
 
-void _thread_init(p_obj_t obj, const char *name,
+void p_thread_init(p_obj_t obj, const char *name,
                                 void (*entry)(void *param),
                                 void    *param,
                                 void    *stack_addr,
@@ -33,6 +31,7 @@ void _thread_init(p_obj_t obj, const char *name,
                                 uint8_t  prio)
 {
     struct _thread_obj *thread = obj;
+    
 
     p_obj_init(&thread->kobj, name, P_OBJ_TYPE_THREAD | P_OBJ_TYPE_STATIC);
     
@@ -62,7 +61,6 @@ int p_thread_abort(p_obj_t obj)
     p_base_t key = arch_irq_lock();
     P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
 
-//    p_sched_insert(_thread);
     _thread->state = P_THREAD_STATE_DEAD;
     timeout_remove(&_thread->timeout);
     p_sched();

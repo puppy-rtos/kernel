@@ -83,11 +83,6 @@ uint32_t arch_thread_to_ptr(struct _thread_obj *thread)
 
 void arch_swap(unsigned int key)
 {
-	/* store off key and return value */
-    if (_g_curr_thread)
-    {
-        _g_curr_thread->arch->basepri = key;
-    }
     arch_switch_interrupt_flag = 1;
 
 	/* set pending bit to make sure we will take a PendSV exception */
@@ -95,19 +90,20 @@ void arch_swap(unsigned int key)
 
 	/* clear mask or enable all irqs to take a pendsv */
 	arch_irq_unlock(0);
+	arch_irq_unlock(key);
 }
 
 __attribute__((always_inline)) static inline void do_swap(void)
 {
-    //disable interrupt to protect context switch
+    // disable interrupt to protect context switch
     __asm ("    MRS     r2, PRIMASK");
     __asm ("    CPSID   I");
-   // get rt_thread_switch_interrupt_flag
+    // get arch_switch_interrupt_flag
     __asm ("    LDR     r0, =arch_switch_interrupt_flag");
     __asm ("    LDR     r1, [r0]");
     __asm ("    CBZ     r1, pendsv_exit");         // pendsv already handled
 
-    // clear rt_thread_switch_interrupt_flag to 0
+    // clear arch_switch_interrupt_flag to 0
     __asm ("    MOV     r1, #0x00");
     __asm ("    STR     r1, [r0]");
 
@@ -116,7 +112,6 @@ __attribute__((always_inline)) static inline void do_swap(void)
     __asm ("    CBZ     r1, switch_to_thread ");   // skip register save at the first time
     __asm ("    MOV     r0, r1");
 
-    
     __asm ("    PUSH    {r0, lr}");
     __asm ("    BL      p_sched_swap_out_cb");
     __asm ("    POP     {r0, lr}");

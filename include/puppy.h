@@ -6,6 +6,7 @@
 #ifndef __PUPPY_H__
 #define __PUPPY_H__
 
+#include <puppy/default_config.h>
 #include <puppy/toolchan.h>
 #include <puppy/util.h>
 #include <puppy/atomic.h>
@@ -46,6 +47,9 @@ typedef volatile p_base_t p_atomic_t;    /**< Type for atomic */
  * would return 12.
  */
 #define P_ALIGN_DOWN(size, align)      ((size) & ~((align) - 1))
+
+void puppy_init(void);
+
 /**
  * erron api
  */
@@ -126,6 +130,8 @@ int p_tick_persec(void);
 #define P_THREAD_STATE_RUN         0x04
 #define P_THREAD_STATE_DEAD        0x05
 
+#define P_THREAD_PRIO_MAX          0xFF
+
 typedef struct p_thread_attr
 {
     const char *name;
@@ -161,6 +167,12 @@ struct _thread_obj
     struct arch_thread *arch;
 };
 
+void p_thread_init(p_obj_t obj, const char *name,
+                                void (*entry)(void *param),
+                                void    *param,
+                                void    *stack_addr,
+                                uint32_t stack_size,
+                                uint8_t  prio);
 
 p_obj_t p_thread_create(const char *name,
                         void (*entry)(void *parameter),
@@ -184,6 +196,9 @@ void p_thread_entry(void (*entry)(void *parameter), void *param);
 void arch_new_thread(struct _thread_obj *thread,
                             void    *stack_addr,
                             uint32_t stack_size);
+/**
+ * sched api
+ */
 
 int p_sched(void);
 int p_sched_insert(p_obj_t thread);
