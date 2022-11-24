@@ -20,6 +20,7 @@ int p_sched(void)
         if (!_g_next_thread)
         {
             /* get prio higest thread */
+            P_ASSERT(p_list_is_empty(&ready_queue) == false);
             if (p_list_is_empty(&ready_queue))
             {
 //                printk("ready_queue is empty\r\n");

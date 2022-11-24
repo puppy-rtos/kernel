@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #include <puppy.h>
 
 #define P_THREAD_SLICE_DEFAULT 10
@@ -16,7 +15,6 @@ extern struct _thread_obj *_g_curr_thread;
 
 void p_thread_entry(void (*entry)(void *parameter), void *param)
 {
-    
 	arch_irq_unlock(0);
     if (entry)
     {
@@ -53,6 +51,8 @@ void _thread_init(p_obj_t obj, const char *name,
 
 p_obj_t p_thread_self(void)
 {
+    P_ASSERT(_g_curr_thread != NULL);
+    P_ASSERT(p_obj_get_type(_g_curr_thread) == P_OBJ_TYPE_THREAD);
     return _g_curr_thread;
 }
 
@@ -60,7 +60,8 @@ int p_thread_abort(p_obj_t obj)
 {
     struct _thread_obj *_thread = _g_curr_thread;
     p_base_t key = arch_irq_lock();
-    
+    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+
 //    p_sched_insert(_thread);
     _thread->state = P_THREAD_STATE_DEAD;
     timeout_remove(&_thread->timeout);
@@ -73,6 +74,9 @@ int p_thread_yield(void)
 {
     struct _thread_obj *_thread = _g_curr_thread;
     p_base_t key = arch_irq_lock();
+    
+    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
 
     p_sched_insert(_thread);
     p_sched();
@@ -105,6 +109,7 @@ int p_thread_suspend(p_obj_t obj)
     int err = P_EOK;
     p_base_t key = arch_irq_lock();
     P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
 
     if (_thread->state != P_THREAD_STATE_RUN)
     {
@@ -124,6 +129,7 @@ int p_thread_resume(p_obj_t obj)
     int err = P_EOK;
     p_base_t key = arch_irq_lock();
     P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    P_ASSERT(_thread->state == P_THREAD_STATE_SLEEP);
 
     if (_thread->state != P_THREAD_STATE_SLEEP)
     {

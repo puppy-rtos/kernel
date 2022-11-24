@@ -17,7 +17,7 @@
 #define P_ASSERT(EX)                                                          \
 if (!(EX))                                                                    \
 {                                                                             \
-    printk("%s,%s,\r\n", #EX, __FUNCTION__, __LINE__);                        \
+    printk("(%s) at FUNC %s:L%d\r\n", #EX, __FUNCTION__, __LINE__);                 \
     while(1);                                                                 \
 }
 
