@@ -84,6 +84,7 @@ struct p_obj
 
 void p_obj_init(p_obj_t obj, const char *name, uint8_t type);
 p_obj_t p_obj_find(const char *name);
+uint8_t p_obj_get_type(p_obj_t obj);
 p_obj_t p_obj_ioctl(p_obj_t obj, int cmd, void *args);
 void p_obj_deinit(p_obj_t obj);
 
@@ -133,6 +134,13 @@ typedef struct p_thread_attr
     uint8_t     priority; 
     uint8_t     reserved[3];
 } p_thread_attr_t;
+
+typedef struct timeout
+{
+    p_base_t tick;
+    p_node_t node;
+}p_timeout_t;
+
 struct _thread_obj
 {
     struct p_obj kobj;
@@ -146,7 +154,9 @@ struct _thread_obj
 
     void        *entry;
     void        *param;
+    int          error;
 
+    p_timeout_t  timeout;
     /** arch-specifics: must always be at the end */
     struct arch_thread *arch;
 };
@@ -159,13 +169,17 @@ p_obj_t p_thread_create(const char *name,
                         uint8_t  prio);
 int p_thread_start(p_obj_t obj);
 int p_thread_yield(void);
+int p_thread_suspend(p_obj_t obj);
+int p_thread_resume(p_obj_t obj);
+int p_thread_block(p_obj_t obj);
 int p_thread_sleep(p_tick_t tick);
 int p_thread_control(p_obj_t obj, int cmd, void *argv);
 int p_thread_getattr(p_obj_t obj, p_thread_attr_t *attr);
 /* todo: int p_thread_delete(p_obj_t obj); */
 p_obj_t p_thread_self(void);
 int p_thread_abort(p_obj_t obj);
-                        
+
+void thread_timeout_cb(p_base_t tick);      
 void p_thread_entry(void (*entry)(void *parameter), void *param);
 void arch_new_thread(struct _thread_obj *thread,
                             void    *stack_addr,

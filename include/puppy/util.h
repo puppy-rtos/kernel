@@ -14,6 +14,13 @@
 #define printk(fmt, ...)
 #endif
 
+#define P_ASSERT(EX)                                                          \
+if (!(EX))                                                                    \
+{                                                                             \
+    printk("%s,%s,\r\n", #EX, __FUNCTION__, __LINE__);                        \
+    while(1);                                                                 \
+}
+
 #define P_TC_PASS()         printk("Test Passed!\r\n");
 #define P_TC_FAIL()         printk("Test Failed!\r\n"); 
 #define P_TC_LOG(...)   do {printk(__VA_ARGS__); printk("\r\n");} while (0);
@@ -123,6 +130,24 @@ static inline void p_list_prepend(p_list_t *list, p_node_t *node)
 
     head->prev = node;
     list->head = node;
+}
+
+/**
+ * @brief Insert a node into a list
+ *
+ * Insert a node before a specified node in a dlist.
+ *
+ * @param successor the position before which "node" will be inserted
+ * @param node the element to insert
+ */
+static inline void p_list_insert(p_node_t *successor, p_node_t *node)
+{
+	p_node_t *const prev = successor->prev;
+
+	node->prev = prev;
+	node->next = successor;
+	prev->next = node;
+	successor->prev = node;
 }
 
 /**

@@ -20,6 +20,12 @@ void p_obj_init(p_obj_t obj, const char *name, uint8_t type)
     arch_irq_unlock(key);
 }
 
+uint8_t p_obj_get_type(p_obj_t obj)
+{
+    struct p_obj *object = obj;
+    
+    return object->type & P_OBJ_TYPE_MASK;
+}
 void p_obj_deinit(p_obj_t obj)
 {
     struct p_obj *object = obj;
