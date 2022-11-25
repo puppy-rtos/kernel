@@ -43,7 +43,7 @@ int p_sched(void)
             }
         }
 
-        arch_swap();
+        arch_swap(key);
     }
 
     arch_irq_unlock(key);

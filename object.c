@@ -9,12 +9,13 @@
 
 static p_list_t _g_obj_list = P_LIST_STATIC_INIT(&_g_obj_list);
 
-void p_obj_init(p_obj_t obj, const char *name, uint8_t type)
+void p_obj_init(p_obj_t obj, const char *name, uint8_t type, uint8_t ex_type)
 {
     struct p_obj *object = obj;
     p_base_t key;
     object->name = name;
-    object->type = type & (P_OBJ_TYPE_MASK | P_OBJ_TYPE_STATIC);
+    type = type & (P_OBJ_TYPE_MASK | P_OBJ_TYPE_STATIC);
+    object->type = (uint16_t)type | ((uint16_t)ex_type << 8);
     key = arch_irq_lock();
     p_list_append(&_g_obj_list, &object->node);
     arch_irq_unlock(key);
@@ -25,6 +26,12 @@ uint8_t p_obj_get_type(p_obj_t obj)
     struct p_obj *object = obj;
     
     return object->type & P_OBJ_TYPE_MASK;
+}
+uint8_t p_obj_get_extype(p_obj_t obj)
+{
+    struct p_obj *object = obj;
+    
+    return object->type >> 8;
 }
 void p_obj_deinit(p_obj_t obj)
 {

@@ -14,9 +14,10 @@
 #define P_UNUSED(x)                   ((void)x)
 
 /* Puppy-RTOS object definitions */
-typedef size_t            p_base_t;
+typedef size_t            p_ubase_t;
+typedef ssize_t           p_base_t;
 typedef void             *p_obj_t;
-typedef p_base_t          p_tick_t;
+typedef p_ubase_t         p_tick_t;
 typedef volatile p_base_t p_atomic_t;    /**< Type for atomic */
 
 /* Puppy-RTOS error code definitions */
@@ -69,8 +70,12 @@ typedef int (*p_ctl_t) (p_obj_t obj, int cmd, void *args);
 #define P_OBJ_NAME_MAX 8
 
 #define P_OBJ_TYPE_THREAD   0x01
+#define P_OBJ_TYPE_IPC      0x02
 #define P_OBJ_TYPE_MASK     0x007F
 #define P_OBJ_TYPE_STATIC   0x0080
+
+/* IPC */
+#define P_OBJ_TYPE_IPC_SEM  0x01
 
 // #define P_OBJ_SHARE_NONE    0x00;
 // #define P_OBJ_SHARE_GLOBLE  0x01;
@@ -86,9 +91,10 @@ struct p_obj
     p_node_t    node;    /* May be linked kernel:k_obj_list or thread:t_obj_list or group:g_obj_list */
 };
 
-void p_obj_init(p_obj_t obj, const char *name, uint8_t type);
+void p_obj_init(p_obj_t obj, const char *name, uint8_t type, uint8_t ex_type);
 p_obj_t p_obj_find(const char *name);
 uint8_t p_obj_get_type(p_obj_t obj);
+uint8_t p_obj_get_extype(p_obj_t obj);
 p_obj_t p_obj_ioctl(p_obj_t obj, int cmd, void *args);
 void p_obj_deinit(p_obj_t obj);
 
@@ -100,6 +106,7 @@ void p_obj_deinit(p_obj_t obj);
 p_base_t arch_irq_lock(void);
 void arch_irq_unlock(p_base_t key);
 bool arch_irq_locked(p_base_t key);
+void arch_swap(unsigned int key);
 
 /*
  * atomic interfaces
@@ -141,10 +148,14 @@ typedef struct p_thread_attr
     uint8_t     reserved[3];
 } p_thread_attr_t;
 
+typedef void (*p_timeout_func) (p_obj_t obj, void *param);
+
 typedef struct timeout
 {
-    p_base_t tick;
-    p_node_t node;
+    p_base_t         tick;
+    p_timeout_func   func;
+    void            *param;
+    p_node_t         node;
 }p_timeout_t;
 
 struct _thread_obj

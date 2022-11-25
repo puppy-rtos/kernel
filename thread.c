@@ -5,6 +5,7 @@
  */
 
 #include <puppy.h>
+#include <string.h>
 
 #define P_THREAD_SLICE_DEFAULT 10
 
@@ -33,7 +34,7 @@ void p_thread_init(p_obj_t obj, const char *name,
     struct _thread_obj *thread = obj;
     
 
-    p_obj_init(&thread->kobj, name, P_OBJ_TYPE_THREAD | P_OBJ_TYPE_STATIC);
+    p_obj_init(&thread->kobj, name, P_OBJ_TYPE_THREAD | P_OBJ_TYPE_STATIC, NULL);
     
     thread->entry = entry;
     thread->param = param;
@@ -66,6 +67,7 @@ int p_thread_abort(p_obj_t obj)
     p_sched();
     
     arch_irq_unlock(key);
+    return 0;
 }
 
 int p_thread_yield(void)
@@ -80,6 +82,15 @@ int p_thread_yield(void)
     p_sched();
     
     arch_irq_unlock(key);
+    return 0;
+}
+
+void sleep_timeout_func(p_obj_t obj, void *param)
+{
+    struct _thread_obj *_thread = obj;
+    _thread->error = -P_ETIMEOUT;
+    p_thread_resume(_thread);
+    p_sched();
 }
 
 int p_thread_sleep(p_tick_t tick)
@@ -92,6 +103,8 @@ int p_thread_sleep(p_tick_t tick)
     P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
 
     _thread->timeout.tick = p_tick_get() + tick;
+    _thread->timeout.func = sleep_timeout_func;
+    _thread->timeout.param = NULL;
     timeout_insert(&_thread->timeout);
     p_thread_suspend(_thread);
     p_sched();
@@ -142,7 +155,8 @@ _exit:
 }
 int p_thread_block(p_obj_t obj)
 {
-
+    
+    return -P_ENOSYS;
 }
 int p_thread_start(p_obj_t obj)
 {
@@ -226,9 +240,11 @@ _next:
         P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
         /* timeout ok */
         p_list_remove(&timeout->node);
-        _thread->error = -P_ETIMEOUT;
-        p_thread_resume(_thread);
-        p_sched();
+        /* todo */
+        if (timeout->func)
+        {
+            timeout->func(_thread, timeout->param);
+        }
         goto _next;
     }
 }

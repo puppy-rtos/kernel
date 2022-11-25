@@ -7,7 +7,7 @@
 #include <puppy.h>
 
 static p_atomic_t _g_tick;
-static p_base_t _tick_persec;
+static int _tick_persec;
 
 void p_tick_init(int tick_persec)
 {
