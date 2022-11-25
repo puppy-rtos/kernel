@@ -93,6 +93,25 @@ void sleep_timeout_func(p_obj_t obj, void *param)
     p_sched();
 }
 
+int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param)
+{
+    struct _thread_obj *_thread = _g_curr_thread;
+    
+    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
+    
+    /* todo check timeout node */
+    {
+
+    }
+    
+    _thread->timeout.tick = p_tick_get() + timeout;
+    _thread->timeout.func = func;
+    _thread->timeout.param = param;
+    timeout_insert(&_thread->timeout);
+    return 0;
+}
+
 int p_thread_sleep(p_tick_t tick)
 {
     struct _thread_obj *_thread = _g_curr_thread;
@@ -101,11 +120,9 @@ int p_thread_sleep(p_tick_t tick)
 
     P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
+    
+    p_thread_set_timeout(tick, sleep_timeout_func, NULL);
 
-    _thread->timeout.tick = p_tick_get() + tick;
-    _thread->timeout.func = sleep_timeout_func;
-    _thread->timeout.param = NULL;
-    timeout_insert(&_thread->timeout);
     p_thread_suspend(_thread);
     p_sched();
 
@@ -226,6 +243,7 @@ static int timeout_remove(struct timeout *timeout)
     arch_irq_unlock(key);
     return 0;
 }
+
 void thread_timeout_cb(p_base_t tick)
 {
     struct timeout *timeout;

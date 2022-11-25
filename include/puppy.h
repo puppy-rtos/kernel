@@ -193,6 +193,7 @@ p_obj_t p_thread_create(const char *name,
 int p_thread_start(p_obj_t obj);
 int p_thread_yield(void);
 int p_thread_suspend(p_obj_t obj);
+int p_thread_wakeup(p_obj_t obj);
 int p_thread_resume(p_obj_t obj);
 int p_thread_block(p_obj_t obj);
 int p_thread_sleep(p_tick_t tick);
@@ -202,7 +203,8 @@ int p_thread_getattr(p_obj_t obj, p_thread_attr_t *attr);
 p_obj_t p_thread_self(void);
 int p_thread_abort(p_obj_t obj);
 
-void thread_timeout_cb(p_base_t tick);      
+void thread_timeout_cb(p_base_t tick);     
+int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param);                     
 void p_thread_entry(void (*entry)(void *parameter), void *param);
 void arch_new_thread(struct _thread_obj *thread,
                             void    *stack_addr,
