@@ -28,5 +28,12 @@ void p_set_errno(int errno)
 
 const char *p_errno_str(int errno)
 {
-    return "unknown";
+    if (errno == P_EOK)            return" OK";
+    else if (errno == P_EINVAL)    return" INVAL";
+    else if (errno == P_EISR)      return" ISR";
+    else if (errno == P_ETIMEOUT)  return" TIMEOUT";
+    else if (errno == P_EBUSY)     return" BUSY";
+    else if (errno == P_ENOSYS)    return" NOSYS";
+    else if (errno == P_ESYSCALL)  return" SYSCALL";
+    else return "unknown";
 }

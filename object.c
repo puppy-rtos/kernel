@@ -60,3 +60,49 @@ p_obj_t p_obj_find(const char *name)
     }
     return NULL;
 }
+
+
+void list_thread(void)
+{
+    p_node_t *node;
+    struct p_obj *object;
+    int maxlen;
+
+    maxlen = 8;
+
+    printk("thread   pri  state   stack size max used left tick  error\n");
+    printk("-------  ---  ------- ----------  ------  ---------- ------\n");
+    
+    p_list_for_each_node(&_g_obj_list, node)
+    {
+        object = p_list_entry(node, struct p_obj, node);
+        if (p_obj_get_type(object) != P_OBJ_TYPE_THREAD)
+        {
+            continue;
+        }
+        {
+            uint8_t stat;
+            uint8_t *ptr;
+            struct _thread_obj *thread = object;
+
+            printk("%-*.*s %3d ", maxlen, maxlen, thread->kobj.name, thread->prio);
+
+            stat = thread->state;
+            if (stat == P_THREAD_STATE_READY)        printk(" ready  ");
+            else if (stat == P_THREAD_STATE_BLOCK)   printk(" blocked");
+            else if (stat == P_THREAD_STATE_INIT)    printk(" init   ");
+            else if (stat == P_THREAD_STATE_DEAD)    printk(" dead   ");
+            else if (stat == P_THREAD_STATE_RUN)     printk(" running");
+            else if (stat == P_THREAD_STATE_SLEEP)   printk(" sleep  ");
+
+            ptr = (uint8_t *)thread->stack_addr;
+            while (*ptr == '#') ptr ++;
+            printk(" 0x%08x    %02d%%   0x%08x %s\n",
+                        thread->stack_size,
+                        (thread->stack_size - ((p_ubase_t) ptr - (p_ubase_t) thread->stack_addr)) * 100
+                        / thread->stack_size,
+                        thread->slice_ticks,
+                        p_errno_str(thread->errno));
+        }
+    }
+}
