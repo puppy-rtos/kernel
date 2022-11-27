@@ -32,7 +32,6 @@ void p_thread_init(p_obj_t obj, const char *name,
                                 uint8_t  prio)
 {
     struct _thread_obj *thread = obj;
-    
 
     p_obj_init(&thread->kobj, name, P_OBJ_TYPE_THREAD | P_OBJ_TYPE_STATIC, NULL);
     
@@ -78,7 +77,7 @@ int p_thread_yield(void)
     P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
 
-    p_sched_insert(_thread);
+    p_sched_ready_insert(_thread);
     p_sched();
     
     arch_irq_unlock(key);
@@ -88,8 +87,8 @@ int p_thread_yield(void)
 void sleep_timeout_func(p_obj_t obj, void *param)
 {
     struct _thread_obj *_thread = obj;
-    _thread->error = -P_ETIMEOUT;
-    p_thread_resume(_thread);
+    _thread->errno = P_ETIMEOUT;
+    p_sched_ready_insert(_thread);
     p_sched();
 }
 
@@ -99,12 +98,14 @@ int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param)
     
     P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
+    P_ASSERT(p_node_is_linked(&_thread->timeout.node) == false);
     
-    /* todo check timeout node */
+    /* check timeout node */
+    if(p_node_is_linked(&_thread->timeout.node))
     {
-
+        return -P_EINVAL;
     }
-    
+
     _thread->timeout.tick = p_tick_get() + timeout;
     _thread->timeout.func = func;
     _thread->timeout.param = param;
@@ -123,7 +124,8 @@ int p_thread_sleep(p_tick_t tick)
     
     p_thread_set_timeout(tick, sleep_timeout_func, NULL);
 
-    p_thread_suspend(_thread);
+    _thread->state = P_THREAD_STATE_SLEEP;
+
     p_sched();
 
 _exit:
@@ -131,7 +133,21 @@ _exit:
     return err;
 }
 
-int p_thread_suspend(p_obj_t obj)
+int p_thread_wakeup(p_obj_t obj)
+{
+    struct _thread_obj *_thread = obj;
+    int err = P_EOK;
+    p_base_t key = arch_irq_lock();
+    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+
+    p_sched_ready_insert(_thread);
+
+_exit:
+    arch_irq_unlock(key);
+    return err;
+}
+
+int p_thread_block(p_obj_t obj)
 {
     struct _thread_obj *_thread = obj;
     int err = P_EOK;
@@ -144,44 +160,18 @@ int p_thread_suspend(p_obj_t obj)
         err = -P_EINVAL;
         goto _exit;
     }
-    _thread->state = P_THREAD_STATE_SLEEP;
+    _thread->state = P_THREAD_STATE_BLOCK;
 
 _exit:
     arch_irq_unlock(key);
     return err;
 }
 
-int p_thread_resume(p_obj_t obj)
-{
-    struct _thread_obj *_thread = obj;
-    int err = P_EOK;
-    p_base_t key = arch_irq_lock();
-    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
-    P_ASSERT(_thread->state == P_THREAD_STATE_SLEEP);
-
-    if (_thread->state != P_THREAD_STATE_SLEEP)
-    {
-        err = -P_EINVAL;
-        goto _exit;
-    }
-    p_sched_insert(_thread);
-
-_exit:
-    arch_irq_unlock(key);
-    return err;
-}
-int p_thread_block(p_obj_t obj)
-{
-    
-    return -P_ENOSYS;
-}
 int p_thread_start(p_obj_t obj)
 {
     P_ASSERT(p_obj_get_type(obj) == P_OBJ_TYPE_THREAD);
-    // struct _thread_obj *thread = obj;
     
-    p_sched_insert(obj);
-    
+    p_sched_ready_insert(obj);
     p_sched();
     return 0;
 }

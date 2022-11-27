@@ -12,6 +12,7 @@ struct _thread_obj *_g_next_thread;
 static int sched_lock = 0;
 int p_sched(void)
 {
+    int ret = P_EOK;
     struct _thread_obj *_thread;
     p_base_t key = arch_irq_lock();
 
@@ -23,7 +24,6 @@ int p_sched(void)
             P_ASSERT(p_list_is_empty(&ready_queue) == false);
             if (p_list_is_empty(&ready_queue))
             {
-//                printk("ready_queue is empty\r\n");
                 arch_irq_unlock(key);
                 return 0;
             }
@@ -39,15 +39,16 @@ int p_sched(void)
             if (_g_curr_thread && _g_curr_thread->state == P_THREAD_STATE_RUN)
             {
                 _g_curr_thread->state = P_THREAD_STATE_READY;
-                p_sched_insert(_g_curr_thread);
+                p_sched_ready_insert(_g_curr_thread);
             }
         }
 
         arch_swap(key);
+        ret = p_get_errno();
     }
 
     arch_irq_unlock(key);
-    return 0;
+    return -ret;
 }
 
 void p_sched_lock(void)
@@ -60,7 +61,7 @@ void p_sched_unlock(void)
     p_sched();
 }
 
-int p_sched_insert(p_obj_t thread)
+int p_sched_ready_insert(p_obj_t thread)
 {
     struct _thread_obj *old_thread = NULL, *temp_thread = NULL,*_thread = thread;
     p_base_t key = arch_irq_lock();

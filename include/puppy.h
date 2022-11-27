@@ -171,7 +171,7 @@ struct _thread_obj
 
     void        *entry;
     void        *param;
-    int          error;
+    int          errno;
 
     p_timeout_t  timeout;
     /** arch-specifics: must always be at the end */
@@ -192,10 +192,8 @@ p_obj_t p_thread_create(const char *name,
                         uint8_t  prio);
 int p_thread_start(p_obj_t obj);
 int p_thread_yield(void);
-int p_thread_suspend(p_obj_t obj);
-int p_thread_wakeup(p_obj_t obj);
-int p_thread_resume(p_obj_t obj);
 int p_thread_block(p_obj_t obj);
+int p_thread_wakeup(p_obj_t obj);
 int p_thread_sleep(p_tick_t tick);
 int p_thread_control(p_obj_t obj, int cmd, void *argv);
 int p_thread_getattr(p_obj_t obj, p_thread_attr_t *attr);
@@ -214,14 +212,24 @@ void arch_new_thread(struct _thread_obj *thread,
  */
 
 int p_sched(void);
-int p_sched_insert(p_obj_t thread);
-int p_sched_remove(p_obj_t thread);
+int p_sched_ready_insert(p_obj_t thread);
+int p_sched_ready_remove(p_obj_t thread);
 void p_sched_swap_out_cb(p_obj_t thread);
 void p_sched_swap_in_cb(p_obj_t thread);
 
 /**
  * sem api
  */
+struct _sem_obj
+{
+    struct p_obj kobj;
+    uint16_t    value;
+    uint16_t    max_value;
+    p_list_t    blocking_list;
+};
+void p_sem_init(p_obj_t obj, const char *name,
+                     uint32_t    init_value,
+                     uint32_t    max_value);
 p_obj_t p_sem_create(const char *name,
                      uint32_t    init_value,
                      uint32_t    max_value);

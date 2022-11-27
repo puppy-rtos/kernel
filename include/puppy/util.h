@@ -17,7 +17,7 @@
 #define P_ASSERT(EX)                                                          \
 if (!(EX))                                                                    \
 {                                                                             \
-    printk("(%s) at FUNC %s:L%d\r\n", #EX, __FUNCTION__, __LINE__);                 \
+    printk("(%s) at %s:L%d\r\n", #EX, __FUNCTION__, __LINE__);                 \
     while(1);                                                                 \
 }
 
@@ -92,6 +92,11 @@ static inline bool p_list_is_empty(p_list_t *list)
     return list->head == list;
 }
 
+static inline bool p_node_is_linked(p_node_t *node)
+{
+    return node->next != NULL;
+}
+
 /**
  * @brief add node to tail of list
  *
@@ -104,6 +109,7 @@ static inline bool p_list_is_empty(p_list_t *list)
 static inline void p_list_append(p_list_t *list, p_node_t *node)
 {
     p_node_t *const tail = list->tail;
+    P_ASSERT(p_node_is_linked(node) == false);
 
     node->next = list;
     node->prev = tail;
@@ -124,6 +130,7 @@ static inline void p_list_append(p_list_t *list, p_node_t *node)
 static inline void p_list_prepend(p_list_t *list, p_node_t *node)
 {
     p_node_t *const head = list->head;
+    P_ASSERT(p_node_is_linked(node) == false);
 
     node->next = head;
     node->prev = list;
@@ -143,6 +150,7 @@ static inline void p_list_prepend(p_list_t *list, p_node_t *node)
 static inline void p_list_insert(p_node_t *successor, p_node_t *node)
 {
 	p_node_t *const prev = successor->prev;
+    P_ASSERT(p_node_is_linked(node) == false);
 
 	node->prev = prev;
 	node->next = successor;
