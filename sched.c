@@ -29,7 +29,7 @@ int p_sched(void)
             }
             _thread = p_list_entry(ready_queue.head, struct _thread_obj, tnode);
             P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
-            if (_g_curr_thread && _g_curr_thread->state == P_THREAD_STATE_RUN && _thread->prio > _g_curr_thread->prio)
+            if (_g_curr_thread && _g_curr_thread->state == P_THREAD_STATE_RUN && _thread->prio >= _g_curr_thread->prio)
             {
                 arch_irq_unlock(key);
                 return 0;
