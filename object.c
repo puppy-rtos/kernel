@@ -83,7 +83,7 @@ void list_thread(void)
         {
             uint8_t stat;
             uint8_t *ptr;
-            struct _thread_obj *thread = object;
+            struct _thread_obj *thread = (struct _thread_obj *)object;
 
             printk("%-*.*s %3d ", maxlen, maxlen, thread->kobj.name, thread->prio);
 

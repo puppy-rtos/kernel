@@ -7,12 +7,10 @@
 #ifndef PUPPY_INC_UTIL_H__
 #define PUPPY_INC_UTIL_H__
 
-#if 1
-#include <stdio.h>
-#define printk(fmt, ...)    printf(fmt, ##__VA_ARGS__)
-#else
-#define printk(fmt, ...)
-#endif
+int p_hw_borad_init(void);
+int p_hw_cons_getc(void);
+int p_hw_cons_output(const char *str, int len);
+int printk(const char *fmt, ...);
 
 #define P_ASSERT(EX)                                                          \
 if (!(EX))                                                                    \

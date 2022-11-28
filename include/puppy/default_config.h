@@ -12,13 +12,15 @@
 #endif
 
 #ifndef P_IDLE_THREAD_STACK_SIZE
-#define P_IDLE_THREAD_STACK_SIZE  512
+#define P_IDLE_THREAD_STACK_SIZE  128
 #endif
 
 #ifndef P_MAIN_THREAD_STACK_SIZE
 #define P_MAIN_THREAD_STACK_SIZE  512
 #endif
 
-
+#ifndef P_PRINTK_BUF_SIZE
+#define P_PRINTK_BUF_SIZE  512
+#endif
 
 #endif

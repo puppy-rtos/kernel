@@ -200,6 +200,7 @@ int p_thread_getattr(p_obj_t obj, p_thread_attr_t *attr);
 /* todo: int p_thread_delete(p_obj_t obj); */
 p_obj_t p_thread_self(void);
 int p_thread_abort(p_obj_t obj);
+void list_thread(void);
 
 void thread_timeout_cb(p_base_t tick);     
 int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param);                     

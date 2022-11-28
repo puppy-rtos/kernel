@@ -30,6 +30,12 @@ int $Sub$$main(void)
     puppy_init();
     return 0;
 }
+#elif defined(__GNUC__)
+int entry(void)
+{
+    puppy_init();
+    return 0;
+}
 #endif
 
 void main_thread_entry(void *parm)
@@ -41,12 +47,15 @@ void main_thread_entry(void *parm)
     p_thread_start(&_idle);
 #ifdef __ARMCC_VERSION
     $Super$$main(); /* for ARMCC. */
+#elif defined(__GNUC__)
+    main();
 #endif
 }
 
 void puppy_init(void)
 {
     /*  */
+    p_hw_borad_init();
     p_thread_init(&_main, "main", main_thread_entry, NULL,
                   _main_thread_stack,
                   sizeof(_main_thread_stack), 1);

@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +18,8 @@ extern "C" {
 #if defined(__ARMCC_VERSION)           /* ARM Compiler */
 typedef unsigned long ssize_t;
 #endif
+
+#define P_WEAK __attribute__((weak))
 
 typedef union {
     long long       thelonglong;
