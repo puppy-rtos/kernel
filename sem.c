@@ -5,6 +5,9 @@
  */
 #include <puppy.h>
 
+#define KLOG_TAG  "sem"
+#define KLOG_LVL   KLOG_WARNING
+#include <puppy/klog.h>
 
 void p_sem_init(p_obj_t obj, const char *name,
                      uint32_t    init_value,
@@ -40,7 +43,7 @@ void _block_thread(p_list_t *list, struct _thread_obj *thread)
         while(pos != list) 
         {
             temp_thread = p_list_entry(pos, struct _thread_obj, tnode);
-            P_ASSERT(p_obj_get_type(temp_thread) == P_OBJ_TYPE_THREAD);
+            KLOG_ASSERT(p_obj_get_type(temp_thread) == P_OBJ_TYPE_THREAD);
             if (temp_thread->prio > thread->prio)
             {
                 break;
@@ -72,8 +75,8 @@ int p_sem_post(p_obj_t obj)
 {
     struct _sem_obj *sem = obj;
     p_base_t key = arch_irq_lock();
-    P_ASSERT(p_obj_get_type(sem) == P_OBJ_TYPE_IPC);
-    P_ASSERT(p_obj_get_extype(sem) == P_OBJ_TYPE_IPC_SEM);
+    KLOG_ASSERT(p_obj_get_type(sem) == P_OBJ_TYPE_IPC);
+    KLOG_ASSERT(p_obj_get_extype(sem) == P_OBJ_TYPE_IPC_SEM);
 
     if (sem->value < sem->max_value)
     {

@@ -12,13 +12,6 @@ int p_hw_cons_getc(void);
 int p_hw_cons_output(const char *str, int len);
 int printk(const char *fmt, ...);
 
-#define P_ASSERT(EX)                                                          \
-if (!(EX))                                                                    \
-{                                                                             \
-    printk("(%s) at %s:L%d\r\n", #EX, __FUNCTION__, __LINE__);                 \
-    while(1);                                                                 \
-}
-
 #define P_TC_PASS()         printk("Test Passed!\r\n");
 #define P_TC_FAIL()         printk("Test Failed!\r\n"); 
 #define P_TC_LOG(...)   do {printk(__VA_ARGS__); printk("\r\n");} while (0);
@@ -107,7 +100,6 @@ static inline bool p_node_is_linked(p_node_t *node)
 static inline void p_list_append(p_list_t *list, p_node_t *node)
 {
     p_node_t *const tail = list->tail;
-    P_ASSERT(p_node_is_linked(node) == false);
 
     node->next = list;
     node->prev = tail;
@@ -128,7 +120,6 @@ static inline void p_list_append(p_list_t *list, p_node_t *node)
 static inline void p_list_prepend(p_list_t *list, p_node_t *node)
 {
     p_node_t *const head = list->head;
-    P_ASSERT(p_node_is_linked(node) == false);
 
     node->next = head;
     node->prev = list;
@@ -148,7 +139,6 @@ static inline void p_list_prepend(p_list_t *list, p_node_t *node)
 static inline void p_list_insert(p_node_t *successor, p_node_t *node)
 {
 	p_node_t *const prev = successor->prev;
-    P_ASSERT(p_node_is_linked(node) == false);
 
 	node->prev = prev;
 	node->next = successor;

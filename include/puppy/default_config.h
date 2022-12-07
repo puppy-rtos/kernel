@@ -23,4 +23,7 @@
 #define P_PRINTK_BUF_SIZE  512
 #endif
 
+#define KLOG_ENABLE
+#define KLOG_COLOR
+
 #endif

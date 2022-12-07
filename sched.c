@@ -6,6 +6,10 @@
 
 #include <puppy.h>
 
+#define KLOG_TAG  "sched"
+#define KLOG_LVL   KLOG_WARNING
+#include <puppy/klog.h>
+
 static p_list_t ready_queue = P_LIST_STATIC_INIT(&ready_queue);
 struct _thread_obj *_g_curr_thread;
 struct _thread_obj *_g_next_thread;
@@ -21,14 +25,14 @@ int p_sched(void)
         if (!_g_next_thread)
         {
             /* get prio higest thread */
-            P_ASSERT(p_list_is_empty(&ready_queue) == false);
+            KLOG_ASSERT(p_list_is_empty(&ready_queue) == false);
             if (p_list_is_empty(&ready_queue))
             {
                 arch_irq_unlock(key);
                 return 0;
             }
             _thread = p_list_entry(ready_queue.head, struct _thread_obj, tnode);
-            P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+            KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
             if (_g_curr_thread && _g_curr_thread->state == P_THREAD_STATE_RUN && _thread->prio >= _g_curr_thread->prio)
             {
                 arch_irq_unlock(key);
@@ -67,12 +71,12 @@ int p_sched_ready_insert(p_obj_t thread)
     p_base_t key = arch_irq_lock();
 
     p_node_t *node;
-    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     
     p_list_for_each_node(&ready_queue, node)
     {
         temp_thread = p_list_entry(node, struct _thread_obj, tnode);
-        P_ASSERT(p_obj_get_type(temp_thread) == P_OBJ_TYPE_THREAD);
+        KLOG_ASSERT(p_obj_get_type(temp_thread) == P_OBJ_TYPE_THREAD);
         if (temp_thread->prio > _thread->prio)
         {
             /* find out insert node */
@@ -100,7 +104,7 @@ int p_sched_remove(p_obj_t thread)
     struct _thread_obj *_thread = thread;
     p_base_t key = arch_irq_lock();
     
-    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
 
     p_list_remove(&_thread->tnode);
 
@@ -111,14 +115,14 @@ int p_sched_remove(p_obj_t thread)
 void p_sched_swap_out_cb(p_obj_t thread)
 {
     P_UNUSED(thread);
-    P_ASSERT(p_obj_get_type(_g_curr_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(p_obj_get_type(_g_curr_thread) == P_OBJ_TYPE_THREAD);
     _g_curr_thread = NULL;
 }
 
 void p_sched_swap_in_cb(p_obj_t thread)
 {
     P_UNUSED(thread);
-    P_ASSERT(p_obj_get_type(_g_next_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(p_obj_get_type(_g_next_thread) == P_OBJ_TYPE_THREAD);
     _g_next_thread->state = P_THREAD_STATE_RUN;
     _g_curr_thread = _g_next_thread;
     _g_next_thread = NULL;

@@ -6,6 +6,10 @@
 
 #include <puppy.h>
 
+#define KLOG_TAG  "init"
+#define KLOG_LVL   KLOG_WARNING
+#include <puppy/klog.h>
+
 static struct _thread_obj _idle;
 __attribute__((aligned(P_ALIGN_SIZE)))
 uint8_t _idle_thread_stack[P_IDLE_THREAD_STACK_SIZE];
@@ -40,6 +44,7 @@ int entry(void)
 
 void main_thread_entry(void *parm)
 {
+    KLOG_D("main_thread_entry...");
     p_thread_init(&_idle, "idle", idle_thread_entry, NULL,
                   _idle_thread_stack,
                   sizeof(_idle_thread_stack),

@@ -7,6 +7,10 @@
 #include <puppy.h>
 #include <string.h>
 
+#define KLOG_TAG  "thread"
+#define KLOG_LVL   KLOG_WARNING
+#include <puppy/klog.h>
+
 #define P_THREAD_SLICE_DEFAULT 10
 
 static p_list_t thread_timeout_list = P_LIST_STATIC_INIT(&thread_timeout_list);
@@ -16,10 +20,13 @@ extern struct _thread_obj *_g_curr_thread;
 
 void p_thread_entry(void (*entry)(void *parameter), void *param)
 {
+    KLOG_D("p_thread_entry enter...");
     if (entry)
     {
         entry(param);
     }
+    
+    KLOG_D("p_thread_entry exit...");
     p_thread_abort(p_thread_self());
     while (1);
 }
@@ -43,6 +50,9 @@ void p_thread_init(p_obj_t obj, const char *name,
     thread->slice_ticks = P_THREAD_SLICE_DEFAULT;
     thread->state = P_THREAD_STATE_INIT;
     
+    KLOG_D("thread_init -->[%s], entry:0x%x, stack_addr:0x%x, stack_size:%d ",
+                               name, entry, stack_addr, stack_size);
+    
     memset(stack_addr,0x23, stack_size);
 
     arch_new_thread(thread, stack_addr, stack_size);
@@ -50,8 +60,8 @@ void p_thread_init(p_obj_t obj, const char *name,
 
 p_obj_t p_thread_self(void)
 {
-    P_ASSERT(_g_curr_thread != NULL);
-    P_ASSERT(p_obj_get_type(_g_curr_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(_g_curr_thread != NULL);
+    KLOG_ASSERT(p_obj_get_type(_g_curr_thread) == P_OBJ_TYPE_THREAD);
     return _g_curr_thread;
 }
 
@@ -59,7 +69,7 @@ int p_thread_abort(p_obj_t obj)
 {
     struct _thread_obj *_thread = _g_curr_thread;
     p_base_t key = arch_irq_lock();
-    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
 
     _thread->state = P_THREAD_STATE_DEAD;
     timeout_remove(&_thread->timeout);
@@ -74,8 +84,8 @@ int p_thread_yield(void)
     struct _thread_obj *_thread = _g_curr_thread;
     p_base_t key = arch_irq_lock();
     
-    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
-    P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
+    KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
 
     p_sched_ready_insert(_thread);
     p_sched();
@@ -96,9 +106,9 @@ int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param)
 {
     struct _thread_obj *_thread = _g_curr_thread;
     
-    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
-    P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
-    P_ASSERT(p_node_is_linked(&_thread->timeout.node) == false);
+    KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
+    KLOG_ASSERT(p_node_is_linked(&_thread->timeout.node) == false);
     
     /* check timeout node */
     if(p_node_is_linked(&_thread->timeout.node))
@@ -119,8 +129,8 @@ int p_thread_sleep(p_tick_t tick)
     int err = P_EOK;
     p_base_t key = arch_irq_lock();
 
-    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
-    P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
+    KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
     
     p_thread_set_timeout(tick, sleep_timeout_func, NULL);
 
@@ -138,7 +148,7 @@ int p_thread_wakeup(p_obj_t obj)
     struct _thread_obj *_thread = obj;
     int err = P_EOK;
     p_base_t key = arch_irq_lock();
-    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
 
     p_sched_ready_insert(_thread);
 
@@ -152,8 +162,8 @@ int p_thread_block(p_obj_t obj)
     struct _thread_obj *_thread = obj;
     int err = P_EOK;
     p_base_t key = arch_irq_lock();
-    P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
-    P_ASSERT(_thread->state == P_THREAD_STATE_RUN);
+    KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
 
     if (_thread->state != P_THREAD_STATE_RUN)
     {
@@ -169,7 +179,7 @@ _exit:
 
 int p_thread_start(p_obj_t obj)
 {
-    P_ASSERT(p_obj_get_type(obj) == P_OBJ_TYPE_THREAD);
+    KLOG_ASSERT(p_obj_get_type(obj) == P_OBJ_TYPE_THREAD);
     
     p_sched_ready_insert(obj);
     p_sched();
@@ -245,7 +255,7 @@ _next:
         _thread = p_list_entry(timeout,
                             struct _thread_obj, timeout);
         
-        P_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
+        KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
         /* timeout ok */
         p_list_remove(&timeout->node);
         /* todo */

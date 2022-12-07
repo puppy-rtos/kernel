@@ -7,18 +7,25 @@
 #include <puppy.h>
 #include <string.h>
 
+#define KLOG_TAG  "obj"
+#define KLOG_LVL   KLOG_WARNING
+#include <puppy/klog.h>
+
 static p_list_t _g_obj_list = P_LIST_STATIC_INIT(&_g_obj_list);
 
 void p_obj_init(p_obj_t obj, const char *name, uint8_t type, uint8_t ex_type)
 {
     struct p_obj *object = obj;
     p_base_t key;
+
+    KLOG_D("p_obj_init --> [%s], type:%x, ex_type:%x...", name, type, ex_type);
     object->name = name;
     type = type & (P_OBJ_TYPE_MASK | P_OBJ_TYPE_STATIC);
     object->type = (uint16_t)type | ((uint16_t)ex_type << 8);
     key = arch_irq_lock();
     p_list_append(&_g_obj_list, &object->node);
     arch_irq_unlock(key);
+    KLOG_D("done");
 }
 
 uint8_t p_obj_get_type(p_obj_t obj)
@@ -37,12 +44,14 @@ void p_obj_deinit(p_obj_t obj)
 {
     struct p_obj *object = obj;
     p_base_t key;
+    KLOG_D("p_obj_deinit --> [%s]...", object->name);
     key = arch_irq_lock();
     if (object->type & P_OBJ_TYPE_STATIC)
     {
         p_list_remove(&object->node);
     }
     arch_irq_unlock(key);
+    KLOG_D("done");
 }
 
 p_obj_t p_obj_find(const char *name)
