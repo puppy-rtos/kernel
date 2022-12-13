@@ -6,7 +6,7 @@
 
 
 #include <puppy.h>
-#include "stm32f4xx_hal.h"
+#include <puppy/target.h>
 
 extern struct _thread_obj *_g_curr_thread;
 extern struct _thread_obj *_g_next_thread;

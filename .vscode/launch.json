@@ -1,0 +1,22 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cortex Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "build/gcc/cortex-m4/debug/kernel.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "Reset_handler",
+            "servertype": "stlink",
+            "armToolchainPath": "D:\\Progm\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin",
+            "gdbPath": "D:\\Progm\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin\\arm-none-eabi-gdb.exe",
+            "stlinkPath": "D:\\Progm\\RT-ThreadStudio\\repo\\Extract\\Debugger_Support_Packages\\STMicroelectronics\\ST-LINK_Debugger\\1.6.0\\ST-LINK_gdbserver.exe",
+            "stm32cubeprogrammer": "D:\\Progm\\RT-ThreadStudio\\repo\\Extract\\Debugger_Support_Packages\\STMicroelectronics\\ST-LINK_Debugger\\1.6.0\\tools\\bin",
+            "svdFile": "D:/Progm/STM32/CubeProgrammer/SVD/STM32F412.svd"
+        }
+    ]
+}

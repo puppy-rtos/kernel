@@ -42,6 +42,11 @@ int entry(void)
 }
 #endif
 
+P_WEAK void main(void)
+{
+    ;
+}
+
 void main_thread_entry(void *parm)
 {
     KLOG_D("main_thread_entry...");
@@ -55,6 +60,11 @@ void main_thread_entry(void *parm)
 #elif defined(__GNUC__)
     main();
 #endif
+}
+
+P_WEAK int p_hw_borad_init(void)
+{
+    return 0;
 }
 
 void puppy_init(void)
