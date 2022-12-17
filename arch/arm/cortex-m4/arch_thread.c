@@ -150,7 +150,92 @@ __attribute__((always_inline)) static inline void do_swap(void)
     __asm ("    BX      lr");
 }
 
-void PendSV_Handler(void)
+__attribute__((naked)) void PendSV_Handler(void)
 {
     do_swap();
+}
+
+struct exception_info
+{
+    uint32_t exc_return;
+    struct stack_frame stack_frame;
+};
+
+void dump_contex_esf(_esf_t *esf)
+{
+    printk("psr: 0x%08x\n", esf->psr);
+    printk("r00: 0x%08x\n", esf->r0);
+    printk("r01: 0x%08x\n", esf->r1);
+    printk("r02: 0x%08x\n", esf->r2);
+    printk("r03: 0x%08x\n", esf->r3);
+    printk("r12: 0x%08x\n", esf->r12);
+    printk(" lr: 0x%08x\n", esf->lr);
+    printk(" pc: 0x%08x\n", esf->pc);
+}
+
+void dump_contex(struct stack_frame *context)
+{
+    printk("psr: 0x%08x\n", context->esf.psr);
+    printk("r00: 0x%08x\n", context->esf.r0);
+    printk("r01: 0x%08x\n", context->esf.r1);
+    printk("r02: 0x%08x\n", context->esf.r2);
+    printk("r03: 0x%08x\n", context->esf.r3);
+    printk("r04: 0x%08x\n", context->r4);
+    printk("r05: 0x%08x\n", context->r5);
+    printk("r06: 0x%08x\n", context->r6);
+    printk("r07: 0x%08x\n", context->r7);
+    printk("r08: 0x%08x\n", context->r8);
+    printk("r09: 0x%08x\n", context->r9);
+    printk("r10: 0x%08x\n", context->r10);
+    printk("r11: 0x%08x\n", context->r11);
+    printk("r12: 0x%08x\n", context->esf.r12);
+    printk(" lr: 0x%08x\n", context->esf.lr);
+    printk(" pc: 0x%08x\n", context->esf.pc);
+}
+
+void arch_hardfault_exception(struct exception_info *exception_info)
+{
+    struct stack_frame *context = &exception_info->stack_frame;
+
+    if (exception_info->exc_return & (1 << 2))
+    {
+        printk("hard fault on thread: %s\n", p_thread_self_name());
+    }
+    else
+    {
+        printk("hard fault on handler\n");
+    }
+
+    if ( (exception_info->exc_return & 0x10) == 0)
+    {
+        printk("FPU active!\n");
+    }
+
+    dump_contex(context);
+    list_thread();
+
+    while (1);
+}
+
+__attribute__((naked)) void HardFault_Handler(void)
+{
+    // get current context
+    __asm ("    TST     lr, #0x04");
+    __asm ("    ITE     EQ");
+    __asm ("    MRSEQ   r0, msp");
+    __asm ("    MRSNE   r0, psp");
+    __asm ("    STMFD   r0!, {r4 - r11}      ");   // push r4 - r11 register
+    __asm ("    STMFD   r0!, {lr}      ");   // push r4 - r11 register
+
+    __asm ("    TST     lr, #0x04");
+    __asm ("    ITE     EQ");
+    __asm ("    MSREQ   msp, r0");
+    __asm ("    MSRNE   psp, r0");
+
+    __asm ("    PUSH    {lr}");
+    __asm ("    BL      arch_hardfault_exception");
+    __asm ("    POP     {lr}");
+
+    __asm ("    ORR     lr, lr, #0x04");
+    __asm ("    BX      lr");
 }

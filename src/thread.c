@@ -65,6 +65,13 @@ p_obj_t p_thread_self(void)
     return _g_curr_thread;
 }
 
+char *p_thread_self_name(void)
+{
+    KLOG_ASSERT(_g_curr_thread != NULL);
+    KLOG_ASSERT(p_obj_get_type(_g_curr_thread) == P_OBJ_TYPE_THREAD);
+    return _g_curr_thread->kobj.name;
+}
+
 int p_thread_abort(p_obj_t obj)
 {
     struct _thread_obj *_thread = _g_curr_thread;
