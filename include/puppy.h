@@ -137,6 +137,9 @@ int p_tick_persec(void);
 #define P_THREAD_STATE_RUN         0x04
 #define P_THREAD_STATE_DEAD        0x05
 
+#define P_THREAD_MODE_KENL         0x00
+#define P_THREAD_MODE_USER         0x01
+
 #define P_THREAD_PRIO_MAX          0xFF
 
 typedef struct p_thread_attr
@@ -163,6 +166,7 @@ struct _thread_obj
     struct p_obj kobj;
     uint8_t      state;
     uint8_t      prio;
+    uint8_t      mode;
     uint8_t      preved;
     void        *stack_addr;
     size_t       stack_size;
@@ -172,6 +176,7 @@ struct _thread_obj
     void        *entry;
     void        *param;
     int          errno;
+    void        *kernel_stack;
 
     p_timeout_t  timeout;
     /** arch-specifics: must always be at the end */
