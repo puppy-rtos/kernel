@@ -10,7 +10,23 @@
 
 __attribute__((aligned(4)))
 char _kernel_stack[1024];
-uint32_t _stack_top = (uint32_t)_kernel_stack + 1024;
+
+p_ubase_t user_stack_bak;
+
+p_ubase_t get_kernel_stack(void)
+{
+    return (p_ubase_t)_kernel_stack + sizeof(_kernel_stack);
+}
+
+p_ubase_t get_user_stack(void)
+{
+    return user_stack_bak;
+}
+
+void backup_user_stack(p_ubase_t stack)
+{
+    user_stack_bak = stack;
+}
 
 void p_svc_exit(void (*entry)(void *parameter), void *param)
 {
@@ -33,17 +49,23 @@ void SVC_Handler(void)
   /* get syscall_api entry */
   __asm ("bl syscall_get_api");
   __asm ("mov r7, r0");
+
+  __asm ("push {r7}");
+  /* backup user stack */
+  __asm ("mrs r0, psp");
+  __asm ("bl backup_user_stack");
+
+  /* change to kernel stack */
+  __asm ("bl get_kernel_stack");
+  __asm ("pop {r7}");
+  __asm ("mov r6, r0");
+  __asm ("pop {r0-r5}");
       /**
      * r0-r5: syscall args
-     * r6: temp reg
+     * r6: kernel stack
      * r7: syscall api entry
      * r8: svc orgn lr
      */
-  /* change to kernel stack */
-  __asm ("ldr r6, =_stack_top");
-  __asm ("ldr r6, [r6]");
-
-  __asm ("pop {r0-r5}");
   __asm ("    STMFD   r6!, {r4-r5}");
   __asm ("push {r0-r3}");
   /* push r12 lr pc psr */
