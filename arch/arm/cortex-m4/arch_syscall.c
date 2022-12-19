@@ -10,6 +10,11 @@
 // __attribute__((aligned(4)))
 // char _kernel_stack[1024];
 
+/**
+ * r0~r3,r12,lr,psr caller regs ; s0~s15
+ * r4~r11 called regs ; s16~s31
+ * 
+ */
 p_ubase_t user_stack_bak;
 
 p_ubase_t get_user_stack(void)
@@ -53,20 +58,15 @@ void SVC_Handler(void)
     __asm ("bl syscall_get_api");
     __asm ("mov r7, r0");
 
-    __asm ("push {r7}");
     /* backup user stack */
     __asm ("mrs r0, psp");
-
     __asm ("LDR     R9, [R0, #24]"); /* get user lr to r9 */
-    __asm ("add r9, #1"); /* Odd address, return to tumb mode */
-    __asm ("push {r9}");
-    __asm ("add r0, #0x24");
+    __asm ("add r9, #1"); /* todo Odd address, return to tumb mode */
+    __asm ("add r0, #36"); /* add 4*8=32 svc automatically pushed to psp ;todo double word alignment */
     __asm ("bl backup_user_stack");
 
     /* change to kernel stack */
     __asm ("bl get_kernel_stack");
-    __asm ("pop {r9}");
-    __asm ("pop {r7}");
     __asm ("mov r6, r0");
     __asm ("pop {r0-r5}");
       /**
@@ -108,7 +108,7 @@ __attribute__((naked)) void arch_syscall(int sycall_no, ...)
      * r1-r6: syscall args(r0-r5)
      */
     __asm ("svc 0");
-    __asm ("pop {r4, r5}");
+    __asm ("pop {r4, r5}"); /* Remove the reserved parameter position */
     __asm ("pop {lr}");
     __asm ("pop {r4-r7}");
     __asm ("bx lr");
