@@ -8,19 +8,23 @@
 #include <puppy.h>
 #include <puppy/target.h>
 
-__attribute__((aligned(4)))
-char _kernel_stack[1024];
+// __attribute__((aligned(4)))
+// char _kernel_stack[1024];
 
 p_ubase_t user_stack_bak;
-
-p_ubase_t get_kernel_stack(void)
-{
-    return (p_ubase_t)_kernel_stack + sizeof(_kernel_stack);
-}
 
 p_ubase_t get_user_stack(void)
 {
     return user_stack_bak;
+}
+
+p_ubase_t get_kernel_stack(void)
+{
+#if 0
+    return (p_ubase_t)_kernel_stack + sizeof(_kernel_stack);
+#else
+    return get_user_stack();
+#endif
 }
 
 void backup_user_stack(p_ubase_t stack)
@@ -68,9 +72,14 @@ void SVC_Handler(void)
      */
   __asm ("    STMFD   r6!, {r4-r5}");
   __asm ("push {r0-r3}");
+
+  /* get user lr */
+  __asm ("bl get_user_stack");
+  __asm ("    LDR     R1, [R0, #20]");
+
   /* push r12 lr pc psr */
   __asm ("    LDR     r0, =0");
-  __asm ("    LDR     r1, =p_svc_exit");
+//   __asm ("    LDR     r1, =p_svc_exit");
   __asm ("    mov     r2, r7");
   __asm ("    LDR     r3, =0x01000000UL");
   __asm ("    STMFD   r6!, {r0-r3}");
@@ -88,8 +97,14 @@ __asm ("    BX      lr");
 __attribute__((naked)) void arch_syscall(int sycall_no, ...)
 {
 	__asm ("push {r4-r7}");
+
+    /* r1-r6: syscall args(r0-r5) */
 	__asm ("add r7, sp,#16");
 	__asm ("ldmia r7,{r4-r6}");
+    /**
+     * r0: syscall number
+     * r1-r6: syscall args(r0-r5)
+     */
 	__asm ("svc 0");
 	__asm ("pop {r4-r7}");
 	__asm ("bx lr");
