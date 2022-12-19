@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #include <puppy.h>
 #include <puppy/target.h>
 
@@ -46,66 +45,71 @@ void SVC_Handler(void)
      * r7: syscall api entry
      * r8: svc orgn lr
      */
-  __asm ("mov r8, lr"); /* backup lr */
-  __asm ("push {r1-r6}");
-  /* get syscall_api entry */
-  __asm ("bl syscall_enter");
-  /* get syscall_api entry */
-  __asm ("bl syscall_get_api");
-  __asm ("mov r7, r0");
+    __asm ("mov r8, lr"); /* backup lr */
+    __asm ("push {r1-r6}");
+    /* get syscall_api entry */
+    __asm ("bl syscall_enter");
+    /* get syscall_api entry */
+    __asm ("bl syscall_get_api");
+    __asm ("mov r7, r0");
 
-  __asm ("push {r7}");
-  /* backup user stack */
-  __asm ("mrs r0, psp");
-  __asm ("bl backup_user_stack");
+    __asm ("push {r7}");
+    /* backup user stack */
+    __asm ("mrs r0, psp");
 
-  /* change to kernel stack */
-  __asm ("bl get_kernel_stack");
-  __asm ("pop {r7}");
-  __asm ("mov r6, r0");
-  __asm ("pop {r0-r5}");
+    __asm ("LDR     R9, [R0, #24]"); /* get user lr to r9 */
+    __asm ("add r9, #1"); /* Odd address, return to tumb mode */
+    __asm ("push {r9}");
+    __asm ("add r0, #0x24");
+    __asm ("bl backup_user_stack");
+
+    /* change to kernel stack */
+    __asm ("bl get_kernel_stack");
+    __asm ("pop {r9}");
+    __asm ("pop {r7}");
+    __asm ("mov r6, r0");
+    __asm ("pop {r0-r5}");
       /**
      * r0-r5: syscall args
      * r6: kernel stack
      * r7: syscall api entry
      * r8: svc orgn lr
+     * r9: sysapi orgn lr
      */
-  __asm ("    STMFD   r6!, {r4-r5}");
-  __asm ("push {r0-r3}");
+    __asm ("    STMFD   r6!, {r4-r5}");
+    __asm ("push {r0-r3}");
 
-  /* get user lr */
-  __asm ("bl get_user_stack");
-  __asm ("    LDR     R1, [R0, #20]");
+    /* push r12 lr pc psr */
+    __asm ("    LDR     r0, =0");
+    __asm ("    mov     r1, r9");
+    __asm ("    mov     r2, r7");
+    __asm ("    LDR     r3, =0x01000000UL");
+    __asm ("    STMFD   r6!, {r0-r3}");
 
-  /* push r12 lr pc psr */
-  __asm ("    LDR     r0, =0");
-//   __asm ("    LDR     r1, =p_svc_exit");
-  __asm ("    mov     r2, r7");
-  __asm ("    LDR     r3, =0x01000000UL");
-  __asm ("    STMFD   r6!, {r0-r3}");
-
-  __asm ("pop {r0-r3}");
+    __asm ("pop {r0-r3}");
     /* push r0 r1 r2 r3 */
-  __asm ("    STMFD   r6!, {r0-r3}");
+    __asm ("    STMFD   r6!, {r0-r3}");
 
-__asm ("    MSR     psp, r6");//  update stack pointer
-__asm ("mov lr, r8"); /* restore lr */
-__asm ("    ORR     lr, lr, #0x04");
-__asm ("    BX      lr");
+    __asm ("    MSR     psp, r6");//  update stack pointer
+    __asm ("mov lr, r8"); /* restore lr */
+    __asm ("    ORR     lr, lr, #0x04");
+    __asm ("    BX      lr");
 }
 
 __attribute__((naked)) void arch_syscall(int sycall_no, ...)
 {
-	__asm ("push {r4-r7}");
-
+    __asm ("push {r4-r7}");
+    __asm ("push {lr}");
     /* r1-r6: syscall args(r0-r5) */
-	__asm ("add r7, sp,#16");
-	__asm ("ldmia r7,{r4-r6}");
+    __asm ("add r7, sp,#20");
+    __asm ("ldmia r7,{r4-r6}");
     /**
      * r0: syscall number
      * r1-r6: syscall args(r0-r5)
      */
-	__asm ("svc 0");
-	__asm ("pop {r4-r7}");
-	__asm ("bx lr");
+    __asm ("svc 0");
+    __asm ("pop {r4, r5}");
+    __asm ("pop {lr}");
+    __asm ("pop {r4-r7}");
+    __asm ("bx lr");
 }

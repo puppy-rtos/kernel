@@ -70,10 +70,10 @@ void *syscall_get_api(int syscall_no)
 
 void sys_log_usr(char *log)
 {
-    // arch_syscall(0xfd, log);
-    // arch_syscall(2, log, 1);
-    // arch_syscall(3, log, 1, 1);
-    // arch_syscall(4, log, 1, 2, 3);
-    // arch_syscall(5, log, 1, 2, 3, 4);
+    arch_syscall(0xfd, log);
+    arch_syscall(2, log, 1);
+    arch_syscall(3, log, 1, 1);
+    arch_syscall(4, log, 1, 2, 3);
+    arch_syscall(5, log, 1, 2, 3, 4);
     arch_syscall(6, log, 1, 2, 3, 4, 5);
 }
