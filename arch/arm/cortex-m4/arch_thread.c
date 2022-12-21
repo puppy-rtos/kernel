@@ -93,7 +93,7 @@ void arch_swap(unsigned int key)
 	arch_irq_unlock(key);
 }
 
-__attribute__((always_inline)) static inline void do_swap(void)
+__attribute__((naked)) void PendSV_Handler(void)
 {
     // disable interrupt to protect context switch
     __asm ("    MRS     r2, PRIMASK");
@@ -148,11 +148,6 @@ __attribute__((always_inline)) static inline void do_swap(void)
 
     __asm ("    ORR     lr, lr, #0x04");
     __asm ("    BX      lr");
-}
-
-__attribute__((naked)) void PendSV_Handler(void)
-{
-    do_swap();
 }
 
 struct exception_info

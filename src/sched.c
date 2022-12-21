@@ -7,7 +7,7 @@
 #include <puppy.h>
 
 #define KLOG_TAG  "sched"
-#define KLOG_LVL   KLOG_LOG
+#define KLOG_LVL   KLOG_WARNING
 #include <puppy/klog.h>
 
 static p_list_t ready_queue = P_LIST_STATIC_INIT(&ready_queue);
@@ -32,7 +32,6 @@ int p_sched(void)
                 return 0;
             }
             _thread = p_list_entry(ready_queue.head, struct _thread_obj, tnode);
-            KLOG_D("_thread:%x",_thread);
             KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
             if (_g_curr_thread && _g_curr_thread->state == P_THREAD_STATE_RUN && _thread->prio >= _g_curr_thread->prio)
             {
@@ -41,6 +40,7 @@ int p_sched(void)
             }
             _g_next_thread = _thread;
             p_list_remove(ready_queue.head);
+            KLOG_D("next thread:%s", _g_next_thread->kobj.name);
             if (_g_curr_thread && _g_curr_thread->state == P_THREAD_STATE_RUN)
             {
                 _g_curr_thread->state = P_THREAD_STATE_READY;
@@ -72,6 +72,7 @@ int p_sched_ready_insert(p_obj_t thread)
     p_base_t key = arch_irq_lock();
 
     p_node_t *node;
+    KLOG_ASSERT(_thread != NULL);
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     
     KLOG_D("p_sched_ready_insert:thread:%x,key:%x", _thread, key);
@@ -87,6 +88,7 @@ int p_sched_ready_insert(p_obj_t thread)
             break;
         }
     }
+    
 
     _thread->state = P_THREAD_STATE_READY;
     if (old_thread)
@@ -98,7 +100,7 @@ int p_sched_ready_insert(p_obj_t thread)
         p_list_append(&ready_queue, &_thread->tnode);
     }
     
-    KLOG_D("p_sched_ready_insert done:tnode:%x",&_thread->tnode);
+    KLOG_D("p_sched_ready_insert done:ready_queue.head:%x", ready_queue.head);
 
     arch_irq_unlock(key);
     return 0;

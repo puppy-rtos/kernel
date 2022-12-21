@@ -6,6 +6,8 @@
 
 #include <stdint.h>
 
+#ifndef __ARMCC_VERSION
+
 extern uint8_t _estack;
 extern uint8_t _sdata;
 extern uint8_t _edata;
@@ -123,3 +125,5 @@ void SysTick_Handler(void)
 {
     while(1);
 }
+
+#endif

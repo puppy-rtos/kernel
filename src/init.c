@@ -42,9 +42,9 @@ int entry(void)
 }
 #endif
 
-P_WEAK void main(void)
+P_WEAK int main(void)
 {
-    ;
+    return 0;
 }
 
 void main_thread_entry(void *parm)

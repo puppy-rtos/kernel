@@ -21,7 +21,7 @@ bool arch_thread_in_kernel(p_obj_t obj)
         return false;
 }
 
-void SVC_Handler(void)
+__attribute__((naked)) void SVC_Handler(void)
 {
     /**
      * r0: syscall number
@@ -83,8 +83,10 @@ __attribute__((naked)) void arch_syscall(int sycall_no, ...)
      */
     __asm ("svc 0");
     
+    __asm ("push {r0-r3}");
     /* syscall enter, return syscall_no */
     __asm ("bl syscall_leave");
+    __asm ("pop {r0-r3}");
     __asm ("pop {r4, r5}"); /* syscall args(r0-r5) Remove the reserved parameter position */
     __asm ("pop {r4-r7,pc}");
 }
