@@ -106,6 +106,7 @@ void p_obj_deinit(p_obj_t obj);
 p_base_t arch_irq_lock(void);
 void arch_irq_unlock(p_base_t key);
 bool arch_irq_locked(p_base_t key);
+bool arch_in_irq(void);
 void arch_swap(unsigned int key);
 
 /*
@@ -204,6 +205,7 @@ int p_thread_control(p_obj_t obj, int cmd, void *argv);
 int p_thread_getattr(p_obj_t obj, p_thread_attr_t *attr);
 /* todo: int p_thread_delete(p_obj_t obj); */
 p_obj_t p_thread_self(void);
+char *p_thread_self_name(void);
 int p_thread_abort(p_obj_t obj);
 void list_thread(void);
 

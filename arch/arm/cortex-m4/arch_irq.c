@@ -34,7 +34,15 @@ __attribute__((always_inline)) inline bool arch_irq_unlocked(p_base_t key)
 {
     return key == 0U;
 }
-
+__attribute__((always_inline)) inline bool arch_in_irq(void)
+{
+    volatile int tmp = 0;
+    __asm volatile("mrs %0, IPSR;"
+        : "=r" (tmp)
+        :
+        : "memory");
+    return (tmp & 0x1f) != 0U;                 
+}
 // void HardFault_Handler(void)
 // {
 //   /* USER CODE BEGIN HardFault_IRQn 0 */

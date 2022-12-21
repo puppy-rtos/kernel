@@ -12,11 +12,11 @@
 #endif
 
 #ifndef P_IDLE_THREAD_STACK_SIZE
-#define P_IDLE_THREAD_STACK_SIZE  128
+#define P_IDLE_THREAD_STACK_SIZE  1024
 #endif
 
 #ifndef P_MAIN_THREAD_STACK_SIZE
-#define P_MAIN_THREAD_STACK_SIZE  512
+#define P_MAIN_THREAD_STACK_SIZE  1024
 #endif
 
 #ifndef P_PRINTK_BUF_SIZE
@@ -25,5 +25,8 @@
 
 #define KLOG_ENABLE
 #define KLOG_COLOR
+#define KLOG_TIME
+#define KLOG_THREAD
+#define KLOG_LOCK
 
 #endif

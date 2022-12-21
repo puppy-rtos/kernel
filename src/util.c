@@ -26,7 +26,6 @@ int printk(const char *fmt, ...)
 {
     va_list args;
     int n;
-    p_base_t key = arch_irq_lock();
 
     va_start(args, fmt);
     n = _p_vsnprintf(_printk_buf, P_PRINTK_BUF_SIZE, fmt, args);
@@ -34,7 +33,6 @@ int printk(const char *fmt, ...)
 
     p_hw_cons_output(_printk_buf, n);
 
-    arch_irq_unlock(key);
     return 0;
 }
 

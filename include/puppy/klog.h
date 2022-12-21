@@ -52,12 +52,37 @@ extern "C" {
     printk("\n")
 #endif /* KLOG_COLOR */
 
+#ifdef KLOG_TIME
+#define _KLOG_LOG_TIME printk("[%3d]", p_tick_get())
+#else
+#define _KLOG_LOG_TIME
+#endif
+
+#ifdef KLOG_LOCK
+#define _KLOG_LOG_LOCK    p_base_t key = arch_irq_lock()
+#define _KLOG_LOG_UNLOCK  arch_irq_unlock(key)
+#else
+#define _KLOG_LOG_LOCK
+#define _KLOG_LOG_UNLOCK
+#endif
+
+#ifdef KLOG_THREAD
+#define _KLOG_LOG_THREAD printk("%s:", arch_in_irq() ? "IRQ" : (p_thread_self() ? p_thread_self_name() : "NA"))
+#else
+#define _KLOG_LOG_THREAD
+#endif
+
 #define klog_line(lvl, color_n, fmt, ...)                   \
     do                                                      \
     {                                                       \
+        _KLOG_LOG_LOCK;                                     \
+        _KLOG_COLOR(color_n);                               \
+        _KLOG_LOG_TIME;                                     \
         _KLOG_LOG_HDR(lvl, color_n);                        \
+        _KLOG_LOG_THREAD;                                   \
         printk(fmt, ##__VA_ARGS__);                         \
         _KLOG_LOG_X_END;                                    \
+        _KLOG_LOG_UNLOCK;                                   \
     }                                                       \
     while (0)
 
@@ -68,6 +93,7 @@ extern "C" {
         printk("(%s) at %s:%d", #EX,                        \
                 __FUNCTION__, __LINE__);                    \
         _KLOG_LOG_X_END;                                    \
+        list_thread();                                      \
         while(1);                                           \
     }
 
