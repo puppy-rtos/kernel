@@ -14,6 +14,7 @@
 int syscall_enter(int syscall_no)
 {
     struct _thread_obj *_thread = p_thread_self();
+    _thread->mode = P_THREAD_MODE_KENL;
 	// KLOG_D("syscall enter,num:%d", syscall_no);
     
     return syscall_no;
@@ -21,7 +22,7 @@ int syscall_enter(int syscall_no)
 int syscall_leave(void)
 {
     struct _thread_obj *_thread = p_thread_self();
-    _thread->kernel_stack = 0;
+    _thread->mode = P_THREAD_MODE_USER;
     return 0;
 }
 
@@ -98,7 +99,7 @@ void sys_default(int syscall_no)
 	KLOG_D("default syscall");
 }
 
-void *syscall_get_api(int syscall_no)
+void *p_syscall_get_api(int syscall_no)
 {
     if (syscall_no == 0xfd)
 	    return sys_log;
