@@ -7,6 +7,7 @@
 #include <puppy.h>
 #include <string.h>
 #include <puppy/target.h>
+#include <puppy/syscall.h>
 
 #define KLOG_TAG  "syscall"
 #define KLOG_LVL   KLOG_INFO
@@ -37,75 +38,20 @@ void sys_log(char *log)
     }
     else
     {
-        arch_syscall(0xfd, log);
-    }
-}
-void sys_log2(char *log, int a)
-{
-    if (arch_thread_in_kernel(p_thread_self()) == true)
-    {
-	    KLOG_I("%s,%d", log, a);
-    }
-    else
-    {
-        arch_syscall(2, log, a);
-    }
-}
-void sys_log3(char *log, int a, int b)
-{
-    if (arch_thread_in_kernel(p_thread_self()) == true)
-    {
-	    KLOG_I("%s,%d,%d", log, a, b);
-    }
-    else
-    {
-        arch_syscall(3, log, a, b);
-    }
-}
-void sys_log4(char *log, int a, int b, int c)
-{
-    if (arch_thread_in_kernel(p_thread_self()) == true)
-    {
-	    KLOG_I("%s,%d,%d,%d", log, a, b, c);
-    }
-    else
-    {
-        arch_syscall(4, log, a, b, c);
-    }
-}
-void sys_log5(char *log, int a, int b, int c, int d)
-{
-    if (arch_thread_in_kernel(p_thread_self()) == true)
-    {
-	    KLOG_I("%s,%d,%d,%d,%d", log, a, b, c, d);
-    }
-    else
-    {
-        arch_syscall(5, log, a, b, c, d);
+        arch_syscall(_NRSYS_LOG, log);
     }
 }
 
-void sys_log6(char *log, int a, int b, int c, int d, int e)
+int sys_test(char *log, int a, int b, int c, int d, int e)
 {
     if (arch_thread_in_kernel(p_thread_self()) == true)
     {
 	    KLOG_I("%s,%d,%d,%d,%d,%d", log, a, b, c, d, e);
+        return a + b + c + d + e;
     }
     else
     {
-        arch_syscall(6, log, a, b, c, d, e);
-    }
-}
-
-int sys_add(int a, int b)
-{
-    if (arch_thread_in_kernel(p_thread_self()) == true)
-    {
-	    return a + b;
-    }
-    else
-    {
-        return arch_syscall(7, a, b);
+        return arch_syscall(_NRSYS_SYSCALL_NR, log, a, b, c, d, e);
     }
 }
 
@@ -114,26 +60,24 @@ void sys_default(int syscall_no)
 	KLOG_D("default syscall");
 }
 
+#define NRSYS(x) (void *)p_##x,
+const static void* func_table[] =
+{
+    sys_log,
+    #include <puppy/syscall_no.h>
+    sys_test
+};
+
 void *p_syscall_get_api(int syscall_no)
 {
-    if (syscall_no == 0xfd)
-	    return sys_log;
-    if (syscall_no == 1)
-	    return sys_log;
-    if (syscall_no == 2)
-	    return sys_log2;
-    if (syscall_no == 3)
-	    return sys_log3;
-    if (syscall_no == 4)
-	    return sys_log4;
-    if (syscall_no == 5)
-	    return sys_log5;
-    if (syscall_no == 6)
-	    return sys_log6;
-    if (syscall_no == 7)
-	    return sys_add;
-    else
-        return sys_default;
+    const void *func = (const void *)sys_default;
+
+    if (syscall_no < sizeof(func_table) / sizeof(func_table[0]))
+    {
+        func = func_table[syscall_no];
+    }
+
+    return func;
 }
 
 struct _thread_obj svc_test_t;
@@ -146,20 +90,15 @@ void svc_test_thread_entry(void *parm)
     for(int i = 0; i < 1000; i++)
     {
         sys_log(log);
-        sys_log2(log, 1);
-        sys_log3(log, 1, 2);
-        sys_log4(log, 1, 2, 3);
-        sys_log5(log, 1, 2, 3, 4);
-        sys_log6(log, 1, 2, 3, 4, 5);
-        int ret = sys_add(5, 6);
-        if (ret == (5 + 6))
+        int ret = sys_test(log, 1, 2, 3, 4, 5);
+        if (ret == (15))
         {
-            KLOG_I("add in user ok!");
+            KLOG_I("user test ok!");
         }
         p_thread_sleep(1);
     }
 }
-void sys_log_usr(char *log)
+void svc_test(char *log)
 {
     p_thread_init_user(&svc_test_t, "svc_text", svc_test_thread_entry, NULL,
                   svc_test_thread_stack,
@@ -169,15 +108,10 @@ void sys_log_usr(char *log)
     for(int i = 0; i < 1000; i++)
     {
         sys_log(log);
-        sys_log2(log, 1);
-        sys_log3(log, 1, 2);
-        sys_log4(log, 1, 2, 3);
-        sys_log5(log, 1, 2, 3, 4);
-        sys_log6(log, 1, 2, 3, 4, 5);
-        int ret = sys_add(5, 6);
-        if (ret == (5 + 6))
+        int ret = sys_test(log, 1, 2, 3, 4, 5);
+        if (ret == (15))
         {
-            KLOG_I("add ok!");
+            KLOG_I("test ok!");
         }
         p_thread_sleep(1);
     }
