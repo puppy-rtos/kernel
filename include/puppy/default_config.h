@@ -29,6 +29,6 @@
 #define KLOG_THREAD
 #define KLOG_LOCK
 
-// #define P_USERSPACE
+#define P_USERSPACE
 
 #endif

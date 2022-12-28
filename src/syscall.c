@@ -60,6 +60,15 @@ void sys_default(int syscall_no)
 	KLOG_D("default syscall");
 }
 
+#ifdef P_USERSPACE
+#undef p_thread_init
+#define p_thread_init       sys_thread_init
+void sys_thread_init(void *arg[])
+{
+    k_thread_init(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]);
+}
+#endif
+
 #define NRSYS(x) (void *)p_##x,
 const static void* func_table[] =
 {
