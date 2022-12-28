@@ -40,12 +40,13 @@ int entry(void)
     puppy_init();
     return 0;
 }
-#endif
-
 P_WEAK int main(void)
 {
     return 0;
 }
+#endif
+
+
 
 void main_thread_entry(void *parm)
 {
