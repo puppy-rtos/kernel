@@ -6,7 +6,7 @@
 
 #include <puppy.h>
 
-static p_atomic_t _g_tick;
+static atomic_int _g_tick;
 static int _tick_persec;
 
 void p_tick_init(int tick_persec)
@@ -16,7 +16,7 @@ void p_tick_init(int tick_persec)
 
 void p_tick_inc(void)
 {
-    arch_atomic_add(&_g_tick, 1);
+    atomic_fetch_add(&_g_tick, 1);
     thread_timeout_cb(_g_tick);
 }
 

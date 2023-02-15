@@ -22,7 +22,6 @@ typedef size_t            p_ubase_t;
 typedef ssize_t           p_base_t;
 typedef void             *p_obj_t;
 typedef p_ubase_t         p_tick_t;
-typedef volatile p_base_t p_atomic_t;    /**< Type for atomic */
 
 /* Puppy-RTOS error code definitions */
 #define P_EOK           0 /* There is no error */
@@ -112,17 +111,6 @@ void arch_irq_unlock(p_base_t key);
 bool arch_irq_locked(p_base_t key);
 bool arch_in_irq(void);
 void arch_swap(unsigned int key);
-
-/*
- * atomic interfaces
- */
-void arch_atomic_add(p_atomic_t *ptr, p_atomic_t val);
-void arch_atomic_sub(p_atomic_t *ptr, p_atomic_t val);
-void arch_atomic_or(p_atomic_t *ptr, p_atomic_t val);
-void arch_atomic_xor(p_atomic_t *ptr, p_atomic_t val);
-void arch_atomic_and(p_atomic_t *ptr, p_atomic_t val);
-void arch_atomic_nand(p_atomic_t *ptr, p_atomic_t val);
-p_atomic_t arch_atomic_cas(p_atomic_t *ptr, p_atomic_t oldval, p_atomic_t newval);
 
 /**
  * tick api
