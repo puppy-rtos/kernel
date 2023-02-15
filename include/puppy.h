@@ -9,7 +9,6 @@
 #include <puppy/default_config.h>
 #include <puppy/toolchan.h>
 #include <puppy/util.h>
-#include <puppy/atomic.h>
 
 #ifdef P_USERSPACE
 #include <puppy/kernel.h>
