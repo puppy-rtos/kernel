@@ -65,7 +65,7 @@ void sys_default(int syscall_no)
 #define p_thread_init       sys_thread_init
 void sys_thread_init(void *arg[])
 {
-    k_thread_init(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]);
+    k_thread_init(arg[0], arg[1], arg[2], arg[3], arg[4], (uint32_t)arg[5], (uint8_t)(uint32_t)arg[6]);
 }
 #endif
 

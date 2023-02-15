@@ -40,7 +40,7 @@ void p_thread_init(p_obj_t obj, const char *name,
                                 uint32_t stack_size,
                                 uint8_t  prio)
 {
-    void *arg[] = [obj, name, entry, param, stack_addr, stack_size, prio];
+    void *arg[] = {obj, name, entry, param, stack_addr, stack_size, prio};
     arch_syscall(_NRSYS_thread_init, arg);
 }
 
@@ -88,7 +88,7 @@ void p_sem_init(p_obj_t obj, const char *name,
                      uint32_t    init_value,
                      uint32_t    max_value)
 {
-    return arch_syscall(_NRSYS_sem_init, obj, name, init_value, max_value);
+    arch_syscall(_NRSYS_sem_init, obj, name, init_value, max_value);
 }
 
 p_obj_t p_sem_create(const char *name,
