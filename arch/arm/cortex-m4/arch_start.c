@@ -32,7 +32,7 @@ void Reset_handler(void)
     {
         *ram_dst = 0;
     }
-    entry();
+    main();
 }
 
 void Default_Handler()    __attribute__((weak));

@@ -160,6 +160,11 @@ typedef enum
 
 #include "../../arm/CMSIS/core_cm4.h"             /* Cortex-M4 processor and core peripherals */
 
+#define ARCH_GET_LR(reg)        \
+    __asm volatile("mov %0, LR" \
+        : "=r" (reg)            \
+        :                       \
+        : "memory");            \
 
 /**
   * @}

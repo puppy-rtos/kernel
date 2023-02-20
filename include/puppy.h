@@ -51,7 +51,7 @@ typedef p_ubase_t         p_tick_t;
  */
 #define P_ALIGN_DOWN(size, align)      ((size) & ~((align) - 1))
 
-void puppy_init(void);
+void puppy_start(void);
 
 /**
  * erron api
