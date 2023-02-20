@@ -6,7 +6,6 @@
 
 #include <puppy.h>
 #include <string.h>
-#include <puppy/target.h>
 #include <puppy/syscall.h>
 
 #define KLOG_TAG  "syscall"

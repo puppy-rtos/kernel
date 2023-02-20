@@ -6,6 +6,6 @@
 #ifndef PUPPY_INC_TARGET_H__
 #define PUPPY_INC_TARGET_H__
 
-#include "target/stm32f412zx.h"
+#include <target/stm32f412zx.h>
 
 #endif

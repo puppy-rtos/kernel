@@ -6,7 +6,7 @@ add_rules("mode.debug", "mode.release")
 target("kernel")
     add_files("src/*.c")
     add_files("arch/**.c")
-    add_includedirs("include")
+    add_includedirs("include", "arch/include")
     -- if is_plat("gcc") then
         set_toolchains("arm-none-eabi")
         set_extension(".elf")
