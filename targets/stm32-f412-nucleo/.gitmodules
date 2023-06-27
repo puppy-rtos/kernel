@@ -1,0 +1,6 @@
+[submodule "kernel"]
+	path = kernel
+	url = https://github.com/puppy-rtos/kernel.git
+[submodule "subsystem/nr_micro_shell"]
+	path = subsystem/nr_micro_shell
+	url = https://github.com/puppy-rtos/nr_micro_shell.git

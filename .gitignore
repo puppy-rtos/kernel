@@ -1,2 +1,4 @@
 /build
 /.xmake
+*.bin
+*.map
