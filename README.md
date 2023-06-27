@@ -23,3 +23,9 @@ Puppy RTOS 是一个面向未来的实时操作系统，在设计之初，就充
  - 支持 apt update 检查更新
  - 支持 apt remove 卸载应用
  
+## 编译
+
+```
+xmake f -p gcc -m debug
+xmake
+```
