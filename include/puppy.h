@@ -10,10 +10,6 @@
 #include <puppy/toolchan.h>
 #include <puppy/util.h>
 
-#ifdef P_USERSPACE
-#include <puppy/kernel.h>
-#endif
-
 #define P_UNUSED(x)                   ((void)x)
 
 /* Puppy-RTOS object definitions */

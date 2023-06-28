@@ -30,15 +30,18 @@ void shell_thread_entry(void *parm)
 
 int main(void)
 {
+    int board_init(void);
+    board_init();
+    
     printk("Hello Puppy!\r\n");
+    puppy_init();
 #ifdef ENABLE_NR_SHELL
     p_thread_init(&shell, "shell", shell_thread_entry, NULL,
                   shell_thread_stack,
                   sizeof(shell_thread_stack),
                   12);
     p_thread_start(&shell);
-    p_thread_abort(p_thread_self());
 #endif
-
+    puppy_start();
 }
 

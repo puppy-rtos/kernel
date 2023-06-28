@@ -13,7 +13,7 @@
 static p_list_t ready_queue = P_LIST_STATIC_INIT(&ready_queue);
 struct _thread_obj *_g_curr_thread;
 struct _thread_obj *_g_next_thread;
-static int sched_lock = 0;
+static int sched_lock = 1;
 int p_sched(void)
 {
     int ret = P_EOK;

@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #include <puppy.h>
 #include <puppy/target.h>
 

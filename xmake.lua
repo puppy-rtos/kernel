@@ -1,3 +1,5 @@
+set_project("puppy")
+set_version("0.0.1")
 
 includes("targets.lua")
 includes("toolchains.lua")
