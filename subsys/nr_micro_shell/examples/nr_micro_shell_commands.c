@@ -131,7 +131,6 @@ const static_cmd_st static_cmd[] =
 		{"ls", shell_ls_cmd},
 		{"test", shell_test_cmd},
 		{"ps", shell_ps_cmd},
-		{"fault_test_by_div0", fault_test_by_div0},
 		{"\0", NULL}};
 #endif
 

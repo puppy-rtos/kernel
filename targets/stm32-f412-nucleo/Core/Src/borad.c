@@ -51,7 +51,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+int board_init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/

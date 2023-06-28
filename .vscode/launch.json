@@ -7,7 +7,7 @@
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "build/gcc/cortex-m4/debug/hello.elf",
+            "executable": "build/cross/cortex-m4/debug/hello.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "Reset_handler",

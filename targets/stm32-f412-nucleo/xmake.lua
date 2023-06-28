@@ -17,9 +17,13 @@ target("hello")
         add_rules("mdk.binary")
         set_runtimes("microlib")
         add_cflags('-Wa,-mimplicit-it=thumb')
-        add_ldflags('--strict --scatter link.sct')
+        add_ldflags('--strict --scatter ' .. os.scriptdir() .. '/link.sct')
         after_build(function (package)
-            os.exec("D:/Progrem/Keil_v5/ARM/ARMCLANG/bin/fromelf.exe --bin $(buildir)/armclang/cortex-m4/debug/hello.axf --output puppy.bin")
+            if is_mode('debug') then
+                os.exec("D:/Progrem/Keil_v5/ARM/ARMCLANG/bin/fromelf.exe --bin $(buildir)/cross/cortex-m4/debug/hello.axf --output puppy.bin")
+            else
+                os.exec("D:/Progrem/Keil_v5/ARM/ARMCLANG/bin/fromelf.exe --bin $(buildir)/cross/cortex-m4/release/hello.axf --output puppy.bin")
+            end
         end)
     elseif is_config("toolchian", "arm-none-eabi-gcc") then
         add_files("Drivers/CMSIS/Device/ST/STM32F4xx/gcc/*.s")
@@ -30,9 +34,9 @@ target("hello")
         add_ldflags(' -T ' .. os.scriptdir() .. '/link.lds')
         after_build(function (package)
             if is_mode('debug') then
-                os.exec("D:/Progrem/env-windows/tools/gnu_gcc/arm_gcc/mingw/bin/arm-none-eabi-objcopy.exe -O binary $(buildir)/gcc/cortex-m4/debug/hello.elf puppy.bin")
+                os.exec("D:/Progrem/env-windows/tools/gnu_gcc/arm_gcc/mingw/bin/arm-none-eabi-objcopy.exe -O binary $(buildir)/cross/cortex-m4/debug/hello.elf puppy.bin")
             else
-                os.exec("D:/Progrem/env-windows/tools/gnu_gcc/arm_gcc/mingw/bin/arm-none-eabi-objcopy.exe -O binary $(buildir)/gcc/cortex-m4/release/hello.elf puppy.bin")
+                os.exec("D:/Progrem/env-windows/tools/gnu_gcc/arm_gcc/mingw/bin/arm-none-eabi-objcopy.exe -O binary $(buildir)/cross/cortex-m4/release/hello.elf puppy.bin")
             end
         end)       
     end
