@@ -26,6 +26,5 @@ Puppy RTOS 是一个面向未来的实时操作系统，在设计之初，就充
 ## 编译
 
 ```
-xmake f -p gcc -m debug
 xmake
 ```
