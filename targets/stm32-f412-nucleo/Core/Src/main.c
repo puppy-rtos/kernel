@@ -6,6 +6,8 @@
 
 #include "main.h"
 #include <puppy.h>
+
+#ifdef ENABLE_NR_SHELL
 #include "nr_micro_shell.h"
 
 struct _thread_obj shell;
@@ -24,16 +26,19 @@ void shell_thread_entry(void *parm)
         }
     }
 }
+#endif
 
 int main(void)
 {
     printk("Hello Puppy!\r\n");
-
+#ifdef ENABLE_NR_SHELL
     p_thread_init(&shell, "shell", shell_thread_entry, NULL,
                   shell_thread_stack,
                   sizeof(shell_thread_stack),
                   12);
     p_thread_start(&shell);
     p_thread_abort(p_thread_self());
+#endif
+
 }
 

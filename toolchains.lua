@@ -1,7 +1,7 @@
-toolchain("arm-none-eabi")
+toolchain("arm-none-eabi-gcc")
     set_kind("standalone")
-    set_description("arm-none-eabi")
-    local sdk_dir = "D:/Progm/env-windows/tools/gnu_gcc/arm_gcc/mingw"
+    set_description("arm-none-eabi-gcc")
+    local sdk_dir = "D:/Progrem/arm-gnu-toolchain-12.2.rel1"
     set_sdkdir(sdk_dir)
 
     on_load(function(toolchain)

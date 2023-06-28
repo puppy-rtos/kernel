@@ -9,7 +9,8 @@ target("hello")
                 "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
                 "Drivers/CMSIS/Include"
                 )
-    if is_plat("armclang") then
+
+    if is_config("toolchian", "armclang") then
         add_files("Drivers/CMSIS/Device/ST/STM32F4xx/arm/*.s")
         set_toolchains("armclang")
         set_arch("cortex-m4")
@@ -20,9 +21,9 @@ target("hello")
         after_build(function (package)
             os.exec("D:/Progrem/Keil_v5/ARM/ARMCLANG/bin/fromelf.exe --bin $(buildir)/armclang/cortex-m4/debug/hello.axf --output puppy.bin")
         end)
-    elseif is_plat("gcc") then
+    elseif is_config("toolchian", "arm-none-eabi-gcc") then
         add_files("Drivers/CMSIS/Device/ST/STM32F4xx/gcc/*.s")
-        set_toolchains("arm-none-eabi")
+        set_toolchains("arm-none-eabi-gcc")
         set_extension(".elf")
         set_arch("cortex-m4")
         add_links("c", "m", "nosys");
