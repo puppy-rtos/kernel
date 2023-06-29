@@ -11,9 +11,9 @@ int p_hw_borad_init(void);
 int p_hw_cons_getc(void);
 int p_hw_cons_output(const char *str, int len);
 int printk(const char *fmt, ...);
-
-#define P_TC_PASS()         printk("Test Passed!\r\n");
-#define P_TC_FAIL()         printk("Test Failed!\r\n"); 
+                
+#define P_TC_PASS()         printk("Test Passed! at %s:%d\r\n", __FUNCTION__, __LINE__);
+#define P_TC_FAIL()         printk("Test Failed! at %s:%d\r\n", __FUNCTION__, __LINE__); 
 #define P_TC_LOG(...)   do {printk(__VA_ARGS__); printk("\r\n");} while (0);
 
 /**
