@@ -11,10 +11,10 @@
 #include <puppy/klog.h>
 
 static struct _thread_obj _idle;
-__attribute__((aligned(P_ALIGN_SIZE)))
-uint8_t _idle_thread_stack[P_IDLE_THREAD_STACK_SIZE];
+p_align(P_ALIGN_SIZE)
+static uint8_t _idle_thread_stack[P_IDLE_THREAD_STACK_SIZE];
 
-void idle_thread_entry(void *parm)
+static void idle_thread_entry(void *parm)
 {
     while(1)
     {
@@ -22,8 +22,30 @@ void idle_thread_entry(void *parm)
     }
 }
 
+static void _dthread_obj_init(void)
+{
+    extern const int __p_dthread_obj_start;
+    extern const int __p_dthread_obj_end;
+    unsigned int *ptr_begin, *ptr_end;
+    ptr_begin = (unsigned int *)&__p_dthread_obj_start;
+    ptr_end = (unsigned int *)&__p_dthread_obj_end;
+    for (unsigned int *ptr = ptr_begin; ptr < ptr_end;)
+    {
+        struct _thread_obj *_obj = ptr;
+        KLOG_D("dthread [%s] init...",  _obj->kobj.name);
+        p_thread_init(_obj, _obj->kobj.name, _obj->entry, _obj->param,
+                    _obj->stack_addr,
+                    _obj->stack_size,
+                    _obj->prio);
+        p_thread_start(_obj);
+        ptr += (sizeof(struct _thread_obj) / sizeof(unsigned int));
+    }
+}
+
 void puppy_init(void)
 {
+    test_atomic_api();
+    _dthread_obj_init();
     p_thread_init(&_idle, "idle", idle_thread_entry, NULL,
                   _idle_thread_stack,
                   sizeof(_idle_thread_stack),

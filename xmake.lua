@@ -14,7 +14,9 @@ add_includedirs("include", "arch/include")
 
 if has_config("nr_micro_shell") then
     add_defines('ENABLE_NR_SHELL')
-    add_files("subsys/nr_micro_shell/src/*.c", "subsys/nr_micro_shell/examples/nr_micro_shell_commands.c")
+    add_files("subsys/nr_micro_shell/src/*.c", 
+              "subsys/nr_micro_shell/examples/nr_micro_shell_commands.c",
+              "subsys/nr_micro_shell/examples/nr_micro_shell_thread.c")
     add_includedirs("subsys/nr_micro_shell/inc")
 end
 

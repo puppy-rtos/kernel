@@ -170,6 +170,18 @@ struct _thread_obj
     /** arch-specifics: must always be at the end */
     struct arch_thread *arch;
 };
+#define P_THREAD_DEFINE(dname, dentry, dparam, dstack_addr, dstack_size, dprio)\
+    p_used const char _thread_##dname##_name[] = #dname;                       \
+    p_used static struct _thread_obj _thread_##dname##_obj                     \
+    p_section("P_DThread_OBJ") =                                               \
+    {                                                                          \
+        .kobj.name = _thread_##dname##_name,                                   \
+        .entry = dentry,                                                       \
+        .param = (dparam),                                                     \
+        .stack_addr = (dstack_addr),                                           \
+        .stack_size = (dstack_size),                                           \
+        .prio = (dprio),                                                       \
+    }
 
 void p_thread_init(p_obj_t obj, const char *name,
                                 void (*entry)(void *param),

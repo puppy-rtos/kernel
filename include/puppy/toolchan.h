@@ -20,7 +20,10 @@ extern "C" {
 typedef unsigned long ssize_t;
 #endif
 
-#define P_WEAK __attribute__((weak))
+#define p_weak                   __attribute__((weak))
+#define p_section(x)             __attribute__((section(x)))
+#define p_used                   __attribute__((used))
+#define p_align(n)               __attribute__((aligned(n)))
 
 typedef union {
     long long       thelonglong;

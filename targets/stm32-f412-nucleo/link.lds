@@ -78,6 +78,12 @@ SECTIONS
         /* This is used by the startup in order to initialize the .data secion */
         _sdata = . ;
 
+        /* section information for initial. */
+        . = ALIGN(4);
+        __p_dthread_obj_start = .;
+        KEEP(*(P_DThread_OBJ))
+        __p_dthread_obj_end = .;
+
         *(.data)
         *(.data.*)
         *(.gnu.linkonce.d*)

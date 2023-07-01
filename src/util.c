@@ -12,12 +12,12 @@
 static int _p_vsnprintf(char *buf, size_t size, const char *fmt, va_list args);
 static char _printk_buf[P_PRINTK_BUF_SIZE];
 
-P_WEAK int p_hw_cons_getc(void)
+p_weak int p_hw_cons_getc(void)
 {
     return -1;
 }
 
-P_WEAK int p_hw_cons_output(const char *str, int len)
+p_weak int p_hw_cons_output(const char *str, int len)
 {
     return 0;
 }
