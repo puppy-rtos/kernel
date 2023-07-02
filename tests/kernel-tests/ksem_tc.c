@@ -48,11 +48,11 @@ void test_sem_api(void)
     p_thread_init(&t1, "t1", t1_thread_entry, NULL,
                   t1_thread_stack,
                   sizeof(t1_thread_stack),
-                  12);
+                  11);
     p_thread_start(&t1);
     p_thread_init(&t2, "t2", t2_thread_entry, NULL,
                   t2_thread_stack,
                   sizeof(t2_thread_stack),
-                  12);
+                  11);
     p_thread_start(&t2);
 }

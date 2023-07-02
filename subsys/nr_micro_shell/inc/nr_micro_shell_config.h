@@ -86,8 +86,8 @@ static inline int _putchar(char ch)
 /* Show logo or not. */
 #define NR_SHELL_SHOW_LOG
 
-// /* Use NR_SHELL_CMD_EXPORT() or not */
-// #define NR_SHELL_USING_EXPORT_CMD
+/* Use NR_SHELL_CMD_EXPORT() or not */
+#define NR_SHELL_USING_EXPORT_CMD
 
 /* If you use RTOS, you may need to do some special processing for printf(). */
 #define shell_printf(fmt, args...) printk(fmt, ##args);

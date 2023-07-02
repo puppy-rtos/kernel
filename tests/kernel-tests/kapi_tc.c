@@ -138,3 +138,15 @@ void test_atomic_api(void)
     }
     P_TC_PASS();
 }
+
+void shell_ktest_cmd(char argc, char *argv)
+{
+    test_atomic_api();
+    kapi_err_tc();
+    void test_sem_api(void);
+    test_sem_api();
+}
+#ifdef ENABLE_NR_SHELL
+#include <nr_micro_shell.h>
+NR_SHELL_CMD_EXPORT(ktest, shell_ktest_cmd);
+#endif

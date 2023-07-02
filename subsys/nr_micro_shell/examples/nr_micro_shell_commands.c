@@ -125,6 +125,7 @@ void fault_test_by_div0(void) {
 #ifdef NR_SHELL_USING_EXPORT_CMD
 NR_SHELL_CMD_EXPORT(ls, shell_ls_cmd);
 NR_SHELL_CMD_EXPORT(test, shell_test_cmd);
+NR_SHELL_CMD_EXPORT(ps, shell_ps_cmd);
 #else
 const static_cmd_st static_cmd[] =
 	{

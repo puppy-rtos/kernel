@@ -44,7 +44,6 @@ static void _dthread_obj_init(void)
 
 void puppy_init(void)
 {
-    test_atomic_api();
     _dthread_obj_init();
     p_thread_init(&_idle, "idle", idle_thread_entry, NULL,
                   _idle_thread_stack,
