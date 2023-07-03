@@ -32,7 +32,7 @@ SECTIONS
 
         /* section information for shell */
         . = ALIGN(4);
-        KEEP(*(SORT(.nr_shell_cmd.*)))
+        KEEP(*(SORT(puppy_rom_sym.*)))
 
         . = ALIGN(4);
 
@@ -68,7 +68,7 @@ SECTIONS
         /* section information for initial. */
         . = ALIGN(4);
         __p_dthread_obj_start = .;
-        KEEP(*(P_DThread_OBJ))
+        KEEP(*(puppy_ram_sym.*))
         __p_dthread_obj_end = .;
 
         *(.data)
