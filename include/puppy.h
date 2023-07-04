@@ -171,10 +171,11 @@ struct _thread_obj
     struct arch_thread *arch;
 };
 
+#define P_THREAD_DEFINE_SECT P_RAM_SECTION "P_DThread_OBJ"
 #define P_THREAD_DEFINE(dname, dentry, dparam, dstack_addr, dstack_size, dprio)\
     p_used const char _thread_##dname##_name[] = #dname;                       \
     p_used static struct _thread_obj _thread_##dname##_obj                     \
-    p_ram_section("0.P_DThread_OBJ") =                                               \
+    P_SECTION_DATA(P_THREAD_DEFINE_SECT) =                                               \
     {                                                                          \
         .kobj.name = _thread_##dname##_name,                                   \
         .entry = dentry,                                                       \

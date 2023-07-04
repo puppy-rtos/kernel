@@ -25,17 +25,6 @@ typedef unsigned long ssize_t;
 #define p_used                   __attribute__((used))
 #define p_align(n)               __attribute__((aligned(n)))
 
-/**
- * p_rom_section("x.name")
- * p_ram_section("x.name")
- * x:
- *  0~9 for puppy-rtos kernel.
- *  11~99 for subsys, ex 11 for nrshell.
- *  100~65535 for user.
- */
-#define p_rom_section(x) p_section("puppy_rom_sym." x)
-#define p_ram_section(x) p_section("puppy_ram_sym." x)
-
 typedef union {
     long long       thelonglong;
     long double     thelongdouble;

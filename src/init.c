@@ -22,13 +22,13 @@ static void idle_thread_entry(void *parm)
     }
 }
 
+P_SECTION_START_DEFINE(P_THREAD_DEFINE_SECT, _thread_start);
+P_SECTION_END_DEFINE(P_THREAD_DEFINE_SECT, _thread_end);
 static void _dthread_obj_init(void)
 {
-    extern const int __p_dthread_obj_start;
-    extern const int __p_dthread_obj_end;
     unsigned int *ptr_begin, *ptr_end;
-    ptr_begin = (unsigned int *)&__p_dthread_obj_start;
-    ptr_end = (unsigned int *)&__p_dthread_obj_end;
+    ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_thread_start);
+    ptr_end = (unsigned int *)P_SECTION_END_ADDR(_thread_end);
     for (unsigned int *ptr = ptr_begin; ptr < ptr_end;)
     {
         struct _thread_obj *_obj = ptr;

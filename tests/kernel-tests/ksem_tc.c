@@ -56,3 +56,4 @@ void test_sem_api(void)
                   11);
     p_thread_start(&t2);
 }
+P_TC_FUNC(test_sem_api, test_sem_api);

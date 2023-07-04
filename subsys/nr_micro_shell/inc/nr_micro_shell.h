@@ -129,7 +129,7 @@ extern "C"
 #endif
 
 #define NR_USED __attribute__((used))
-#define NR_SECTION(x) p_rom_section("11.nr_shell_cmd." x)
+#define NR_SECTION(x) p_section(P_ROM_SECTION "nr_shell_cmd." x)
 #define NR_SHELL_CMD_EXPORT_START(cmd, func) \
     NR_USED const static_cmd_st _nr_cmd_start_ NR_SECTION("0.end") = {#cmd, NULL}
 #define NR_SHELL_CMD_EXPORT(cmd, func) \
@@ -137,7 +137,6 @@ extern "C"
 #define NR_SHELL_CMD_EXPORT_END(cmd, func) \
     NR_USED const static_cmd_st _nr_cmd_end_ NR_SECTION("1.end") = {#cmd, NULL}
 
-    
 #ifdef NR_SHELL_USING_EXPORT_CMD
 	extern const static_cmd_st _nr_cmd_start_;
 #define nr_cmd_start_add (&_nr_cmd_start_+1)

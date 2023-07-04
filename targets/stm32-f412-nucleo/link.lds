@@ -67,9 +67,7 @@ SECTIONS
 
         /* section information for initial. */
         . = ALIGN(4);
-        __p_dthread_obj_start = .;
-        KEEP(*(puppy_ram_sym.*))
-        __p_dthread_obj_end = .;
+        KEEP(*(SORT(puppy_ram_sym.*)))
 
         *(.data)
         *(.data.*)

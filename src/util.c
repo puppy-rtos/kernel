@@ -402,3 +402,41 @@ static int _p_vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
     */
     return str - buf;
 }
+
+P_SECTION_START_DEFINE(P_TC_SECTION, _tc_list_start);
+P_SECTION_END_DEFINE(P_TC_SECTION, _tc_list_end);
+void shell_tc_list_cmd(char argc, char *argv)
+{
+    unsigned int *ptr_begin, *ptr_end;
+    ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
+    ptr_end = (unsigned int *)P_SECTION_END_ADDR(_tc_list_end);
+    for (unsigned int *ptr = ptr_begin; ptr < ptr_end;)
+    {
+        struct p_tc_fn *_obj = ptr;
+        printk("tc:%s\n", _obj->name);
+        ptr += (sizeof(struct p_tc_fn) / sizeof(unsigned int));
+    }
+}
+#ifdef ENABLE_NR_SHELL
+#include <nr_micro_shell.h>
+NR_SHELL_CMD_EXPORT(tc_list, shell_tc_list_cmd);
+#endif
+
+void shell_tc_run_cmd(char argc, char *argv)
+{
+    unsigned int *ptr_begin, *ptr_end;
+    ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
+    ptr_end = (unsigned int *)P_SECTION_END_ADDR(_tc_list_end);
+    for (unsigned int *ptr = ptr_begin; ptr < ptr_end;)
+    {
+        struct p_tc_fn *_obj = ptr;
+        printk("tc:[%s] start test\n", _obj->name);
+        _obj->tc();
+        printk("tc: test end\n");
+        ptr += (sizeof(struct p_tc_fn) / sizeof(unsigned int));
+    }
+}
+#ifdef ENABLE_NR_SHELL
+#include <nr_micro_shell.h>
+NR_SHELL_CMD_EXPORT(tc_run, shell_tc_run_cmd);
+#endif

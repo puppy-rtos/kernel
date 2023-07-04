@@ -11,10 +11,30 @@ int p_hw_borad_init(void);
 int p_hw_cons_getc(void);
 int p_hw_cons_output(const char *str, int len);
 int printk(const char *fmt, ...);
-                
+
+#define P_ROM_SECTION "puppy_rom_sym."
+#define P_RAM_SECTION "puppy_ram_sym."
+
+#define P_SECTION_DATA(x) p_section(x ".1")
+#define P_SECTION_START_DEFINE(x, name) p_used static p_base_t name p_section(x ".0")
+#define P_SECTION_END_DEFINE(x, name)   p_used static p_base_t name p_section(x ".2")
+#define P_SECTION_START_ADDR(name) (&name + 1)
+#define P_SECTION_END_ADDR(name)   (&name)
+
 #define P_TC_PASS()         printk("Test Passed! at %s:%d\r\n", __FUNCTION__, __LINE__);
 #define P_TC_FAIL()         printk("Test Failed! at %s:%d\r\n", __FUNCTION__, __LINE__); 
 #define P_TC_LOG(...)   do {printk(__VA_ARGS__); printk("\r\n");} while (0);
+
+struct p_tc_fn
+{
+    const char *name;
+    void       (*tc)(void);
+};
+
+#define P_TC_SECTION P_ROM_SECTION "P_TC_LIST"
+#define P_TC_FUNC(fn, name)                   \
+    p_used const struct p_tc_fn p_tc_##name   \
+    P_SECTION_DATA(P_TC_SECTION) = { #name, fn}
 
 /**
  * p_container_of - return the start address of struct type, while ptr is the
