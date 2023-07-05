@@ -138,4 +138,4 @@ void test_atomic_api(void)
     }
     P_TC_PASS();
 }
-P_TC_FUNC(test_atomic_api, test_atomic_api);
+P_TC_FUNC(test_atomic_api, kernrl.atomic.tc);

@@ -405,7 +405,7 @@ static int _p_vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 
 P_SECTION_START_DEFINE(P_TC_SECTION, _tc_list_start);
 P_SECTION_END_DEFINE(P_TC_SECTION, _tc_list_end);
-void shell_tc_list_cmd(char argc, char *argv)
+void tc_list(void)
 {
     unsigned int *ptr_begin, *ptr_end;
     ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
@@ -413,16 +413,12 @@ void shell_tc_list_cmd(char argc, char *argv)
     for (unsigned int *ptr = ptr_begin; ptr < ptr_end;)
     {
         struct p_tc_fn *_obj = ptr;
-        printk("tc:%s\n", _obj->name);
+        printk("Get a testcase: %s\n", _obj->name);
         ptr += (sizeof(struct p_tc_fn) / sizeof(unsigned int));
     }
 }
-#ifdef ENABLE_NR_SHELL
-#include <nr_micro_shell.h>
-NR_SHELL_CMD_EXPORT(tc_list, shell_tc_list_cmd);
-#endif
 
-void shell_tc_run_cmd(char argc, char *argv)
+void tc_runall(bool verbose)
 {
     unsigned int *ptr_begin, *ptr_end;
     ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
@@ -430,13 +426,47 @@ void shell_tc_run_cmd(char argc, char *argv)
     for (unsigned int *ptr = ptr_begin; ptr < ptr_end;)
     {
         struct p_tc_fn *_obj = ptr;
-        printk("tc:[%s] start test\n", _obj->name);
+        printk("Start test: %s\n", _obj->name);
         _obj->tc();
-        printk("tc: test end\n");
+        printk("Test end\n");
         ptr += (sizeof(struct p_tc_fn) / sizeof(unsigned int));
+    }
+}
+
+
+void shell_tc_cmd(char argc, char *argv)
+{
+    unsigned int i = 0;
+    if (argc > 1)
+    {
+        if (!strcmp("list", &argv[argv[1]]))
+        {
+            tc_list();
+        }
+        else if (!strcmp("runall", &argv[argv[1]]))
+        {
+            tc_runall(true);
+        }
+        else if (!strcmp("-v", &argv[argv[1]]))
+        {
+            printk("verbose mode not support\r\n");
+        }
+        else if (!strcmp("-h", &argv[argv[1]]))
+        {
+            printk("useage: tc [options]\r\n");
+            printk("options: \r\n");
+            printk("\t -h \t: show help\r\n");
+            printk("\t -v \t: verbose mode\r\n");
+            printk("\t list \t: show all testcase\r\n");
+            printk("\t runall \t: run all testcase\r\n");
+        }
+    }
+    else
+    {
+        printk("ls need more arguments!\r\n");
     }
 }
 #ifdef ENABLE_NR_SHELL
 #include <nr_micro_shell.h>
-NR_SHELL_CMD_EXPORT(tc_run, shell_tc_run_cmd);
+NR_SHELL_CMD_EXPORT(tc, shell_tc_cmd);
 #endif

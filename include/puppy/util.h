@@ -32,8 +32,8 @@ struct p_tc_fn
 };
 
 #define P_TC_SECTION P_ROM_SECTION "P_TC_LIST"
-#define P_TC_FUNC(fn, name)                   \
-    p_used const struct p_tc_fn p_tc_##name   \
+#define P_TC_FUNC(fn, name)                         \
+    p_used const static struct p_tc_fn _p_tc_##fn   \
     P_SECTION_DATA(P_TC_SECTION) = { #name, fn}
 
 /**
