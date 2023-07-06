@@ -1,13 +1,16 @@
 
 option("target")
-    set_default("stm32-f412-nucleo")
+    set_default("stm32-f407-fkm1")
+    set_values("stm32-f412-nucleo", "stm32-f407-fkm1")
     set_description("Build target")
 option_end()
 
 if is_config("target", "stm32-f412-nucleo") then
     target_name = "stm32-f412-nucleo"
-else 
-    target_name = "stm32-f412-nucleo"
+elseif is_config("target", "stm32-f407-fkm1") then
+    target_name = "stm32-f407-fkm1"
+else
+    target_name = "stm32-f407-fkm1"
 end
 
 option("toolchian")
