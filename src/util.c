@@ -432,8 +432,15 @@ void tc_runall(bool verbose)
         ptr += (sizeof(struct p_tc_fn) / sizeof(unsigned int));
     }
 }
-
-
+static void print_help(void)
+{
+    printk("useage: tc [options]\r\n");
+    printk("options: \r\n");
+    printk("\t -h \t: show help\r\n");
+    printk("\t -v \t: verbose mode\r\n");
+    printk("\t list \t: show all testcase\r\n");
+    printk("\t runall \t: run all testcase\r\n");
+}
 void shell_tc_cmd(char argc, char *argv)
 {
     unsigned int i = 0;
@@ -453,17 +460,12 @@ void shell_tc_cmd(char argc, char *argv)
         }
         else if (!strcmp("-h", &argv[argv[1]]))
         {
-            printk("useage: tc [options]\r\n");
-            printk("options: \r\n");
-            printk("\t -h \t: show help\r\n");
-            printk("\t -v \t: verbose mode\r\n");
-            printk("\t list \t: show all testcase\r\n");
-            printk("\t runall \t: run all testcase\r\n");
+            print_help();
         }
     }
     else
     {
-        printk("ls need more arguments!\r\n");
+        print_help();
     }
 }
 #ifdef ENABLE_NR_SHELL
