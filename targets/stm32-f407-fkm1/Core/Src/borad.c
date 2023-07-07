@@ -59,8 +59,9 @@ static void MX_USART1_UART_Init(void);
 
 int p_hw_cons_getc(void)
 {
-    uint8_t ch = 0;  
-    HAL_UART_Receive(&huart1,&ch, 1, 0xffff);
+    uint8_t ch = 0;
+    HAL_UART_Receive_IT(&huart1, &ch, 1);
+    p_sem_wait(&cons_sem);
     return ch;
 }
 
@@ -69,16 +70,19 @@ int p_hw_cons_output(const char *str, int len)
     int i = 0;
     for(i = 0; i < len; i++)
     {
-      if (str[i] == '\n')
-      {
-          char n = '\r';
-          HAL_UART_Transmit(&huart1, (uint8_t *)&n, 1, 0xffff);
-      }
-       HAL_UART_Transmit(&huart1, (uint8_t *)&str[i], 1, 0xFFFF);
+        if (str[i] == '\n')
+        {
+            char n = '\r';
+            HAL_UART_Transmit(&huart1, (uint8_t *)&n, 1, 0xffff);
+        }
+        HAL_UART_Transmit(&huart1, (uint8_t *)&str[i], 1, 0xFFFF);
     }
     return 0;
 }
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    p_sem_post(&cons_sem);
+}
 /* USER CODE END 0 */
 
 /**
@@ -87,31 +91,32 @@ int p_hw_cons_output(const char *str, int len)
   */
 int board_init(void)
 {
-  /* USER CODE BEGIN 1 */
+    /* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+    /* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+    /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* USER CODE BEGIN Init */
+    /* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+    /* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
-  HAL_SetTickFreq(HAL_TICK_FREQ_100HZ);
-  p_tick_init(100);
-  /* USER CODE END SysInit */
+    /* USER CODE BEGIN SysInit */
+    HAL_SetTickFreq(HAL_TICK_FREQ_100HZ);
+    p_tick_init(100);
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_USART1_UART_Init();
-  return 0;
+    /* USER CODE END SysInit */
+
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_USART1_UART_Init();
+    return 0;
 }
 
 /**
