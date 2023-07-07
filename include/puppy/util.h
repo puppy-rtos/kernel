@@ -178,4 +178,70 @@ static inline void p_list_remove(p_node_t *node)
     node->prev = node->next = NULL;
 }
 
+typedef struct {
+  uint8_t *buffer;
+  size_t size;
+  atomic_size_t head;
+  atomic_size_t tail;
+} p_rb_t;
+
+static inline bool p_rb_init(p_rb_t *rb, uint8_t *buffer, size_t size)
+{
+    if (rb == NULL || buffer == NULL || size == 0)
+    {
+        return false;
+    }
+    rb->buffer = buffer;
+    rb->size = size;
+    atomic_init(&rb->head, 0);
+    atomic_init(&rb->tail, 0);
+    return true;
+}
+
+static inline bool p_rb_write(p_rb_t *rb, const uint8_t *data, size_t length)
+{
+    if (rb == NULL || data == NULL || length == 0) {
+        return false;
+    }
+
+    size_t head = atomic_load_explicit(&rb->head, memory_order_relaxed);
+    size_t tail = atomic_load_explicit(&rb->tail, memory_order_acquire);
+
+    if (tail + rb->size - head < length) {
+        return false;
+    }
+
+    for (size_t i = 0; i < length; ++i) {
+        rb->buffer[head % rb->size] = data[i];
+        ++head;
+    }
+
+    atomic_store_explicit(&rb->head, head, memory_order_release);
+
+    return true;
+}
+
+static inline bool p_rb_read(p_rb_t *rb, uint8_t *data, size_t length)
+{
+    if (rb == NULL || data == NULL || length == 0) {
+        return false;
+    }
+
+    size_t head = atomic_load_explicit(&rb->head, memory_order_acquire);
+    size_t tail = atomic_load_explicit(&rb->tail, memory_order_relaxed);
+
+    if (head - tail < length) {
+        return false;
+    }
+
+    for (size_t i = 0; i < length; ++i) {
+        data[i] = rb->buffer[tail % rb->size];
+        ++tail;
+    }
+
+    atomic_store_explicit(&rb->tail, tail, memory_order_release);
+
+    return true;
+}
+
 #endif
