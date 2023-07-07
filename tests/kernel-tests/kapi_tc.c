@@ -59,7 +59,7 @@ static void k_tc_entry(void *parameter)
 
 /* convenience macro - return either 64-bit or 32-bit value */
 #define ATOMIC_WORD(val_if_64, val_if_32)                                           \
-    ((atomic_int)((sizeof(void *) == sizeof(uint64_t)) ? (val_if_64) : (val_if_32)))
+    (((sizeof(void *) == sizeof(uint64_t)) ? (val_if_64) : (val_if_32)))
 
 void test_atomic_api(void)
 {

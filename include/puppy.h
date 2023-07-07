@@ -48,6 +48,7 @@ typedef p_ubase_t         p_tick_t;
 #define P_ALIGN_DOWN(size, align)      ((size) & ~((align) - 1))
 
 void puppy_init(void);
+void puppy_start(void);
 
 /**
  * erron api
@@ -221,6 +222,8 @@ void arch_new_thread(struct _thread_obj *thread,
  */
 
 int p_sched(void);
+void p_sched_lock(void);
+void p_sched_unlock(void);
 int p_sched_ready_insert(p_obj_t thread);
 int p_sched_ready_remove(p_obj_t thread);
 void p_sched_swap_out_cb(p_obj_t thread);

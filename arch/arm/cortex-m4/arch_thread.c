@@ -75,6 +75,7 @@ void arch_new_thread(struct _thread_obj *thread,
     thread->arch = arch_data;
 }
 
+__attribute__((const))
 uint32_t arch_thread_to_ptr(struct _thread_obj *thread)
 {
     return (uint32_t)&thread->arch->stack_ptr;

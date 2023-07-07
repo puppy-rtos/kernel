@@ -403,8 +403,8 @@ static int _p_vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
     return str - buf;
 }
 
-P_SECTION_START_DEFINE(P_TC_SECTION, _tc_list_start);
-P_SECTION_END_DEFINE(P_TC_SECTION, _tc_list_end);
+const P_SECTION_START_DEFINE(P_TC_SECTION, _tc_list_start);
+const P_SECTION_END_DEFINE(P_TC_SECTION, _tc_list_end);
 void tc_list(void)
 {
     unsigned int *ptr_begin, *ptr_end;

@@ -13,14 +13,14 @@
 static p_list_t ready_queue = P_LIST_STATIC_INIT(&ready_queue);
 struct _thread_obj *_g_curr_thread;
 struct _thread_obj *_g_next_thread;
-static int sched_lock = 1;
+static atomic_int _sched_lock = 1;
 int p_sched(void)
 {
     int ret = P_EOK;
     struct _thread_obj *_thread;
     p_base_t key = arch_irq_lock();
 
-    if (sched_lock == 0)
+    if (_sched_lock == 0)
     {
         if (!_g_next_thread)
         {
@@ -58,12 +58,15 @@ int p_sched(void)
 
 void p_sched_lock(void)
 {
-    sched_lock = 1;
+    atomic_fetch_add(&_sched_lock, 1);
 }
 void p_sched_unlock(void)
 {
-    sched_lock = 0;
-    p_sched();
+    atomic_fetch_sub(&_sched_lock, 1);
+    if (!_sched_lock)
+    {
+        p_sched();
+    }
 }
 
 int p_sched_ready_insert(p_obj_t thread)
