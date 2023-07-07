@@ -51,18 +51,37 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+p_rb_t cons_rb;
+char buf[128];
 static struct _sem_obj cons_sem;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+int _cons_init(void)
+{
+    static int _inited = 0;
+    if (!_inited)
+    {
+        _inited = 1;
+        p_rb_init(&cons_rb, buf, 128);
+        /* enable interrupt */
+        __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
+    }
+}
+
 int p_hw_cons_getc(void)
 {
-    uint8_t ch = 0;
-    HAL_UART_Receive_IT(&huart1, &ch, 1);
-    p_sem_wait(&cons_sem);
+    uint8_t ch = -1;
+    _cons_init();
+
+__retry:
+    if (p_rb_read(&cons_rb, &ch, 1) == false)
+    {
+        p_sem_wait(&cons_sem);
+        goto __retry;
+    }
     return ch;
 }
 
@@ -80,9 +99,26 @@ int p_hw_cons_output(const char *str, int len)
     }
     return 0;
 }
+void USART1_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART1_IRQn 0 */
+
+  /* USER CODE END USART1_IRQn 0 */
+    char ch = -1;
+    if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)
+    {
+        ch = huart1.Instance->DR & 0x00FFU;
+        p_rb_write(&cons_rb, &ch, 1);
+        p_sem_post(&cons_sem);
+    }
+  /* USER CODE BEGIN USART1_IRQn 1 */
+
+  /* USER CODE END USART1_IRQn 1 */
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    p_sem_post(&cons_sem);
+
 }
 /* USER CODE END 0 */
 
