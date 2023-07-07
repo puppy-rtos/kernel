@@ -52,6 +52,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
+static struct _sem_obj cons_sem;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -110,12 +111,15 @@ int board_init(void)
     /* USER CODE BEGIN SysInit */
     HAL_SetTickFreq(HAL_TICK_FREQ_100HZ);
     p_tick_init(100);
+    p_sem_init(&cons_sem, "cons_sem", 0, 1);
 
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_USART1_UART_Init();
+    HAL_NVIC_SetPriority(SysTick_IRQn, 10U, 0U);
+    HAL_NVIC_SetPriority(PendSV_IRQn, 15U, 15U);
     return 0;
 }
 
