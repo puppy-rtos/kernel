@@ -251,6 +251,13 @@ int p_sem_wait(p_obj_t obj);
 int p_sem_control(p_obj_t obj, int cmd, void *argv);
 int p_sem_delete(p_obj_t obj);
 
+void p_system_heap_init(void *begin_addr, size_t size);
+void *p_malloc(size_t nbytes);
+void p_free(void *ptr);
+void *p_realloc(void *ptr, size_t nbytes);
+void *p_calloc(size_t count, size_t size);
+void *p_malloc_align(size_t size, size_t align);
+void p_free_align(void *ptr);
 
 #include <puppy/util.h>
 

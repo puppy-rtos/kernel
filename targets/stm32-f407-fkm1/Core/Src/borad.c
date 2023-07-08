@@ -51,6 +51,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
+char heap_buf[50*1024];
 p_rb_t cons_rb;
 char buf[128];
 static struct _sem_obj cons_sem;
@@ -148,6 +149,7 @@ int board_init(void)
     HAL_SetTickFreq(HAL_TICK_FREQ_100HZ);
     p_tick_init(100);
     p_sem_init(&cons_sem, "cons_sem", 0, 1);
+    p_system_heap_init(heap_buf, sizeof(heap_buf));
 
     /* USER CODE END SysInit */
 

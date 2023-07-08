@@ -14,6 +14,11 @@ option("nr_micro_shell")
     set_category("SubSystem")
     set_description("Enable or disable nr_micro_shell")
 
+option("tlsf")
+    set_default(true)
+    set_category("SubSystem")
+    set_description("Enable or disable tlsf")
+
 option("kernel_test")
         set_default(true)
         set_category("Tests")

@@ -20,6 +20,12 @@ if has_config("nr_micro_shell") then
     add_includedirs("subsys/nr_micro_shell/inc")
 end
 
+if has_config("tlsf") then
+    add_defines('ENABLE_TLSF')
+    add_files("subsys/tlsf/*.c")
+    add_includedirs("subsys/tlsf")
+end
+
 if has_config("kernel_test") then
     add_defines('ENABLE_KERNEL_TEST')
     add_files("tests/kernel-tests/*.c")
