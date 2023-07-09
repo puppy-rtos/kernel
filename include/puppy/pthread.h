@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2022-2023, The Puppy RTOS Authors
  *
  * SPDX-License-Identifier: Apache-2.0
  */
