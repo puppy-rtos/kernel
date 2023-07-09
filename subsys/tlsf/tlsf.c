@@ -6,6 +6,13 @@
 #include <string.h>
 
 #include "tlsf.h"
+#include <puppy.h>
+
+#define tlsf_assert(x) klog_assert(x)
+
+#define KLOG_TAG  "tlsf"
+#define KLOG_LVL   KLOG_WARNING
+#include <puppy/klog.h>
 
 #if defined(__cplusplus)
 #define tlsf_decl inline

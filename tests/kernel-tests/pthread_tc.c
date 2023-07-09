@@ -5,7 +5,8 @@
  */
  
 #include <puppy.h>
-#include <puppy/pthread.h>
+#include <puppy/posix/unistd.h>
+#include <puppy/posix/pthread.h>
 
 static int end_exec;
 

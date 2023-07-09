@@ -11,8 +11,7 @@ int main(void)
 {
     int board_init(void);
     board_init();
-    
-    printk("Hello Puppy!\r\n");
+
     puppy_init();
     puppy_start();
 }

@@ -5,6 +5,7 @@
  */
 
 #include <puppy.h>
+#include <string.h>
 
 #define KLOG_TAG  "mem"
 #define KLOG_LVL   KLOG_WARNING

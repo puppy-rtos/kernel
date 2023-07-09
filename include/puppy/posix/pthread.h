@@ -4,16 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef PUPPY_INC_PTHREAD_H__
-#define PUPPY_INC_PTHREAD_H__
+#ifndef PUPPY_INC_POSIX_PTHREAD_H__
+#define PUPPY_INC_POSIX_PTHREAD_H__
 
 #include <puppy/default_config.h>    /* Default settings */
 #include <puppy/toolchan.h>  /* Compiler settings, noreturn_function */
 
-#include <sys/types.h>       /* Needed for general types */
 #include <stdint.h>          /* C99 fixed width integer types */
 #include <stdbool.h>         /* C99 boolean types */
-#include <unistd.h>          /* For getpid */
 #include <time.h>            /* Needed for struct timespec */
 
 #ifndef _POSIX_THREADS
@@ -124,53 +122,8 @@ typedef struct pthread_attr_s pthread_attr_t;
 #endif
 
 #ifndef __PTHREAD_T_DEFINED
-typedef pid_t pthread_t;
+typedef void *pthread_t;
 #  define __PTHREAD_T_DEFINED 1
-#endif
-
-struct pthread_condattr_s
-{
-  int pshared;
-  clockid_t clockid;
-};
-
-#ifndef __PTHREAD_CONDATTR_T_DEFINED
-typedef struct pthread_condattr_s pthread_condattr_t;
-#  define __PTHREAD_CONDATTR_T_DEFINED 1
-#endif
-struct _sem_obj;
-struct pthread_cond_s
-{
-  struct _sem_obj *sem;
-  clockid_t clockid;
-};
-
-#ifndef __PTHREAD_COND_T_DEFINED
-typedef struct pthread_cond_s pthread_cond_t;
-#  define __PTHREAD_COND_T_DEFINED 1
-#endif
-
-#define PTHREAD_COND_INITIALIZER {SEM_INITIALIZER(0), CLOCK_REALTIME }
-
-
-struct pthread_barrierattr_s
-{
-  int pshared;
-};
-
-#ifndef __PTHREAD_BARRIERATTR_T_DEFINED
-typedef struct pthread_barrierattr_s pthread_barrierattr_t;
-#  define __PTHREAD_BARRIERATTR_T_DEFINED 1
-#endif
-struct pthread_barrier_s
-{
-  struct _sem_obj *        sem;
-  unsigned int count;
-};
-
-#ifndef __PTHREAD_BARRIER_T_DEFINED
-typedef struct pthread_barrier_s pthread_barrier_t;
-#  define __PTHREAD_BARRIER_T_DEFINED 1
 #endif
 
 #ifndef __PTHREAD_ONCE_T_DEFINED
@@ -207,10 +160,6 @@ int pthread_attr_destroy(pthread_attr_t *attr);
 int pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy);
 int pthread_attr_getschedpolicy(const pthread_attr_t *attr,
                                 int *policy);
-// int pthread_attr_setschedparam(pthread_attr_t *attr,
-//                                const struct sched_param *param);
-// int pthread_attr_getschedparam(const pthread_attr_t *attr,
-//                                struct sched_param *param);
 int pthread_attr_setinheritsched(pthread_attr_t *attr,
                                  int inheritsched);
 int pthread_attr_getinheritsched(const pthread_attr_t *attr,
@@ -275,15 +224,6 @@ int  pthread_setcancelstate(int state, int *oldstate);
 int  pthread_setcanceltype(int type, int *oldtype);
 void pthread_testcancel(void);
 
-/* A thread may set up cleanup functions to execute when the thread exits or
- * is canceled.
- */
-
-#if defined(CONFIG_PTHREAD_CLEANUP_STACKSIZE) && CONFIG_PTHREAD_CLEANUP_STACKSIZE > 0
-void pthread_cleanup_pop(int execute);
-void pthread_cleanup_push(pthread_cleanup_t routine, void *arg);
-#endif
-
 /* A thread can await termination of another thread and retrieve the return
  * value of the thread.
  */
@@ -304,24 +244,6 @@ void pthread_yield(void);
 /* Compare two thread IDs. */
 
 #define pthread_equal(t1,t2) ((t1) == (t2))
-
-
-/* Barrier attributes */
-
-int pthread_barrierattr_destroy(pthread_barrierattr_t *attr);
-int pthread_barrierattr_init(pthread_barrierattr_t *attr);
-int pthread_barrierattr_getpshared(const pthread_barrierattr_t *attr,
-                                   int *pshared);
-int pthread_barrierattr_setpshared(pthread_barrierattr_t *attr,
-                                   int pshared);
-
-/* Barriers */
-
-int pthread_barrier_destroy(pthread_barrier_t *barrier);
-int pthread_barrier_init(pthread_barrier_t *barrier,
-                         const pthread_barrierattr_t *attr,
-                         unsigned int count);
-int pthread_barrier_wait(pthread_barrier_t *barrier);
 
 /* Pthread initialization */
 

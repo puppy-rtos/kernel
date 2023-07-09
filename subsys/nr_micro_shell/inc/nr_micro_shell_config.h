@@ -71,7 +71,7 @@ static inline int _putchar(char ch)
 #define NR_SHELL_CMD_HISTORY_BUF_LENGTH 253
 
 /* The user's name. */
-#define NR_SHELL_USER_NAME "nr@root:"
+#define NR_SHELL_USER_NAME "puppy:"
 
 /*
 0: \n
@@ -84,7 +84,7 @@ static inline int _putchar(char ch)
 #define NR_SHLL_FULL_ANSI 1
 
 /* Show logo or not. */
-#define NR_SHELL_SHOW_LOG
+// #define NR_SHELL_SHOW_LOG
 
 /* Use NR_SHELL_CMD_EXPORT() or not */
 #define NR_SHELL_USING_EXPORT_CMD

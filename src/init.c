@@ -44,7 +44,7 @@ static void _dthread_obj_init(void)
 
 void p_show_version(void)
 {
-    printk("Build Time: %s %s\n", __DATE__, __TIME__);
+    printk("\n\nBuild Time: %s %s\n", __DATE__, __TIME__);
     printk("                           _         \n");
     printk("    ____   ____    _____  (_) _  __\n");
     printk("   / __ \\ / __ \\  / ___/ / / | |/_/\n");

@@ -1,6 +1,8 @@
 
 #include <puppy.h>
-#include <puppy/pthread.h>
+#include <puppy/posix/unistd.h>
+#include <puppy/posix/pthread.h>
+#include <string.h>
 
 const pthread_attr_t pthread_default_attr =
 {
@@ -42,7 +44,7 @@ pthread_t _pthread_data_create(void)
     _pthread_data_t *ptd = NULL;
 
     ptd = (_pthread_data_t*)p_malloc(sizeof(_pthread_data_t));
-    if (!ptd) return -1;
+    if (!ptd) return NULL;
 
     memset(ptd, 0x0, sizeof(_pthread_data_t));
     ptd->canceled = 0;
@@ -51,7 +53,7 @@ pthread_t _pthread_data_create(void)
 
     return ptd;
 }
-_pthread_data_destroy(_pthread_data_t *ptd)
+void _pthread_data_destroy(_pthread_data_t *ptd)
 {
     p_free(ptd);
 }
@@ -95,7 +97,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     }
     /* initial this pthread to system */
     snprintf(name, sizeof(name), "pth%02d", pthread_number ++);
-    p_thread_init(&ptd->tid, name, startroutine, arg,
+    p_thread_init(&ptd->tid, name, (void (*)(void *))startroutine, arg,
                        stack, ptd->attr.stacksize,
                        ptd->attr.priority);
     *thread = ptd;
