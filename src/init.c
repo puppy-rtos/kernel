@@ -42,8 +42,20 @@ static void _dthread_obj_init(void)
     }
 }
 
+void p_show_version(void)
+{
+    printk("Build Time: %s %s\n", __DATE__, __TIME__);
+    printk("                           _         \n");
+    printk("    ____   ____    _____  (_) _  __\n");
+    printk("   / __ \\ / __ \\  / ___/ / / | |/_/\n");
+    printk("  / /_/ // /_/ / (__  ) / /  >  <  \n");
+    printk(" / .___/ \\____/ /____/ /_/  /_/|_|  \n");
+    printk("/_/          Powered dy puppy-rtos\n");
+}
+
 void puppy_init(void)
 {
+    p_show_version();
     _dthread_obj_init();
     p_thread_init(&_idle, "idle", idle_thread_entry, NULL,
                   _idle_thread_stack,
