@@ -88,7 +88,7 @@ char *p_thread_self_name(void)
 
 int p_thread_abort(p_obj_t obj)
 {
-    struct _thread_obj *_thread = _g_curr_thread;
+    struct _thread_obj *_thread = obj;
     p_base_t key = arch_irq_lock();
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
 
@@ -159,7 +159,12 @@ int p_thread_sleep(p_tick_t tick)
 
     _thread->state = P_THREAD_STATE_SLEEP;
 
-    p_sched();
+    err = p_sched();
+    if(err == -P_ETIMEOUT)
+    {
+        err = P_EOK;
+        p_set_errno(err);
+    }
 
 _exit:
     arch_irq_unlock(key);
