@@ -19,6 +19,11 @@ option("tlsf")
     set_category("SubSystem")
     set_description("Enable or disable tlsf")
 
+option("p_stdlib_h")
+    set_default(true)
+    set_category("SubSystem")
+    set_description("Enable or disable stdlib.h(malloc,free...)")
+
 option("kernel_test")
         set_default(true)
         set_category("Tests")

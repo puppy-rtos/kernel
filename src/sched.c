@@ -7,7 +7,7 @@
 #include <puppy.h>
 
 #define KLOG_TAG  "sched"
-#define KLOG_LVL   KLOG_LOG
+#define KLOG_LVL   KLOG_WARNING
 #include <puppy/klog.h>
 
 static p_list_t ready_queue = P_LIST_STATIC_INIT(&ready_queue);
