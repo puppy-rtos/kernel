@@ -77,3 +77,36 @@ __attribute__ ((noreturn)) void _exit (int status)
 {
     while(1);
 }
+
+int _close_r(struct _reent *ptr, int fd)
+{
+    ptr->_errno = ENOTSUP;
+    return -1;
+}
+
+_off_t _lseek_r(struct _reent *ptr, int fd, _off_t pos, int whence)
+{
+    ptr->_errno = ENOTSUP;
+    return -1;
+}
+#ifdef P_ARCH_CORTEX_M0
+unsigned __atomic_fetch_add_4(volatile void *d, unsigned val, int mem)
+{
+    p_base_t key;
+    key = arch_irq_lock();
+	*(unsigned*)d += val;
+    arch_irq_unlock(key);
+
+	return *(unsigned*)d;
+}
+
+unsigned __atomic_fetch_sub_4(volatile void *d, unsigned val, int mem)
+{
+    p_base_t key;
+    key = arch_irq_lock();
+	*(unsigned*)d -= val;
+    arch_irq_unlock(key);
+
+	return *(unsigned*)d;
+}
+#endif

@@ -70,7 +70,6 @@ p_obj_t p_obj_find(const char *name)
     return NULL;
 }
 
-
 void list_thread(void)
 {
     p_node_t *node;

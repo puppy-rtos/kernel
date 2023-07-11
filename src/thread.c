@@ -31,7 +31,6 @@ void p_thread_entry(void (*entry)(void *parameter), void *param)
     while (1);
 }
 
-
 void p_thread_init_user(p_obj_t obj, const char *name,
                                 void (*entry)(void *param),
                                 void    *param,

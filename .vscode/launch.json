@@ -57,6 +57,19 @@
             "miDebuggerPath": "D:\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin\\arm-none-eabi-gdb.exe",
             "customLaunchSetupCommands": [],
             "launchCompleteCommand": "exec-run",
+        },
+
+        {
+            "name": "pico",
+            "cwd": "${workspaceFolder}",
+            "executable": "build/cross/cortex-m0plus/debug/puppy.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "targetId": "rp2040",
+            "servertype": "pyocd",
+            "armToolchainPath": "D:\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin",
+            "gdbPath": "D:\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin\\arm-none-eabi-gdb.exe",
         }
     ]
 }

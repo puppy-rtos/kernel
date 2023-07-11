@@ -92,9 +92,9 @@ void arch_swap(unsigned int key)
 	arch_irq_unlock(0);
 	arch_irq_unlock(key);
 }
-
 __attribute__((naked)) void PendSV_Handler(void)
 {
+#ifndef P_ARCH_CORTEX_M0
     // disable interrupt to protect context switch
     __asm ("    MRS     r2, PRIMASK");
     __asm ("    CPSID   I");
@@ -148,6 +148,82 @@ __attribute__((naked)) void PendSV_Handler(void)
 
     __asm ("    ORR     lr, lr, #0x04");
     __asm ("    BX      lr");
+#else
+    // disable interrupt to protect context switch
+    __asm ("  .cpu    cortex-m0 ");
+    __asm ("  .fpu    softvfp");
+    __asm ("  .syntax unified");
+    __asm ("  .thumb");
+    
+    __asm ("    MRS     r2, PRIMASK");
+    __asm ("    CPSID   I");
+    // get arch_switch_interrupt_flag
+    __asm ("    LDR     r0, =arch_switch_interrupt_flag");
+    __asm ("    LDR     r1, [r0]");
+    __asm ("    CMP     r1, #0x00");
+    __asm ("    BEQ     pendsv_exit");
+    // clear arch_switch_interrupt_flag to 0
+    __asm ("    MOVS     r1, #0");
+    __asm ("    STR     r1, [r0]");
+
+    __asm ("    LDR     r0, =_g_curr_thread");
+    __asm ("    LDR     r1, [r0]");
+    __asm ("    CMP     r1, #0x00");
+    __asm ("    BEQ     switch_to_thread");
+    __asm ("    MOV     r0, r1");
+
+    __asm ("    PUSH    {lr}");
+    __asm ("    PUSH    {r0}");
+    __asm ("    BL      p_sched_swap_out_cb");
+    __asm ("    POP     {r0}");
+    __asm ("    POP     {r3}");
+    
+    __asm ("    MRS     r1, psp              ");   // get from thread stack pointer
+    __asm ("    SUBS    R1, R1, #0x20       ");     /* space for {R4 - R7} and {R8 - R11} */
+    __asm ("    PUSH    {r3}");
+    __asm ("    BL      arch_thread_to_ptr");
+    __asm ("    POP     {r3}");
+    __asm ("    STR     r1, [r0]             ");   // update from thread stack pointer
+    __asm ("    STMIA   R1!, {R4 - R7}      ");     /* push thread {R4 - R7} register to thread stack */
+    __asm ("    MOV     R4, R8              ");     /* mov thread {R8 - R11} to {R4 - R7} */
+    __asm ("    MOV     R5, R9");  
+    __asm ("    MOV     R6, R10");  
+    __asm ("    MOV     R7, R11");  
+    __asm ("    STMIA   R1!, {R4 - R7}      ");     /* push thread {R8 - R11} high register to thread stack */
+
+    __asm ("switch_to_thread:");
+    __asm ("    LDR     r0, =_g_next_thread");
+    __asm ("    LDR     r0, [r0]");
+    __asm ("    PUSH    {r3}");
+    __asm ("    BL      arch_thread_to_ptr");
+    __asm ("    POP     {r3}");
+    
+    __asm ("    LDR     r1, [r0]");
+    __asm ("   LDMIA   R1!, {R4 - R7} ");        /* pop thread {R4 - R7} register from thread stack */
+    __asm ("   PUSH    {R4 - R7}      ");        /* push {R4 - R7} to MSP for copy {R8 - R11} */
+    __asm ("   LDMIA   R1!, {R4 - R7} ");        /* pop thread {R8 - R11} high register from thread stack to {R4 - R7} */
+    __asm ("   MOV     R8,  R4        ");        /* mov {R4 - R7} to {R8 - R11} */
+    __asm ("   MOV     R9,  R5");
+    __asm ("   MOV     R10, R6");
+    __asm ("   MOV     R11, R7");
+    __asm ("   POP     {R4 - R7}      ");        /* pop {R4 - R7} from MSP */
+
+    __asm ("    MSR     psp, r1");//  update stack pointer
+    
+    __asm ("    PUSH    {r3}");
+    __asm ("    PUSH    {r0}");
+    __asm ("    BL      p_sched_swap_in_cb");
+    __asm ("    POP     {r0}");
+    __asm ("    POP     {r3}");
+
+    __asm ("pendsv_exit:");
+    // restore interrupt
+    __asm ("    MSR     PRIMASK, r2");
+
+    __asm ("    MOVS    R3, #0x03");
+    __asm ("    RSBS    R3, R3, #0x00");
+    __asm ("    BX      r3");
+#endif
 }
 
 struct exception_info
@@ -214,6 +290,7 @@ void arch_hardfault_exception(struct exception_info *exception_info)
 
 __attribute__((naked)) void HardFault_Handler(void)
 {
+#ifndef P_ARCH_CORTEX_M0
     // get current context
     __asm ("    TST     lr, #0x04");
     __asm ("    ITE     EQ");
@@ -233,4 +310,10 @@ __attribute__((naked)) void HardFault_Handler(void)
 
     __asm ("    ORR     lr, lr, #0x04");
     __asm ("    BX      lr");
+#else
+    __asm ("    MRS     R0, PSP                 ");
+    __asm ("    PUSH    {LR}");
+    __asm ("    BL      arch_hardfault_exception");
+    __asm ("    POP     {PC}");
+#endif
 }

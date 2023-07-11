@@ -1,7 +1,7 @@
 
 option("build_target")
     set_default("stm32-f407-fkm1")
-    set_values("stm32-f407-fkm1", "stm32-f412-nucleo")
+    set_values("stm32-f407-fkm1", "stm32-f412-nucleo", "raspberry-pico")
     set_description("Build target")
 
 option("build_toolchian")
@@ -34,6 +34,8 @@ if is_config("build_target", "stm32-f412-nucleo") then
     target_name = "stm32-f412-nucleo"
 elseif is_config("build_target", "stm32-f407-fkm1") then
     target_name = "stm32-f407-fkm1"
+elseif is_config("build_target", "raspberry-pico") then
+    target_name = "raspberry-pico"
 else
     target_name = "stm32-f407-fkm1"
 end
