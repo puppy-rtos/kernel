@@ -2,7 +2,7 @@
 
 target("puppy")
     add_files("Core/Src/*.c", "/Drivers/**.c")
-    add_defines("USE_HAL_DRIVER", "STM32F412Zx")
+    add_defines("USE_HAL_DRIVER", "STM32F412Zx", "_POSIX_C_SOURCE=1")
     add_includedirs("Drivers/STM32F4xx_HAL_Driver/Inc", 
                 "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy", 
                 "Core/Inc", 
@@ -10,7 +10,7 @@ target("puppy")
                 "Drivers/CMSIS/Include"
                 )
 
-    if is_config("toolchian", "armclang") then
+    if is_config("build_toolchian", "armclang") then
         add_files("Drivers/CMSIS/Device/ST/STM32F4xx/arm/*.s")
         set_toolchains("armclang")
         set_arch("cortex-m4")
@@ -25,12 +25,15 @@ target("puppy")
                 os.exec("D:/Progrem/Keil_v5/ARM/ARMCLANG/bin/fromelf.exe --bin $(buildir)/cross/cortex-m4/release/puppy.axf --output puppy.bin")
             end
         end)
-    elseif is_config("toolchian", "arm-none-eabi-gcc") then
+    elseif is_config("build_toolchian", "arm-none-eabi-gcc") then
         add_files("Drivers/CMSIS/Device/ST/STM32F4xx/gcc/*.s")
-        set_toolchains("arm-none-eabi-gcc")
+        set_toolchains("cross")
         set_extension(".elf")
         set_arch("cortex-m4")
         add_links("c", "m", "nosys");
+        add_cxflags('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Dgcc -Wall --specs=nosys.specs')
+        add_ldflags('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Wl,--gc-sections,-Map=puppy.map,-cref,-u,Reset_Handler --specs=nosys.specs')
+        add_asflags('-c -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -x assembler-with-cpp -Wa,-mimplicit-it=thumb')
         add_ldflags(' -T ' .. os.scriptdir() .. '/link.lds')
         after_build(function (package)
             if is_mode('debug') then

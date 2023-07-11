@@ -2,7 +2,6 @@ set_project("puppy")
 set_version("0.0.1")
 
 includes("options.lua")
-includes("toolchains.lua")
 
 add_rules("mode.debug", "mode.release")
 

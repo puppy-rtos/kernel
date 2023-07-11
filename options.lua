@@ -4,7 +4,7 @@ option("build_target")
     set_values("stm32-f407-fkm1", "stm32-f412-nucleo")
     set_description("Build target")
 
-option("toolchian")
+option("build_toolchian")
     set_default("arm-none-eabi-gcc")
     set_values("arm-none-eabi-gcc", "armclang")
     set_description("Build Toolchian")
