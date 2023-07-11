@@ -31,6 +31,32 @@
             "servertype": "pyocd",
             "armToolchainPath": "D:\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin",
             "gdbPath": "D:\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin\\arm-none-eabi-gdb.exe",
+        },
+        {
+            "name": "f407@qemu",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "build/cross/cortex-m4/debug/puppy.elf",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true,
+            "miDebuggerServerAddress": "localhost:1234",
+            "serverLaunchTimeout": 2000,
+            "targetArchitecture": "ARM",
+            "setupCommands": [
+                {
+                    "text": "cd ${workspaceRoot}"
+                },
+                {
+                    "text": "shell targets\\stm32-f407-fkm1\\qemu-dbg.bat"
+                }
+            ],
+            "MIMode": "gdb",
+            "miDebuggerPath": "D:\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin\\arm-none-eabi-gdb.exe",
+            "customLaunchSetupCommands": [],
+            "launchCompleteCommand": "exec-run",
         }
     ]
 }
