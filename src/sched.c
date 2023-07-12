@@ -11,18 +11,16 @@
 #include <puppy/klog.h>
 
 static p_list_t ready_queue = P_LIST_STATIC_INIT(&ready_queue);
-struct _thread_obj *_g_curr_thread;
-struct _thread_obj *_g_next_thread;
-static atomic_int _sched_lock = 1;
+
 int p_sched(void)
 {
     int ret = P_EOK;
     struct _thread_obj *_thread;
     p_base_t key = arch_irq_lock();
 
-    if (_sched_lock == 0)
+    if (p_cpu_self()->sched_lock == 0)
     {
-        if (!_g_next_thread)
+        if (!p_cpu_self()->next_thread)
         {
             /* get prio higest thread */
             KLOG_ASSERT(p_list_is_empty(&ready_queue) == false);
@@ -33,18 +31,18 @@ int p_sched(void)
             }
             _thread = p_list_entry(ready_queue.head, struct _thread_obj, tnode);
             KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
-            if (_g_curr_thread && _g_curr_thread->state == P_THREAD_STATE_RUN && _thread->prio >= _g_curr_thread->prio)
+            if (p_cpu_self()->curr_thread && p_cpu_self()->curr_thread->state == P_THREAD_STATE_RUN && _thread->prio >= p_cpu_self()->curr_thread->prio)
             {
                 arch_irq_unlock(key);
                 return 0;
             }
-            _g_next_thread = _thread;
+            p_cpu_self()->next_thread = _thread;
             p_list_remove(ready_queue.head);
-            KLOG_D("next thread:%s", _g_next_thread->kobj.name);
-            if (_g_curr_thread && _g_curr_thread->state == P_THREAD_STATE_RUN)
+            KLOG_D("next thread:%s", p_cpu_self()->next_thread->kobj.name);
+            if (p_cpu_self()->curr_thread && p_cpu_self()->curr_thread->state == P_THREAD_STATE_RUN)
             {
-                _g_curr_thread->state = P_THREAD_STATE_READY;
-                p_sched_ready_insert(_g_curr_thread);
+                p_cpu_self()->curr_thread->state = P_THREAD_STATE_READY;
+                p_sched_ready_insert(p_cpu_self()->curr_thread);
             }
         }
 
@@ -58,12 +56,12 @@ int p_sched(void)
 
 void p_sched_lock(void)
 {
-    atomic_fetch_add(&_sched_lock, 1);
+    atomic_fetch_add(&p_cpu_self()->sched_lock, 1);
 }
 void p_sched_unlock(void)
 {
-    atomic_fetch_sub(&_sched_lock, 1);
-    if (!_sched_lock)
+    atomic_fetch_sub(&p_cpu_self()->sched_lock, 1);
+    if (!p_cpu_self()->sched_lock)
     {
         p_sched();
     }
@@ -126,15 +124,15 @@ int p_sched_remove(p_obj_t thread)
 void p_sched_swap_out_cb(p_obj_t thread)
 {
     P_UNUSED(thread);
-    KLOG_ASSERT(p_obj_get_type(_g_curr_thread) == P_OBJ_TYPE_THREAD);
-    _g_curr_thread = NULL;
+    KLOG_ASSERT(p_obj_get_type(p_cpu_self()->curr_thread) == P_OBJ_TYPE_THREAD);
+    p_cpu_self()->curr_thread = NULL;
 }
 
 void p_sched_swap_in_cb(p_obj_t thread)
 {
     P_UNUSED(thread);
-    KLOG_ASSERT(p_obj_get_type(_g_next_thread) == P_OBJ_TYPE_THREAD);
-    _g_next_thread->state = P_THREAD_STATE_RUN;
-    _g_curr_thread = _g_next_thread;
-    _g_next_thread = NULL;
+    KLOG_ASSERT(p_obj_get_type(p_cpu_self()->next_thread) == P_OBJ_TYPE_THREAD);
+    p_cpu_self()->next_thread->state = P_THREAD_STATE_RUN;
+    p_cpu_self()->curr_thread = p_cpu_self()->next_thread;
+    p_cpu_self()->next_thread = NULL;
 }

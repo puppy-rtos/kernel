@@ -55,6 +55,7 @@ void p_show_version(void)
 
 void puppy_init(void)
 {
+    p_cpu_self()->sched_lock = 1;
     p_show_version();
     _dthread_obj_init();
     p_thread_init(&_idle, "idle", idle_thread_entry, NULL,

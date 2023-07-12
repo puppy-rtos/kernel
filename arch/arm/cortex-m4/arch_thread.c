@@ -11,6 +11,8 @@ extern struct _thread_obj *_g_curr_thread;
 extern struct _thread_obj *_g_next_thread;
 
 uint32_t arch_switch_interrupt_flag;
+uint32_t arch_switch_interrupt_from_sp;
+uint32_t arch_switch_interrupt_to_sp;
 
 struct arch_thread
 {
@@ -75,18 +77,20 @@ void arch_new_thread(struct _thread_obj *thread,
     thread->arch = arch_data;
 }
 
-__attribute__((const))
-uint32_t arch_thread_to_ptr(struct _thread_obj *thread)
-{
-    return (uint32_t)&thread->arch->stack_ptr;
-}
-
 void arch_swap(unsigned int key)
 {
     arch_switch_interrupt_flag = 1;
 
 	/* set pending bit to make sure we will take a PendSV exception */
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+    if (p_cpu_self()->curr_thread)
+    {
+        arch_switch_interrupt_from_sp = &p_cpu_self()->curr_thread->arch->stack_ptr;
+    }
+    if (p_cpu_self()->next_thread)
+    {
+        arch_switch_interrupt_to_sp = &p_cpu_self()->next_thread->arch->stack_ptr;
+    }
 
 	/* clear mask or enable all irqs to take a pendsv */
 	arch_irq_unlock(0);
@@ -107,7 +111,7 @@ __attribute__((naked)) void PendSV_Handler(void)
     __asm ("    MOV     r1, #0x00");
     __asm ("    STR     r1, [r0]");
 
-    __asm ("    LDR     r0, =_g_curr_thread");
+    __asm ("    LDR     r0, =arch_switch_interrupt_from_sp");
     __asm ("    LDR     r1, [r0]");
     __asm ("    CBZ     r1, switch_to_thread ");   // skip register save at the first time
     __asm ("    MOV     r0, r1");
@@ -119,20 +123,12 @@ __attribute__((naked)) void PendSV_Handler(void)
     __asm ("    MRS     r1, psp              ");   // get from thread stack pointer
 
     __asm ("    STMFD   r1!, {r4 - r11}      ");   // push r4 - r11 register
-    
-    __asm ("    PUSH    {lr}");
-    __asm ("    BL      arch_thread_to_ptr");
-    __asm ("    POP     {lr}");
     __asm ("    STR     r1, [r0]             ");   // update from thread stack pointer
 
     __asm ("switch_to_thread:");
-    __asm ("    LDR     r0, =_g_next_thread");
-    __asm ("    LDR     r0, [r0]");
-    __asm ("    PUSH    {lr}");
-    __asm ("    BL      arch_thread_to_ptr");
-    __asm ("    POP     {lr}");
-    
+    __asm ("    LDR     r0, =arch_switch_interrupt_to_sp");
     __asm ("    LDR     r1, [r0]");
+    __asm ("    LDR     r1, [r1]");
     
     __asm ("    LDMFD   r1!, {r4 - r11}");         // pop r4 - r11 register
     
@@ -166,7 +162,7 @@ __attribute__((naked)) void PendSV_Handler(void)
     __asm ("    MOVS     r1, #0");
     __asm ("    STR     r1, [r0]");
 
-    __asm ("    LDR     r0, =_g_curr_thread");
+    __asm ("    LDR     r0, =arch_switch_interrupt_from_sp");
     __asm ("    LDR     r1, [r0]");
     __asm ("    CMP     r1, #0x00");
     __asm ("    BEQ     switch_to_thread");
@@ -180,9 +176,6 @@ __attribute__((naked)) void PendSV_Handler(void)
     
     __asm ("    MRS     r1, psp              ");   // get from thread stack pointer
     __asm ("    SUBS    R1, R1, #0x20       ");     /* space for {R4 - R7} and {R8 - R11} */
-    __asm ("    PUSH    {r3}");
-    __asm ("    BL      arch_thread_to_ptr");
-    __asm ("    POP     {r3}");
     __asm ("    STR     r1, [r0]             ");   // update from thread stack pointer
     __asm ("    STMIA   R1!, {R4 - R7}      ");     /* push thread {R4 - R7} register to thread stack */
     __asm ("    MOV     R4, R8              ");     /* mov thread {R8 - R11} to {R4 - R7} */
@@ -192,12 +185,8 @@ __attribute__((naked)) void PendSV_Handler(void)
     __asm ("    STMIA   R1!, {R4 - R7}      ");     /* push thread {R8 - R11} high register to thread stack */
 
     __asm ("switch_to_thread:");
-    __asm ("    LDR     r0, =_g_next_thread");
+    __asm ("    LDR     r0, =arch_switch_interrupt_to_sp");
     __asm ("    LDR     r0, [r0]");
-    __asm ("    PUSH    {r3}");
-    __asm ("    BL      arch_thread_to_ptr");
-    __asm ("    POP     {r3}");
-    
     __asm ("    LDR     r1, [r0]");
     __asm ("   LDMIA   R1!, {R4 - R7} ");        /* pop thread {R4 - R7} register from thread stack */
     __asm ("   PUSH    {R4 - R7}      ");        /* push {R4 - R7} to MSP for copy {R8 - R11} */

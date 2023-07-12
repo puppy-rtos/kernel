@@ -16,7 +16,6 @@
 static p_list_t thread_timeout_list = P_LIST_STATIC_INIT(&thread_timeout_list);
 static void timeout_insert(struct timeout *timeout);
 static int timeout_remove(struct timeout *timeout);
-extern struct _thread_obj *_g_curr_thread;
 
 void p_thread_entry(void (*entry)(void *parameter), void *param)
 {
@@ -75,14 +74,14 @@ void p_thread_init(p_obj_t obj, const char *name,
 
 p_obj_t p_thread_self(void)
 {
-    return _g_curr_thread;
+    return p_cpu_self()->curr_thread;
 }
 
 char *p_thread_self_name(void)
 {
-    KLOG_ASSERT(_g_curr_thread != NULL);
-    KLOG_ASSERT(p_obj_get_type(_g_curr_thread) == P_OBJ_TYPE_THREAD);
-    return _g_curr_thread->kobj.name;
+    KLOG_ASSERT(p_cpu_self()->curr_thread != NULL);
+    KLOG_ASSERT(p_obj_get_type(p_cpu_self()->curr_thread) == P_OBJ_TYPE_THREAD);
+    return p_cpu_self()->curr_thread->kobj.name;
 }
 
 int p_thread_abort(p_obj_t obj)
@@ -101,10 +100,10 @@ int p_thread_abort(p_obj_t obj)
 
 int p_thread_yield(void)
 {
-    struct _thread_obj *_thread = _g_curr_thread;
+    struct _thread_obj *_thread = p_cpu_self()->curr_thread;
     p_base_t key = arch_irq_lock();
     
-    KLOG_ASSERT(_g_curr_thread != NULL);
+    KLOG_ASSERT(p_cpu_self()->curr_thread != NULL);
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
 
@@ -126,7 +125,7 @@ void sleep_timeout_func(p_obj_t obj, void *param)
 
 int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param)
 {
-    struct _thread_obj *_thread = _g_curr_thread;
+    struct _thread_obj *_thread = p_cpu_self()->curr_thread;
     
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
@@ -147,7 +146,7 @@ int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param)
 
 int p_thread_sleep(p_tick_t tick)
 {
-    struct _thread_obj *_thread = _g_curr_thread;
+    struct _thread_obj *_thread = p_cpu_self()->curr_thread;
     int err = P_EOK;
     p_base_t key = arch_irq_lock();
 
