@@ -108,6 +108,18 @@ bool arch_irq_locked(p_base_t key);
 bool arch_in_irq(void);
 void arch_swap(unsigned int key);
 
+
+#define CPU_NR 1
+
+struct p_cpu
+{
+    struct _thread_obj *curr_thread;
+    struct _thread_obj *next_thread;
+    atomic_int sched_lock;
+};
+int p_cpu_self_id(void);
+struct p_cpu *p_cpu_self(void);
+
 /**
  * tick api
  */
