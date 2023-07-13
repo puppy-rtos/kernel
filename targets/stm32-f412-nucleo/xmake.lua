@@ -1,7 +1,7 @@
 
 
 target("puppy")
-    add_files("Core/Src/*.c", "/Drivers/**.c")
+    add_files("Core/Src/*.c", "Drivers/**.c")
     add_defines("USE_HAL_DRIVER", "STM32F412Zx", "_POSIX_C_SOURCE=1")
     add_includedirs("Drivers/STM32F4xx_HAL_Driver/Inc", 
                 "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy", 
