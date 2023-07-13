@@ -10,39 +10,39 @@
 #define KLOG_LVL   KLOG_WARNING
 #include <puppy/klog.h>
 
-static p_list_t ready_queue = P_LIST_STATIC_INIT(&ready_queue);
+static p_list_t _g_ready_queue = P_LIST_STATIC_INIT(&_g_ready_queue);
+struct _thread_obj *p_sched_ready_highest(void);
 
 int p_sched(void)
 {
     int ret = P_EOK;
-    struct _thread_obj *_thread;
+    struct _thread_obj *_h_thread;
     p_base_t key = arch_irq_lock();
+    struct p_cpu *_cpu = p_cpu_self();
 
-    if (p_cpu_self()->sched_lock == 0)
+    if (_cpu->sched_lock == 0)
     {
-        if (!p_cpu_self()->next_thread)
+        if (!_cpu->next_thread)
         {
             /* get prio higest thread */
-            KLOG_ASSERT(p_list_is_empty(&ready_queue) == false);
-            if (p_list_is_empty(&ready_queue))
+            _h_thread = p_sched_ready_highest();
+            if (!_h_thread)
             {
                 arch_irq_unlock(key);
                 return 0;
             }
-            _thread = p_list_entry(ready_queue.head, struct _thread_obj, tnode);
-            KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
-            if (p_cpu_self()->curr_thread && p_cpu_self()->curr_thread->state == P_THREAD_STATE_RUN && _thread->prio >= p_cpu_self()->curr_thread->prio)
+            if (_cpu->curr_thread && _cpu->curr_thread->state == P_THREAD_STATE_RUN && _h_thread->prio >= _cpu->curr_thread->prio)
             {
                 arch_irq_unlock(key);
                 return 0;
             }
-            p_cpu_self()->next_thread = _thread;
-            p_list_remove(ready_queue.head);
-            KLOG_D("next thread:%s", p_cpu_self()->next_thread->kobj.name);
-            if (p_cpu_self()->curr_thread && p_cpu_self()->curr_thread->state == P_THREAD_STATE_RUN)
+            _cpu->next_thread = _h_thread;
+            p_sched_remove(_h_thread);
+            KLOG_D("next thread:%s", _cpu->next_thread->kobj.name);
+            if (_cpu->curr_thread && _cpu->curr_thread->state == P_THREAD_STATE_RUN)
             {
-                p_cpu_self()->curr_thread->state = P_THREAD_STATE_READY;
-                p_sched_ready_insert(p_cpu_self()->curr_thread);
+                _cpu->curr_thread->state = P_THREAD_STATE_READY;
+                p_sched_ready_insert(_cpu->curr_thread);
             }
         }
 
@@ -73,12 +73,13 @@ int p_sched_ready_insert(p_obj_t thread)
     p_base_t key = arch_irq_lock();
 
     p_node_t *node;
+    p_list_t *_ready_queue = &_g_ready_queue;
     KLOG_ASSERT(_thread != NULL);
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     
-    KLOG_D("p_sched_ready_insert:thread:%x,key:%x", _thread, key);
+    KLOG_D("p_sched_ready_insert:thread:%x,key:%x,bindcpu:%d", _thread, key, _thread->bindcpu);
     
-    p_list_for_each_node(&ready_queue, node)
+    p_list_for_each_node(_ready_queue, node)
     {
         temp_thread = p_list_entry(node, struct _thread_obj, tnode);
         KLOG_ASSERT(p_obj_get_type(temp_thread) == P_OBJ_TYPE_THREAD);
@@ -90,7 +91,6 @@ int p_sched_ready_insert(p_obj_t thread)
         }
     }
     
-
     _thread->state = P_THREAD_STATE_READY;
     if (old_thread)
     {
@@ -98,13 +98,38 @@ int p_sched_ready_insert(p_obj_t thread)
     }
     else
     {
-        p_list_append(&ready_queue, &_thread->tnode);
+        p_list_append(_ready_queue, &_thread->tnode);
     }
     
-    KLOG_D("p_sched_ready_insert done:ready_queue.head:%x", ready_queue.head);
+    KLOG_D("p_sched_ready_insert done:_ready_queue->head:%x", _ready_queue->head);
 
     arch_irq_unlock(key);
     return 0;
+}
+
+struct _thread_obj *p_sched_ready_highest(void)
+{
+    struct _thread_obj *highest_thread = NULL, *temp_thread = NULL;
+    p_base_t key = arch_irq_lock();
+
+    p_node_t *node;
+    p_list_t *_ready_queue = &_g_ready_queue;
+    
+    p_list_for_each_node(_ready_queue, node)
+    {
+        temp_thread = p_list_entry(node, struct _thread_obj, tnode);
+        KLOG_ASSERT(p_obj_get_type(temp_thread) == P_OBJ_TYPE_THREAD);
+        if (temp_thread->bindcpu == (uint8_t)-1 || temp_thread->bindcpu == p_cpu_self_id())
+        {
+            /* find out highest_thread */
+            highest_thread = temp_thread;
+            break;
+        }
+    }
+    KLOG_ASSERT(highest_thread != NULL);
+
+    arch_irq_unlock(key);
+    return highest_thread;
 }
 
 int p_sched_remove(p_obj_t thread)

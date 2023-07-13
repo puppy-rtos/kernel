@@ -22,3 +22,10 @@ struct p_cpu *p_cpu_self(void)
     return &_g_cpu[p_cpu_self_id()];
 }
 
+void p_cpu_init(void)
+{
+    for (int i = 0; i < CPU_NR; i++)
+    {
+        _g_cpu[i].sched_lock = 1;
+    }
+}

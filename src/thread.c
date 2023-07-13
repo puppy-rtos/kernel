@@ -30,25 +30,13 @@ void p_thread_entry(void (*entry)(void *parameter), void *param)
     while (1);
 }
 
-void p_thread_init_user(p_obj_t obj, const char *name,
-                                void (*entry)(void *param),
-                                void    *param,
-                                void    *stack_addr,
-                                uint32_t stack_size,
-                                uint8_t  prio)
-{
-    struct _thread_obj *thread = obj;
-
-    p_thread_init(obj, name, entry, param, stack_addr, stack_size, prio);
-    thread->mode = P_THREAD_MODE_USER;
-}
-
 void p_thread_init(p_obj_t obj, const char *name,
                                 void (*entry)(void *param),
                                 void    *param,
                                 void    *stack_addr,
                                 uint32_t stack_size,
-                                uint8_t  prio)
+                                uint8_t  prio,
+                                uint8_t bindcpu)
 {
     struct _thread_obj *thread = obj;
 
@@ -63,6 +51,7 @@ void p_thread_init(p_obj_t obj, const char *name,
     thread->state = P_THREAD_STATE_INIT;
     thread->mode = 0;
     thread->kernel_stack = 0;
+    thread->bindcpu = bindcpu;
     
     KLOG_D("thread_init -->[%s], entry:0x%x, stack_addr:0x%x, stack_size:%d ",
                                name, entry, stack_addr, stack_size);

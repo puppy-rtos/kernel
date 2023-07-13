@@ -10,9 +10,9 @@
 #define KLOG_LVL   KLOG_WARNING
 #include <puppy/klog.h>
 
-static struct _thread_obj _idle;
+static struct _thread_obj _idle[CPU_NR];
 p_align(P_ALIGN_SIZE)
-static uint8_t _idle_thread_stack[P_IDLE_THREAD_STACK_SIZE];
+static uint8_t _idle_thread_stack[CPU_NR][P_IDLE_THREAD_STACK_SIZE];
 
 static void idle_thread_entry(void *parm)
 {
@@ -36,7 +36,8 @@ static void _dthread_obj_init(void)
         p_thread_init(_obj, _obj->kobj.name, _obj->entry, _obj->param,
                     _obj->stack_addr,
                     _obj->stack_size,
-                    _obj->prio);
+                    _obj->prio,
+                    _obj->bindcpu);
         p_thread_start(_obj);
         ptr += (sizeof(struct _thread_obj) / sizeof(unsigned int));
     }
@@ -55,13 +56,16 @@ void p_show_version(void)
 
 void puppy_init(void)
 {
-    p_cpu_self()->sched_lock = 1;
+    p_cpu_init();
     p_show_version();
     _dthread_obj_init();
-    p_thread_init(&_idle, "idle", idle_thread_entry, NULL,
-                  _idle_thread_stack,
-                  sizeof(_idle_thread_stack),
-                  P_THREAD_PRIO_MAX);
+    for (uint8_t i = 0; i < CPU_NR; i++)
+    {
+        p_thread_init(&_idle[i], "idle", idle_thread_entry, NULL,
+                    _idle_thread_stack[i], P_IDLE_THREAD_STACK_SIZE,
+                    P_THREAD_PRIO_MAX, i);
+    }
+    
     p_thread_start(&_idle);
 }
 

@@ -108,7 +108,6 @@ bool arch_irq_locked(p_base_t key);
 bool arch_in_irq(void);
 void arch_swap(unsigned int key);
 
-
 #define CPU_NR 1
 
 struct p_cpu
@@ -119,6 +118,7 @@ struct p_cpu
 };
 int p_cpu_self_id(void);
 struct p_cpu *p_cpu_self(void);
+void p_cpu_init(void);
 
 /**
  * tick api
@@ -179,6 +179,7 @@ struct _thread_obj
     int          errno;
     void        *kernel_stack;
 
+    uint8_t      bindcpu;
     uint8_t      oncpu;
 
     p_timeout_t  timeout;
@@ -187,17 +188,18 @@ struct _thread_obj
 };
 
 #define P_THREAD_DEFINE_SECT P_RAM_SECTION "P_DThread_OBJ"
-#define P_THREAD_DEFINE(dname, dentry, dparam, dstack_addr, dstack_size, dprio)\
-    p_used const char _thread_##dname##_name[] = #dname;                       \
-    p_used static struct _thread_obj _thread_##dname##_obj                     \
+#define P_THREAD_DEFINE(dname, dentry, dparam, dstack_addr, dstack_size, dprio, dbindcpu)\
+    p_used const char _thread_##dname##_name[] = #dname;                                 \
+    p_used static struct _thread_obj _thread_##dname##_obj                               \
     P_SECTION_DATA(P_THREAD_DEFINE_SECT) =                                               \
-    {                                                                          \
-        .kobj.name = _thread_##dname##_name,                                   \
-        .entry = dentry,                                                       \
-        .param = (dparam),                                                     \
-        .stack_addr = (dstack_addr),                                           \
-        .stack_size = (dstack_size),                                           \
-        .prio = (dprio),                                                       \
+    {                                                                                    \
+        .kobj.name = _thread_##dname##_name,                                             \
+        .entry = dentry,                                                                 \
+        .param = (dparam),                                                               \
+        .stack_addr = (dstack_addr),                                                     \
+        .stack_size = (dstack_size),                                                     \
+        .prio = (dprio),                                                                 \
+        .bindcpu = (uint8_t)(dbindcpu),                                                  \
     }
 
 void p_thread_init(p_obj_t obj, const char *name,
@@ -205,7 +207,8 @@ void p_thread_init(p_obj_t obj, const char *name,
                                 void    *param,
                                 void    *stack_addr,
                                 uint32_t stack_size,
-                                uint8_t  prio);
+                                uint8_t  prio,
+                                uint8_t  bindcpu);
 
 p_obj_t p_thread_create(const char *name,
                         void (*entry)(void *parameter),
