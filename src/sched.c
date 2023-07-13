@@ -130,9 +130,11 @@ void p_sched_swap_out_cb(p_obj_t thread)
 
 void p_sched_swap_in_cb(p_obj_t thread)
 {
+    struct p_cpu *cpu = p_cpu_self();
     P_UNUSED(thread);
     KLOG_ASSERT(p_obj_get_type(p_cpu_self()->next_thread) == P_OBJ_TYPE_THREAD);
-    p_cpu_self()->next_thread->state = P_THREAD_STATE_RUN;
-    p_cpu_self()->curr_thread = p_cpu_self()->next_thread;
-    p_cpu_self()->next_thread = NULL;
+    cpu->next_thread->state = P_THREAD_STATE_RUN;
+    cpu->curr_thread = cpu->next_thread;
+    cpu->next_thread = NULL;
+    cpu->curr_thread->oncpu = p_cpu_self_id();
 }

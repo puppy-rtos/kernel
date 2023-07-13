@@ -179,6 +179,8 @@ struct _thread_obj
     int          errno;
     void        *kernel_stack;
 
+    uint8_t      oncpu;
+
     p_timeout_t  timeout;
     /** arch-specifics: must always be at the end */
     struct arch_thread *arch;
