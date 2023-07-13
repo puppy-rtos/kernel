@@ -1,7 +1,7 @@
 
 
 target("puppy")
-    add_files("Core/Src/*.c", "/Drivers/**.c")
+    add_files("Core/Src/*.c", "Drivers/**.c")
     add_defines("USE_HAL_DRIVER", "STM32F412Zx", "_POSIX_C_SOURCE=1")
     add_includedirs("Drivers/STM32F4xx_HAL_Driver/Inc", 
                 "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy", 
@@ -37,9 +37,9 @@ target("puppy")
         add_ldflags(' -T ' .. os.scriptdir() .. '/link.lds')
         after_build(function (package)
             if is_mode('debug') then
-                os.exec("D:/Progrem/env-windows/tools/gnu_gcc/arm_gcc/mingw/bin/arm-none-eabi-objcopy.exe -O binary $(buildir)/cross/cortex-m4/debug/puppy.elf puppy.bin")
+                os.exec("$(sdk)/bin/arm-none-eabi-objcopy -O binary $(buildir)/cross/cortex-m4/debug/puppy.elf puppy.bin")
             else
-                os.exec("D:/Progrem/env-windows/tools/gnu_gcc/arm_gcc/mingw/bin/arm-none-eabi-objcopy.exe -O binary $(buildir)/cross/cortex-m4/release/puppy.elf puppy.bin")
+                os.exec("$(sdk)/bin/arm-none-eabi-objcopy -O binary $(buildir)/cross/cortex-m4/release/puppy.elf puppy.bin")
             end
-        end)       
+        end)
     end
