@@ -64,9 +64,8 @@ void puppy_init(void)
         p_thread_init(&_idle[i], "idle", idle_thread_entry, NULL,
                     _idle_thread_stack[i], P_IDLE_THREAD_STACK_SIZE,
                     P_THREAD_PRIO_MAX, i);
+        p_thread_start(&_idle[i]);
     }
-    
-    p_thread_start(&_idle);
 }
 
 void puppy_start(void)

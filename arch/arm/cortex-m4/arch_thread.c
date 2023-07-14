@@ -7,8 +7,6 @@
 #include <puppy.h>
 #include <puppy/target.h>
 
-extern struct _thread_obj *_g_curr_thread;
-extern struct _thread_obj *_g_next_thread;
 
 uint32_t arch_switch_interrupt_flag;
 uint32_t arch_switch_interrupt_from_sp;

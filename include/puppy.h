@@ -179,12 +179,12 @@ struct _thread_obj
     int          errno;
     void        *kernel_stack;
 
-    uint8_t      bindcpu;
     uint8_t      oncpu;
 
     p_timeout_t  timeout;
     /** arch-specifics: must always be at the end */
     struct arch_thread *arch;
+    uint8_t      bindcpu;
 };
 
 #define P_THREAD_DEFINE_SECT P_RAM_SECTION "P_DThread_OBJ"
