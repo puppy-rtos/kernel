@@ -83,7 +83,7 @@ struct p_obj
 {
     const char *name;
     uint16_t    type;    /* The type of this object, 0-7:type, 8-15:user extern */
-    // uint8_t     share;   /* The sharing type of this object */
+    uint8_t     share;   /* The sharing type of this object */
     uint8_t     flag;    /* The support sharing type flag of this object */
     p_obj_t     owner;   /* A thread that owns this obj */
     p_ctl_t     control; /* The control func for this obj */
@@ -162,6 +162,7 @@ typedef struct timeout
     p_node_t         node;
 }p_timeout_t;
 
+p_align(P_ALIGN_SIZE)
 struct _thread_obj
 {
     struct p_obj kobj;
@@ -179,12 +180,13 @@ struct _thread_obj
     int          errno;
     void        *kernel_stack;
 
+    uint8_t      bindcpu;
+    uint8_t      reserved[3];
     uint8_t      oncpu;
 
     p_timeout_t  timeout;
     /** arch-specifics: must always be at the end */
     struct arch_thread *arch;
-    uint8_t      bindcpu;
 };
 
 #define P_THREAD_DEFINE_SECT P_RAM_SECTION "P_DThread_OBJ"
