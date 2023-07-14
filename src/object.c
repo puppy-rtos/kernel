@@ -78,8 +78,8 @@ void list_thread(void)
 
     maxlen = 8;
 
-    printk("thread   cpu  pri  state   stack size max used left tick  error\n");
-    printk("-------  ---  ---  ------- ----------  ------  ---------- ------\n");
+    printk("thread   cpu  bind  pri  state   stack size max used left tick  error\n");
+    printk("-------  ---  ----  ---  ------- ----------  ------  ---------- ------\n");
 
     p_list_for_each_node(&_g_obj_list, node)
     {
@@ -93,7 +93,14 @@ void list_thread(void)
             uint8_t *ptr;
             struct _thread_obj *thread = (struct _thread_obj *)object;
 
-            printk("%-*.*s %3d  %3d ", maxlen, maxlen, thread->kobj.name, thread->oncpu, thread->prio);
+            if (thread->state == P_THREAD_STATE_RUN)
+            {
+                printk("%-*.*s %3d  %3d   %3d ", maxlen, maxlen, thread->kobj.name, thread->oncpu, thread->bindcpu, thread->prio);
+            }
+            else
+            {
+                printk("%-*.*s %s  %3d   %3d ", maxlen, maxlen, thread->kobj.name, "N/A", thread->bindcpu, thread->prio);
+            }
 
             stat = thread->state;
             if (stat == P_THREAD_STATE_READY)        printk(" ready  ");

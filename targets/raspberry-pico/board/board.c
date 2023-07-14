@@ -13,7 +13,9 @@
 #include <stdio.h>
 #include <puppy.h>
 #include "board.h"
+
 #include "hardware/structs/systick.h"
+#include "hardware/structs/sio.h"
 
 #include "hardware/uart.h"
 #include "hardware/irq.h"
@@ -151,6 +153,14 @@ void isr_systick(void)
 // #endif
 }
 
+int p_cpu_self_id()
+{
+    return sio_hw->cpuid;   
+}
+void p_subcpu_start(void (*entry)(void))
+{
+    multicore_launch_core1(entry);
+}
 uint32_t systick_config(uint32_t ticks)
 {
   if ((ticks - 1UL) > M0PLUS_SYST_RVR_RELOAD_BITS)

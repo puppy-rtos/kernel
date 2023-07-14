@@ -85,9 +85,17 @@ void arch_swap(unsigned int key)
     {
         arch_switch_interrupt_from_sp = &p_cpu_self()->curr_thread->arch->stack_ptr;
     }
+    else
+    {
+        arch_switch_interrupt_from_sp = 0;
+    }
     if (p_cpu_self()->next_thread)
     {
         arch_switch_interrupt_to_sp = &p_cpu_self()->next_thread->arch->stack_ptr;
+    }
+    else
+    {
+        arch_switch_interrupt_to_sp = 0;
     }
 
 	/* clear mask or enable all irqs to take a pendsv */
