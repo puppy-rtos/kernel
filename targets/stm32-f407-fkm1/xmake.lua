@@ -1,6 +1,8 @@
 
 
 target("puppy")
+
+if is_config("build_target", "stm32-f407-fkm1") then
     add_files("Core/Src/*.c", "Drivers/**.c")
     add_defines("USE_HAL_DRIVER", "STM32F407xx", "_POSIX_C_SOURCE=1")
     add_includedirs("Drivers/STM32F4xx_HAL_Driver/Inc", 
@@ -43,3 +45,4 @@ target("puppy")
             end
         end)       
     end
+end

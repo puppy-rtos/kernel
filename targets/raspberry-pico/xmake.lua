@@ -1,6 +1,8 @@
 
 
 target("puppy")
+
+if is_config("build_target", "raspberry-pico") then
     add_files(
         "applications/*.c",
         "board/board.c",
@@ -153,3 +155,4 @@ target("puppy")
         --     end
         -- end)       
     end
+end

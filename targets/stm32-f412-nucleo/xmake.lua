@@ -1,6 +1,9 @@
 
 
 target("puppy")
+
+if is_config("build_target", "stm32-f412-nucleo") then
+    add_defines('TAERGET_STM32_F412')
     add_files("Core/Src/*.c", "Drivers/**.c")
     add_defines("USE_HAL_DRIVER", "STM32F412Zx", "_POSIX_C_SOURCE=1")
     add_includedirs("Drivers/STM32F4xx_HAL_Driver/Inc", 
@@ -43,3 +46,4 @@ target("puppy")
             end
         end)
     end
+end
