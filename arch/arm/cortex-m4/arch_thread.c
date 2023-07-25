@@ -7,11 +7,6 @@
 #include <puppy.h>
 #include <puppy/target.h>
 
-
-uint32_t arch_switch_interrupt_flag;
-uint32_t arch_switch_interrupt_from_sp;
-uint32_t arch_switch_interrupt_to_sp;
-
 struct arch_thread
 {
     uint32_t basepri;
@@ -77,74 +72,66 @@ void arch_new_thread(struct _thread_obj *thread,
 
 void arch_swap(unsigned int key)
 {
-    arch_switch_interrupt_flag = 1;
-
 	/* set pending bit to make sure we will take a PendSV exception */
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
-    if (p_cpu_self()->curr_thread)
-    {
-        arch_switch_interrupt_from_sp = &p_cpu_self()->curr_thread->arch->stack_ptr;
-    }
-    else
-    {
-        arch_switch_interrupt_from_sp = 0;
-    }
-    if (p_cpu_self()->next_thread)
-    {
-        arch_switch_interrupt_to_sp = &p_cpu_self()->next_thread->arch->stack_ptr;
-    }
-    else
-    {
-        arch_switch_interrupt_to_sp = 0;
-    }
+
 
 	/* clear mask or enable all irqs to take a pendsv */
 	arch_irq_unlock(0);
-	arch_irq_unlock(key);
+    if (arch_irq_locked(key))
+    {
+	    arch_irq_lock();
+    }
 }
+
+void *arch_get_from_sp(void)
+{
+    if (!p_cpu_self()->curr_thread)
+        return NULL;
+    return &p_cpu_self()->curr_thread->arch->stack_ptr;
+}
+void *arch_get_to_sp(void)
+{
+    if (!p_cpu_self()->next_thread)
+        return NULL;
+    return &p_cpu_self()->next_thread->arch->stack_ptr;
+}
+
 __attribute__((naked)) void PendSV_Handler(void)
 {
 #ifndef P_ARCH_CORTEX_M0
     // disable interrupt to protect context switch
     __asm ("    MRS     r2, PRIMASK");
     __asm ("    CPSID   I");
-    // get arch_switch_interrupt_flag
-    __asm ("    LDR     r0, =arch_switch_interrupt_flag");
-    __asm ("    LDR     r1, [r0]");
-    __asm ("    CBZ     r1, pendsv_exit");         // pendsv already handled
 
-    // clear arch_switch_interrupt_flag to 0
-    __asm ("    MOV     r1, #0x00");
-    __asm ("    STR     r1, [r0]");
+    __asm ("    PUSH    {r2, lr}");
+    __asm ("    BL      arch_get_from_sp");
+    __asm ("    POP     {r2, lr}");
+    __asm ("    CBZ     r0, switch_to_thread ");   // skip register save at the first time
 
-    __asm ("    LDR     r0, =arch_switch_interrupt_from_sp");
-    __asm ("    LDR     r1, [r0]");
-    __asm ("    CBZ     r1, switch_to_thread ");   // skip register save at the first time
-    __asm ("    MOV     r0, r1");
-
-    __asm ("    PUSH    {r0, lr}");
+    __asm ("    PUSH    {r0, r2, lr}");
     __asm ("    BL      p_sched_swap_out_cb");
-    __asm ("    POP     {r0, lr}");
-    
+    __asm ("    POP     {r0, r2, lr}");
+
+    __asm ("    LDR     r1, [r0]");
     __asm ("    MRS     r1, psp              ");   // get from thread stack pointer
 
     __asm ("    STMFD   r1!, {r4 - r11}      ");   // push r4 - r11 register
     __asm ("    STR     r1, [r0]             ");   // update from thread stack pointer
 
     __asm ("switch_to_thread:");
-    __asm ("    LDR     r0, =arch_switch_interrupt_to_sp");
+    __asm ("    PUSH    {r2, lr}");
+    __asm ("    BL      arch_get_to_sp");
+    __asm ("    POP     {r2, lr}");
+
     __asm ("    LDR     r1, [r0]");
-    __asm ("    LDR     r1, [r1]");
-    
     __asm ("    LDMFD   r1!, {r4 - r11}");         // pop r4 - r11 register
-    
     __asm ("    MSR     psp, r1");//  update stack pointer
     
-    __asm ("    PUSH    {r0, lr}");
+    __asm ("    PUSH    {r2, lr}");
     __asm ("    BL      p_sched_swap_in_cb");
-    __asm ("    POP     {r0, lr}");
+    __asm ("    POP     {r2, lr}");
 
-    __asm ("pendsv_exit:");
     // restore interrupt
     __asm ("    MSR     PRIMASK, r2");
 
@@ -159,25 +146,21 @@ __attribute__((naked)) void PendSV_Handler(void)
     
     __asm ("    MRS     r2, PRIMASK");
     __asm ("    CPSID   I");
-    // get arch_switch_interrupt_flag
-    __asm ("    LDR     r0, =arch_switch_interrupt_flag");
-    __asm ("    LDR     r1, [r0]");
-    __asm ("    CMP     r1, #0x00");
-    __asm ("    BEQ     pendsv_exit");
-    // clear arch_switch_interrupt_flag to 0
-    __asm ("    MOVS     r1, #0");
-    __asm ("    STR     r1, [r0]");
-
-    __asm ("    LDR     r0, =arch_switch_interrupt_from_sp");
-    __asm ("    LDR     r1, [r0]");
-    __asm ("    CMP     r1, #0x00");
-    __asm ("    BEQ     switch_to_thread");
-    __asm ("    MOV     r0, r1");
 
     __asm ("    PUSH    {lr}");
+    __asm ("    PUSH    {r2}");
+    __asm ("    BL      arch_get_from_sp");
+    __asm ("    POP     {r2}");
+    __asm ("    POP     {r3}");
+    __asm ("    CMP     r0, #0x00");
+    __asm ("    BEQ     switch_to_thread");
+
+    __asm ("    PUSH    {r3}");
+    __asm ("    PUSH    {r2}");
     __asm ("    PUSH    {r0}");
     __asm ("    BL      p_sched_swap_out_cb");
     __asm ("    POP     {r0}");
+    __asm ("    PUSH    {r2}");
     __asm ("    POP     {r3}");
     
     __asm ("    MRS     r1, psp              ");   // get from thread stack pointer
@@ -191,27 +174,32 @@ __attribute__((naked)) void PendSV_Handler(void)
     __asm ("    STMIA   R1!, {R4 - R7}      ");     /* push thread {R8 - R11} high register to thread stack */
 
     __asm ("switch_to_thread:");
-    __asm ("    LDR     r0, =arch_switch_interrupt_to_sp");
-    __asm ("    LDR     r0, [r0]");
+    __asm ("    PUSH    {r3}");
+    __asm ("    PUSH    {r2}");
+    __asm ("    BL      arch_get_to_sp");
+    __asm ("    PUSH    {r2}");
+    __asm ("    POP     {r3}");
+
     __asm ("    LDR     r1, [r0]");
-    __asm ("   LDMIA   R1!, {R4 - R7} ");        /* pop thread {R4 - R7} register from thread stack */
-    __asm ("   PUSH    {R4 - R7}      ");        /* push {R4 - R7} to MSP for copy {R8 - R11} */
-    __asm ("   LDMIA   R1!, {R4 - R7} ");        /* pop thread {R8 - R11} high register from thread stack to {R4 - R7} */
-    __asm ("   MOV     R8,  R4        ");        /* mov {R4 - R7} to {R8 - R11} */
-    __asm ("   MOV     R9,  R5");
-    __asm ("   MOV     R10, R6");
-    __asm ("   MOV     R11, R7");
-    __asm ("   POP     {R4 - R7}      ");        /* pop {R4 - R7} from MSP */
+    __asm ("    LDMIA   R1!, {R4 - R7} ");        /* pop thread {R4 - R7} register from thread stack */
+    __asm ("    PUSH    {R4 - R7}      ");        /* push {R4 - R7} to MSP for copy {R8 - R11} */
+    __asm ("    LDMIA   R1!, {R4 - R7} ");        /* pop thread {R8 - R11} high register from thread stack to {R4 - R7} */
+    __asm ("    MOV     R8,  R4        ");        /* mov {R4 - R7} to {R8 - R11} */
+    __asm ("    MOV     R9,  R5");
+    __asm ("    MOV     R10, R6");
+    __asm ("    MOV     R11, R7");
+    __asm ("    POP     {R4 - R7}      ");        /* pop {R4 - R7} from MSP */
 
     __asm ("    MSR     psp, r1");//  update stack pointer
     
     __asm ("    PUSH    {r3}");
+    __asm ("    PUSH    {r2}");
     __asm ("    PUSH    {r0}");
     __asm ("    BL      p_sched_swap_in_cb");
     __asm ("    POP     {r0}");
+    __asm ("    PUSH    {r2}");
     __asm ("    POP     {r3}");
 
-    __asm ("pendsv_exit:");
     // restore interrupt
     __asm ("    MSR     PRIMASK, r2");
 

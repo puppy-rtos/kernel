@@ -52,6 +52,6 @@ void shell_thread_entry(void *parm)
 P_THREAD_DEFINE(shell, shell_thread_entry, NULL,
                 shell_thread_stack,
                 sizeof(shell_thread_stack),
-                12, -1);
+                12, 0);
 
 /******************* (C) COPYRIGHT 2019 Nrush *****END OF FILE*****************/

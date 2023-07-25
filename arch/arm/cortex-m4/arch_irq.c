@@ -30,9 +30,9 @@ __attribute__((always_inline)) inline void arch_irq_unlock(p_base_t key)
         : : : "memory");
 }
 
-__attribute__((always_inline)) inline bool arch_irq_unlocked(p_base_t key)
+__attribute__((always_inline)) inline bool arch_irq_locked(p_base_t key)
 {
-    return key == 0U;
+    return key != 0U;
 }
 __attribute__((always_inline)) inline bool arch_in_irq(void)
 {

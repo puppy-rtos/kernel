@@ -12,7 +12,7 @@
 
 static struct p_cpu _g_cpu[CPU_NR];
 
-p_weak int p_cpu_self_id(void)
+p_weak uint8_t p_cpu_self_id(void)
 {
     return 0;
 }

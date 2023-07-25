@@ -6,6 +6,11 @@
  
 #include <puppy.h>
 
+
+#define KLOG_TAG  "ksem_tc"
+#define KLOG_LVL   KLOG_LOG
+#include <puppy/klog.h>
+
 static struct _thread_obj t1;
 __attribute__((aligned(8)))
 static uint8_t t1_thread_stack[1024];
@@ -22,7 +27,7 @@ static void t1_thread_entry(void *parm)
     while(1)
     {
         p_sem_wait(&sem);
-        printk("t1:waited sem %d\r\n", ++_g_cnt);
+        KLOG_D("t1:waited sem %d", ++_g_cnt);
         if (_g_cnt == 10)
         {
             P_TC_PASS();
@@ -37,7 +42,7 @@ static void t2_thread_entry(void *parm)
     while(cnt < 10)
     {
         p_sem_post(&sem);
-        printk("main:post sem %d\r\n", ++cnt);
+        KLOG_D("main:post sem %d", ++cnt);
         p_thread_sleep(10);
     }
 }
@@ -48,12 +53,12 @@ void test_sem_api(void)
     p_thread_init(&t1, "t1", t1_thread_entry, NULL,
                   t1_thread_stack,
                   sizeof(t1_thread_stack),
-                  11, -1);
+                  13, CPU_NA);
     p_thread_start(&t1);
     p_thread_init(&t2, "t2", t2_thread_entry, NULL,
                   t2_thread_stack,
                   sizeof(t2_thread_stack),
-                  11, -1);
+                  13, CPU_NA);
     p_thread_start(&t2);
     while(_g_cnt < 10)
     {

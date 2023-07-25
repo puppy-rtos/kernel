@@ -54,7 +54,7 @@ void p_show_version(void)
     printk("/_/          Powered dy puppy-rtos\n");
 }
 
-p_weak void p_subcpu_start(void (*entry)(void))
+p_weak void p_subcpu_start(void)
 {
     ;
 }
@@ -71,7 +71,7 @@ void puppy_init(void)
                     P_THREAD_PRIO_MAX, i);
         p_thread_start(&_idle[i]);
     }
-    p_subcpu_start(puppy_start);
+    p_subcpu_start();
 }
 
 void puppy_start(void)

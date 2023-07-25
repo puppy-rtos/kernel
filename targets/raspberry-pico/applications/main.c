@@ -11,11 +11,11 @@
 #include <puppy.h>
 
 #define LED_PIN 25
-void rt_hw_board_init();
+void arch_board_init();
 
 int main(void)
 {
-    rt_hw_board_init();
+    arch_board_init();
     puppy_init();
     puppy_start();
 }

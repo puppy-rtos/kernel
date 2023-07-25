@@ -37,6 +37,7 @@
 #define KLOG_ENABLE
 #define KLOG_COLOR
 #define KLOG_TIME
+#define KLOG_CPU
 #define KLOG_THREAD
 #define KLOG_LOCK
 

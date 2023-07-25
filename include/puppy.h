@@ -109,6 +109,7 @@ bool arch_in_irq(void);
 void arch_swap(unsigned int key);
 
 #define CPU_NR 1
+#define CPU_NA ((uint8_t)-1)
 
 struct p_cpu
 {
@@ -116,7 +117,8 @@ struct p_cpu
     struct _thread_obj *next_thread;
     atomic_int sched_lock;
 };
-int p_cpu_self_id(void);
+
+uint8_t p_cpu_self_id(void);
 struct p_cpu *p_cpu_self(void);
 void p_cpu_init(void);
 

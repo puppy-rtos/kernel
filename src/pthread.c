@@ -99,7 +99,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     snprintf(name, sizeof(name), "pth%02d", pthread_number ++);
     p_thread_init(&ptd->tid, name, (void (*)(void *))startroutine, arg,
                        stack, ptd->attr.stacksize,
-                       ptd->attr.priority, (uint8_t)-1);
+                       ptd->attr.priority, CPU_NA);
     *thread = ptd;
         /* start thread */
     if (p_thread_start(&ptd->tid) == 0)

@@ -66,6 +66,12 @@ extern "C" {
 #define _KLOG_LOG_UNLOCK
 #endif
 
+#ifdef KLOG_CPU
+#define _KLOG_LOG_CPU printk("%d:", p_cpu_self_id())
+#else
+#define _KLOG_LOG_CPU
+#endif
+
 #ifdef KLOG_THREAD
 #define _KLOG_LOG_THREAD printk("%s:", arch_in_irq() ? "IRQ" : (p_thread_self() ? p_thread_self_name() : "NA"))
 #else
@@ -79,6 +85,7 @@ extern "C" {
         _KLOG_COLOR(color_n);                               \
         _KLOG_LOG_TIME;                                     \
         _KLOG_LOG_HDR(lvl, color_n);                        \
+        _KLOG_LOG_CPU;                                      \
         _KLOG_LOG_THREAD;                                   \
         printk(fmt, ##__VA_ARGS__);                         \
         _KLOG_LOG_X_END;                                    \

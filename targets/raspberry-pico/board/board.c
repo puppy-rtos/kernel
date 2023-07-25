@@ -19,6 +19,11 @@
 
 #include "hardware/uart.h"
 #include "hardware/irq.h"
+#include <pico/lock_core.h>
+
+#define KLOG_TAG  "board"
+#define KLOG_LVL   KLOG_LOG
+#include <puppy/klog.h>
 
 #define PLL_SYS_KHZ (133 * 1000)
 #define UART_ID uart0
@@ -34,7 +39,7 @@ char buf[128];
 static struct _sem_obj cons_sem;
 int UART_IRQ = UART_ID == uart0 ? UART0_IRQ : UART1_IRQ;
 
-int rt_hw_uart_init(void)
+int arch_uart_init(void)
 {
 
     uart_init(UART_ID, 115200);
@@ -76,7 +81,6 @@ int rt_hw_uart_init(void)
 }
 void pico_uart_isr(void)
 {
-    // rt_interrupt_enter();
     /* read interrupt status and clear it */
     char ch = -1;
     if (uart_is_readable(uart0))
@@ -85,7 +89,6 @@ void pico_uart_isr(void)
         p_rb_write(&cons_rb, &ch, 1);
         p_sem_post(&cons_sem);
     }
-    // rt_interrupt_leave();
 }
 
 int _cons_init(void)
@@ -94,6 +97,7 @@ int _cons_init(void)
     if (!_inited)
     {
         _inited = 1;
+        
         p_sem_init(&cons_sem, "cons_sem", 0, 1);
         p_rb_init(&cons_rb, buf, 128);
         /* enable interrupt */
@@ -131,36 +135,31 @@ int p_hw_cons_output(const char *str, int len)
         {
             char n = '\r';
             uart_putc_raw(uart0, n);
-            // HAL_UART_Transmit(&huart1, (uint8_t *)&n, 1, 0xffff);
         }
         uart_putc_raw(uart0, str[i]);
-        // HAL_UART_Transmit(&huart1, (uint8_t *)&str[i], 1, 0xFFFF);
     }
     return 0;
 }
 void isr_systick(void)
 {
-    /* enter interrupt */
-// #ifndef RT_USING_SMP
-//     rt_interrupt_enter();
-// #endif
-
     p_tick_inc();
-
-    /* leave interrupt */
-// #ifndef RT_USING_SMP
-//     rt_interrupt_leave();
-// #endif
 }
 
-int p_cpu_self_id()
+#if CPU_NR > 1
+uint8_t p_cpu_self_id()
 {
     return sio_hw->cpuid;   
 }
-void p_subcpu_start(void (*entry)(void))
+void _multcore_entry()
 {
-    multicore_launch_core1(entry);
+    puppy_start();
 }
+void p_subcpu_start(void)
+{
+    multicore_launch_core1(_multcore_entry);
+}
+#endif
+
 uint32_t systick_config(uint32_t ticks)
 {
   if ((ticks - 1UL) > M0PLUS_SYST_RVR_RELOAD_BITS)
@@ -176,19 +175,16 @@ uint32_t systick_config(uint32_t ticks)
 }
 char heap_buf[50*1024];
 
-void rt_hw_board_init()
+void arch_board_init()
 {
     set_sys_clock_khz(PLL_SYS_KHZ, true);
 
     p_tick_init(100);
     p_system_heap_init(heap_buf, sizeof(heap_buf));
-// #ifdef RT_USING_HEAP
-//     rt_system_heap_init(HEAP_BEGIN, HEAP_END);
-// #endif
 
 // #ifdef RT_USING_SMP
-//     extern rt_hw_spinlock_t _cpus_lock;
-//     rt_hw_spin_lock_init(&_cpus_lock);
+//     extern arch_spinlock_t _cpus_lock;
+//     arch_spin_lock_init(&_cpus_lock);
 // #endif
 
     alarm_pool_init_default();
@@ -208,16 +204,6 @@ void rt_hw_board_init()
     /* Configure the SysTick */
     systick_config(clock_get_hz(clk_sys)/100);
 
-// #ifdef RT_USING_COMPONENTS_INIT
-//     rt_components_board_init();
-// #endif
-
-// #ifdef RT_USING_SERIAL
     stdio_init_all();
-    rt_hw_uart_init();
-// #endif
-
-// #ifdef RT_USING_CONSOLE
-//    rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
-// #endif
+    arch_uart_init();
 }
