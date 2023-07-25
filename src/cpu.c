@@ -22,10 +22,18 @@ struct p_cpu *p_cpu_self(void)
     return &_g_cpu[p_cpu_self_id()];
 }
 
+struct p_cpu *p_cpu_index(uint8_t cpuid)
+{
+    if (cpuid >= CPU_NR)
+        return NULL;
+    return &_g_cpu[cpuid];
+}
+
 void p_cpu_init(void)
 {
     for (int i = 0; i < CPU_NR; i++)
     {
+        p_list_init(&_g_cpu[i].ready_queue);
         _g_cpu[i].sched_lock = 1;
     }
 }

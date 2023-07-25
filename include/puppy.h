@@ -113,6 +113,7 @@ void arch_swap(unsigned int key);
 
 struct p_cpu
 {
+    p_list_t ready_queue;
     struct _thread_obj *curr_thread;
     struct _thread_obj *next_thread;
     atomic_int sched_lock;
@@ -120,6 +121,7 @@ struct p_cpu
 
 uint8_t p_cpu_self_id(void);
 struct p_cpu *p_cpu_self(void);
+struct p_cpu *p_cpu_index(uint8_t cpuid);
 void p_cpu_init(void);
 
 /**

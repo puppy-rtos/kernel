@@ -10,7 +10,6 @@
 #define KLOG_LVL   KLOG_WARNING
 #include <puppy/klog.h>
 
-static p_list_t _g_ready_queue = P_LIST_STATIC_INIT(&_g_ready_queue);
 struct _thread_obj *p_sched_ready_highest(void);
 
 int p_sched(void)
@@ -73,11 +72,15 @@ int p_sched_ready_insert(p_obj_t thread)
     p_base_t key = arch_irq_lock();
 
     p_node_t *node;
-    p_list_t *_ready_queue = &_g_ready_queue;
+    p_list_t *_ready_queue = &p_cpu_self()->ready_queue;
     KLOG_ASSERT(_thread != NULL);
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     
     KLOG_D("p_sched_ready_insert:thread:%x,key:%x,bindcpu:%d", _thread, key, _thread->bindcpu);
+    if (_thread->bindcpu != CPU_NA) //todo support cpu_mask
+    {
+        _ready_queue = &p_cpu_index(_thread->bindcpu)->ready_queue;
+    }
     
     p_list_for_each_node(_ready_queue, node)
     {
@@ -109,23 +112,12 @@ int p_sched_ready_insert(p_obj_t thread)
 
 struct _thread_obj *p_sched_ready_highest(void)
 {
-    struct _thread_obj *highest_thread = NULL, *temp_thread = NULL;
+    struct _thread_obj *highest_thread = NULL;
     p_base_t key = arch_irq_lock();
 
-    p_node_t *node;
-    p_list_t *_ready_queue = &_g_ready_queue;
-    
-    p_list_for_each_node(_ready_queue, node)
-    {
-        temp_thread = p_list_entry(node, struct _thread_obj, tnode);
-        KLOG_ASSERT(p_obj_get_type(temp_thread) == P_OBJ_TYPE_THREAD);
-        if (temp_thread->bindcpu == (uint8_t)-1 || temp_thread->bindcpu == p_cpu_self_id())
-        {
-            /* find out highest_thread */
-            highest_thread = temp_thread;
-            break;
-        }
-    }
+    p_list_t *_ready_queue = &p_cpu_self()->ready_queue;
+
+    highest_thread = p_list_entry(_ready_queue->head, struct _thread_obj, tnode);
     KLOG_ASSERT(highest_thread != NULL);
 
     arch_irq_unlock(key);
