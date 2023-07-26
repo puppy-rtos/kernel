@@ -59,6 +59,7 @@ void _block_thread(p_list_t *list, struct _thread_obj *thread)
             p_list_append(list, &thread->tnode);
         }
     }
+    KLOG_D("_block_thread:%s", thread->kobj.name);
     p_thread_block(thread);
 }
 
@@ -68,6 +69,7 @@ void _wakeup_block_thread(p_list_t *list)
     _thread = p_list_entry(list->head,
                             struct _thread_obj, tnode);
     p_list_remove(&_thread->tnode);
+    KLOG_D("_wakeup_block_thread:%s", _thread->kobj.name);
     p_sched_ready_insert(_thread);
 }
 

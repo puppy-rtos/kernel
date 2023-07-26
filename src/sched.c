@@ -68,20 +68,28 @@ void p_sched_unlock(void)
 
 int p_sched_ready_insert(p_obj_t thread)
 {
+    static uint8_t cpuid_last = 0;
     struct _thread_obj *old_thread = NULL, *temp_thread = NULL,*_thread = thread;
     p_base_t key = arch_irq_lock();
 
     p_node_t *node;
-    p_list_t *_ready_queue = &p_cpu_self()->ready_queue;
+    p_list_t *_ready_queue;
     KLOG_ASSERT(_thread != NULL);
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
-    
+
     KLOG_D("p_sched_ready_insert:thread:%x,key:%x,bindcpu:%d", _thread, key, _thread->bindcpu);
-    if (_thread->bindcpu != CPU_NA) //todo support cpu_mask
+    
+    if (_thread->oncpu != CPU_NA)
     {
-        _ready_queue = &p_cpu_index(_thread->bindcpu)->ready_queue;
+        cpuid_last = _thread->oncpu;
+    }
+    else if (_thread->bindcpu != CPU_NA) //todo support cpu_mask
+    {
+        cpuid_last = _thread->bindcpu;
     }
     
+    _ready_queue = &p_cpu_index(cpuid_last)->ready_queue;
+
     p_list_for_each_node(_ready_queue, node)
     {
         temp_thread = p_list_entry(node, struct _thread_obj, tnode);
@@ -106,6 +114,8 @@ int p_sched_ready_insert(p_obj_t thread)
     
     KLOG_D("p_sched_ready_insert done:_ready_queue->head:%x", _ready_queue->head);
 
+    cpuid_last = (cpuid_last + 1) % CPU_NR;
+
     arch_irq_unlock(key);
     return 0;
 }
@@ -119,6 +129,7 @@ struct _thread_obj *p_sched_ready_highest(void)
 
     highest_thread = p_list_entry(_ready_queue->head, struct _thread_obj, tnode);
     KLOG_ASSERT(highest_thread != NULL);
+    KLOG_ASSERT(p_obj_get_type(highest_thread) == P_OBJ_TYPE_THREAD);
 
     arch_irq_unlock(key);
     return highest_thread;
@@ -154,4 +165,9 @@ void p_sched_swap_in_cb(p_obj_t thread)
     cpu->curr_thread = cpu->next_thread;
     cpu->next_thread = NULL;
     cpu->curr_thread->oncpu = p_cpu_self_id();
+}
+
+int sched_getcpu(void)
+{
+    return p_cpu_self_id();
 }

@@ -125,10 +125,13 @@ __retry:
     }
     return ch;
 }
+spin_lock_t *cons_lock;
 
 int p_hw_cons_output(const char *str, int len)
 {
     int i = 0;
+
+    spin_lock_unsafe_blocking(cons_lock);
     for(i = 0; i < len; i++)
     {
         if (str[i] == '\n')
@@ -138,6 +141,7 @@ int p_hw_cons_output(const char *str, int len)
         }
         uart_putc_raw(uart0, str[i]);
     }
+    spin_unlock_unsafe(cons_lock);
     return 0;
 }
 void isr_systick(void)
@@ -146,17 +150,70 @@ void isr_systick(void)
 }
 
 #if CPU_NR > 1
+
+#include <pico/multicore.h>
+#define IPI_MAGIC 0x5a5a
 uint8_t p_cpu_self_id()
 {
     return sio_hw->cpuid;   
 }
+void _hw_ipi_handler(void)
+{
+    uint32_t status = sio_hw->fifo_st;
+    multicore_fifo_clear_irq();
+
+    if ( status & SIO_FIFO_ST_VLD_BITS )
+    {
+        if ( sio_hw->fifo_rd == IPI_MAGIC )
+        {
+            p_sched();
+        }
+    }
+    multicore_fifo_drain();
+}
+void isr_irq15(void)
+{
+    _hw_ipi_handler();
+}
+
+void isr_irq16(void)
+{
+    _hw_ipi_handler();
+}
+
+void arch_ipi_send(uint8_t cpuid)
+{
+    multicore_fifo_push_blocking(IPI_MAGIC);
+}
+
+#include "nr_micro_shell.h"
+void shell_ipi_cmd(char argc, char *argv)
+{
+    arch_ipi_send(0);
+}
+NR_SHELL_CMD_EXPORT(ipi, shell_ipi_cmd);
+
 void _multcore_entry()
 {
+    /* Install FIFO handler to receive interrupt from other core */
+    multicore_fifo_clear_irq();
+    multicore_fifo_drain();
+    irq_set_priority(SIO_IRQ_PROC1, 255UL);
+    irq_set_exclusive_handler(SIO_IRQ_PROC1, isr_irq16 );
+    irq_set_enabled(SIO_IRQ_PROC1, 1);
+    
     puppy_start();
 }
+
 void p_subcpu_start(void)
 {
     multicore_launch_core1(_multcore_entry);
+    /* Install FIFO handler to receive interrupt from other core */
+    multicore_fifo_clear_irq();
+    multicore_fifo_drain();
+    irq_set_priority(SIO_IRQ_PROC0, 255UL);
+    irq_set_exclusive_handler( SIO_IRQ_PROC0, isr_irq15);
+    irq_set_enabled(SIO_IRQ_PROC0, 1 );
 }
 #endif
 
@@ -181,6 +238,8 @@ void arch_board_init()
 
     p_tick_init(100);
     p_system_heap_init(heap_buf, sizeof(heap_buf));
+
+    cons_lock = spin_lock_instance(0);
 
 // #ifdef RT_USING_SMP
 //     extern arch_spinlock_t _cpus_lock;

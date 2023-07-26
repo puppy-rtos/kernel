@@ -93,7 +93,7 @@ void list_thread(void)
             uint8_t *ptr;
             struct _thread_obj *thread = (struct _thread_obj *)object;
 
-            if (thread->state == P_THREAD_STATE_RUN)
+            if (thread->oncpu != CPU_NA)
             {
                 printk("%-*.*s %3d  %3d   %3d ", maxlen, maxlen, thread->kobj.name, thread->oncpu, thread->bindcpu, thread->prio);
             }

@@ -52,6 +52,7 @@ void p_thread_init(p_obj_t obj, const char *name,
     thread->mode = 0;
     thread->kernel_stack = 0;
     thread->bindcpu = bindcpu;
+    thread->oncpu = CPU_NA;
     
     KLOG_D("thread_init -->[%s], entry:0x%x, stack_addr:0x%x, stack_size:%d ",
                                name, entry, stack_addr, stack_size);

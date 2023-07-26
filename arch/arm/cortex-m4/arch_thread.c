@@ -160,7 +160,7 @@ __attribute__((naked)) void PendSV_Handler(void)
     __asm ("    PUSH    {r0}");
     __asm ("    BL      p_sched_swap_out_cb");
     __asm ("    POP     {r0}");
-    __asm ("    PUSH    {r2}");
+    __asm ("    POP     {r2}");
     __asm ("    POP     {r3}");
     
     __asm ("    MRS     r1, psp              ");   // get from thread stack pointer
@@ -177,7 +177,7 @@ __attribute__((naked)) void PendSV_Handler(void)
     __asm ("    PUSH    {r3}");
     __asm ("    PUSH    {r2}");
     __asm ("    BL      arch_get_to_sp");
-    __asm ("    PUSH    {r2}");
+    __asm ("    POP     {r2}");
     __asm ("    POP     {r3}");
 
     __asm ("    LDR     r1, [r0]");
@@ -197,7 +197,7 @@ __attribute__((naked)) void PendSV_Handler(void)
     __asm ("    PUSH    {r0}");
     __asm ("    BL      p_sched_swap_in_cb");
     __asm ("    POP     {r0}");
-    __asm ("    PUSH    {r2}");
+    __asm ("    POP     {r2}");
     __asm ("    POP     {r3}");
 
     // restore interrupt
