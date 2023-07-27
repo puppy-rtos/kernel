@@ -29,8 +29,10 @@ struct p_cpu *p_cpu_index(uint8_t cpuid)
     return &_g_cpu[cpuid];
 }
 
+arch_spinlock_t cpu;
 void p_cpu_init(void)
 {
+    arch_spin_lock_init(&cpu);
     for (int i = 0; i < CPU_NR; i++)
     {
         p_list_init(&_g_cpu[i].ready_queue);

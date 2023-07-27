@@ -61,7 +61,6 @@ void _pthread_data_destroy(_pthread_data_t *ptd)
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                    pthread_startroutine_t startroutine, pthread_addr_t arg)
 {
-    char name[P_NAME_MAX];
     _pthread_data_t *ptd;
     void *stack;
     static uint16_t pthread_number = 0;
@@ -96,8 +95,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         stack = (void *)(ptd->attr.stackaddr);
     }
     /* initial this pthread to system */
-    snprintf(name, sizeof(name), "pth%02d", pthread_number ++);
-    p_thread_init(&ptd->tid, name, (void (*)(void *))startroutine, arg,
+    p_thread_init(&ptd->tid, "pth", (void (*)(void *))startroutine, arg,
                        stack, ptd->attr.stacksize,
                        ptd->attr.priority, CPU_NA);
     *thread = ptd;
@@ -159,5 +157,5 @@ void pthread_exit(pthread_addr_t value)
 
 unsigned sleep(unsigned int __seconds)
 {   
-    p_thread_sleep(100 * __seconds);
+    p_thread_sleep(p_tick_persec() * __seconds);
 }

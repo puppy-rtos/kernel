@@ -108,7 +108,19 @@ bool arch_irq_locked(p_base_t key);
 bool arch_in_irq(void);
 void arch_swap(unsigned int key);
 
-#define CPU_NR 1
+typedef union {
+    unsigned long slock;
+    struct __arch_tickets {
+        unsigned short owner;
+        unsigned short next;
+    } tickets;
+    atomic_flag flag;
+} arch_spinlock_t;
+
+void arch_spin_lock_init(arch_spinlock_t *lock);
+void arch_spin_lock(arch_spinlock_t *lock);
+void arch_spin_unlock(arch_spinlock_t *lock);
+
 #define CPU_NA ((uint8_t)-1)
 
 struct p_cpu
@@ -118,7 +130,7 @@ struct p_cpu
     struct _thread_obj *next_thread;
     atomic_int sched_lock;
 };
-
+extern arch_spinlock_t cpu;
 uint8_t p_cpu_self_id(void);
 struct p_cpu *p_cpu_self(void);
 struct p_cpu *p_cpu_index(uint8_t cpuid);

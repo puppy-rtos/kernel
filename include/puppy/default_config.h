@@ -34,6 +34,8 @@
 #define P_SCHED_PRIO_DEFAULT 12
 #define P_NAME_MAX 8
 
+#define CPU_NR 1
+
 #define KLOG_ENABLE
 #define KLOG_COLOR
 #define KLOG_TIME

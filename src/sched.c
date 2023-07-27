@@ -36,7 +36,7 @@ int p_sched(void)
                 return 0;
             }
             _cpu->next_thread = _h_thread;
-            p_sched_remove(_h_thread);
+            p_sched_ready_remove(_h_thread);
             KLOG_D("next thread:%s", _cpu->next_thread->kobj.name);
             if (_cpu->curr_thread && _cpu->curr_thread->state == P_THREAD_STATE_RUN)
             {
@@ -69,8 +69,10 @@ void p_sched_unlock(void)
 int p_sched_ready_insert(p_obj_t thread)
 {
     static uint8_t cpuid_last = 0;
+    uint8_t need_send = CPU_NA;
     struct _thread_obj *old_thread = NULL, *temp_thread = NULL,*_thread = thread;
     p_base_t key = arch_irq_lock();
+    arch_spin_lock(&cpu);
 
     p_node_t *node;
     p_list_t *_ready_queue;
@@ -114,9 +116,24 @@ int p_sched_ready_insert(p_obj_t thread)
     
     KLOG_D("p_sched_ready_insert done:_ready_queue->head:%x", _ready_queue->head);
 
+    if(cpuid_last != p_cpu_self_id())
+    {
+        KLOG_D("need send ipi");
+        need_send = cpuid_last;
+    }
     cpuid_last = (cpuid_last + 1) % CPU_NR;
 
+    arch_spin_unlock(&cpu);
     arch_irq_unlock(key);
+    
+#if CPU_NR > 1  // todo
+    if(need_send != CPU_NA)
+    {
+        void arch_ipi_send(uint8_t cpuid);
+        arch_ipi_send(need_send);
+    }
+#endif
+
     return 0;
 }
 
@@ -124,25 +141,30 @@ struct _thread_obj *p_sched_ready_highest(void)
 {
     struct _thread_obj *highest_thread = NULL;
     p_base_t key = arch_irq_lock();
+    arch_spin_lock(&cpu);
 
     p_list_t *_ready_queue = &p_cpu_self()->ready_queue;
 
-    highest_thread = p_list_entry(_ready_queue->head, struct _thread_obj, tnode);
-    KLOG_ASSERT(highest_thread != NULL);
-    KLOG_ASSERT(p_obj_get_type(highest_thread) == P_OBJ_TYPE_THREAD);
+    if (!p_list_is_empty(_ready_queue))
+    {
+        highest_thread = p_list_entry(_ready_queue->head, struct _thread_obj, tnode);
+        KLOG_ASSERT(highest_thread != NULL);
+        KLOG_ASSERT(p_obj_get_type(highest_thread) == P_OBJ_TYPE_THREAD);
+    }
 
+    arch_spin_unlock(&cpu);
     arch_irq_unlock(key);
     return highest_thread;
 }
 
-int p_sched_remove(p_obj_t thread)
+int p_sched_ready_remove(p_obj_t thread)
 {
     struct _thread_obj *_thread = thread;
     p_base_t key = arch_irq_lock();
     
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
 
-    KLOG_D("p_sched_remove:tnode:%x",&_thread->tnode);
+    KLOG_D("p_sched_ready_remove:tnode:%x",&_thread->tnode);
     p_list_remove(&_thread->tnode);
 
     arch_irq_unlock(key);

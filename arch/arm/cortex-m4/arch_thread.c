@@ -72,6 +72,9 @@ void arch_new_thread(struct _thread_obj *thread,
 
 void arch_swap(unsigned int key)
 {
+#ifndef P_ARCH_CORTEX_M0
+    __asm ("CLREX");
+#endif
 	/* set pending bit to make sure we will take a PendSV exception */
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 

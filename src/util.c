@@ -22,6 +22,8 @@ p_weak int p_hw_cons_output(const char *str, int len)
     return 0;
 }
 
+arch_spinlock_t cons_lock = {0};
+
 int printk(const char *fmt, ...)
 {
     va_list args;

@@ -125,13 +125,11 @@ __retry:
     }
     return ch;
 }
-spin_lock_t *cons_lock;
 
 int p_hw_cons_output(const char *str, int len)
 {
     int i = 0;
 
-    spin_lock_unsafe_blocking(cons_lock);
     for(i = 0; i < len; i++)
     {
         if (str[i] == '\n')
@@ -141,7 +139,6 @@ int p_hw_cons_output(const char *str, int len)
         }
         uart_putc_raw(uart0, str[i]);
     }
-    spin_unlock_unsafe(cons_lock);
     return 0;
 }
 void isr_systick(void)
@@ -152,6 +149,7 @@ void isr_systick(void)
 #if CPU_NR > 1
 
 #include <pico/multicore.h>
+
 #define IPI_MAGIC 0x5a5a
 uint8_t p_cpu_self_id()
 {
@@ -239,7 +237,7 @@ void arch_board_init()
     p_tick_init(100);
     p_system_heap_init(heap_buf, sizeof(heap_buf));
 
-    cons_lock = spin_lock_instance(0);
+    arch_spin_lock_init(&cons_lock);
 
 // #ifdef RT_USING_SMP
 //     extern arch_spinlock_t _cpus_lock;

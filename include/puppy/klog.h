@@ -58,9 +58,10 @@ extern "C" {
 #define _KLOG_LOG_TIME
 #endif
 
+extern arch_spinlock_t cons_lock;
 #ifdef KLOG_LOCK
-#define _KLOG_LOG_LOCK    p_base_t key = arch_irq_lock()
-#define _KLOG_LOG_UNLOCK  arch_irq_unlock(key)
+#define _KLOG_LOG_LOCK    p_base_t key = arch_irq_lock(); arch_spin_lock(&cons_lock)
+#define _KLOG_LOG_UNLOCK  arch_spin_unlock(&cons_lock); arch_irq_unlock(key)
 #else
 #define _KLOG_LOG_LOCK
 #define _KLOG_LOG_UNLOCK
@@ -96,11 +97,17 @@ extern "C" {
 #define klog_assert(EX)                                     \
     if (!(EX))                                              \
     {                                                       \
+        _KLOG_LOG_LOCK;                                     \
+        _KLOG_COLOR(31);                                    \
+        _KLOG_LOG_TIME;                                     \
         _KLOG_LOG_HDR("A", 31);                             \
+        _KLOG_LOG_CPU;                                      \
+        _KLOG_LOG_THREAD;                                   \
         printk("(%s) at %s:%d", #EX,                        \
                 __FUNCTION__, __LINE__);                    \
         _KLOG_LOG_X_END;                                    \
         list_thread();                                      \
+        _KLOG_LOG_UNLOCK;                                   \
         while(1);                                           \
     }
 
