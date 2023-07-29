@@ -23,8 +23,8 @@ static void idle_thread_entry(void *parm)
     }
 }
 
-P_SECTION_START_DEFINE(P_INIT_SECTION, _init_start);
-P_SECTION_END_DEFINE(P_INIT_SECTION, _init_end);
+const P_SECTION_START_DEFINE(P_INIT_SECTION, _init_start);
+const P_SECTION_END_DEFINE(P_INIT_SECTION, _init_end);
 static void _init_fn_run(void)
 {
     unsigned int *ptr_begin, *ptr_end;
