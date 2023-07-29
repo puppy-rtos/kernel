@@ -410,9 +410,10 @@ const P_SECTION_END_DEFINE(P_TC_SECTION, _tc_list_end);
 void tc_list(void)
 {
     unsigned int *ptr_begin, *ptr_end;
+    volatile struct p_ex_fn *tc;
     ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
     ptr_end = (unsigned int *)P_SECTION_END_ADDR(_tc_list_end);
-    for (struct p_ex_fn *tc = ptr_begin; tc < ptr_end;)
+    for (tc = ptr_begin; tc < ptr_end;)
     {
         printk("Get a testcase: %s\n", tc->name);
         tc ++;

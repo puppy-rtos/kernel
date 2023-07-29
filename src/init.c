@@ -28,12 +28,13 @@ const P_SECTION_END_DEFINE(P_INIT_SECTION, _init_end);
 static void _init_fn_run(void)
 {
     unsigned int *ptr_begin, *ptr_end;
+    volatile struct p_ex_fn *init_fn;
     ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_init_start);
     ptr_end = (unsigned int *)P_SECTION_END_ADDR(_init_end);
-    for (struct p_ex_fn *ptr = ptr_begin; ptr < ptr_end;)
+    for (init_fn = ptr_begin; init_fn < ptr_end;)
     {
-        KLOG_D("init [%s] init...",  ptr->name);
-        (ptr ++)->func();
+        KLOG_D("init [%s] init...",  init_fn->name);
+        (init_fn ++)->func();
     }
 }
 
