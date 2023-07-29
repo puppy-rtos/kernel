@@ -151,14 +151,11 @@ if is_config("build_target", "raspberry-pico") then
         after_build(function (package)
             if is_host("windows") then
                 uf2_path = "$(scriptdir)/libraries/generated/elf2uf2.exe"
-            else
-                uf2_path = "$(scriptdir)/libraries/generated/elf2uf2"
-            end
-
-            if is_mode('debug') then
-                os.exec(uf2_path .. " $(buildir)/cross/cortex-m0plus/debug/puppy.elf puppy.uf2")
-            else
-                os.exec(uf2_path .. " $(buildir)/cross/cortex-m0plus/release/puppy.elf puppy.uf2")
+                if is_mode('debug') then
+                    os.exec(uf2_path .. " $(buildir)/cross/cortex-m0plus/debug/puppy.elf puppy.uf2")
+                else
+                    os.exec(uf2_path .. " $(buildir)/cross/cortex-m0plus/release/puppy.elf puppy.uf2")
+                end
             end
         end)
     end
