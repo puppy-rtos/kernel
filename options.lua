@@ -29,13 +29,3 @@ option("kernel_test")
         set_category("Tests")
         set_description("Enable or disable kernrl-tests")
 option_end()
-
-if is_config("build_target", "stm32-f412-nucleo") then
-    target_name = "stm32-f412-nucleo"
-elseif is_config("build_target", "stm32-f407-fkm1") then
-    target_name = "stm32-f407-fkm1"
-elseif is_config("build_target", "raspberry-pico") then
-    target_name = "raspberry-pico"
-else
-    target_name = "stm32-f407-fkm1"
-end

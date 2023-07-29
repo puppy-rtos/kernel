@@ -78,7 +78,8 @@ if is_config("build_target", "raspberry-pico") then
         "PICO_STDIO_UART=1",
         "PICO_USE_BLOCKED_RAM=0",
         "_POSIX_C_SOURCE=1",
-        "P_ARCH_CORTEX_M0")
+        "P_ARCH_CORTEX_M0",
+        "CPU_NR=2")
     add_includedirs(
         "libraries/pico-sdk/src/rp2_common/hardware_flash/include",
         "libraries/pico-sdk/src/rp2_common/pico_multicore/include",
