@@ -412,11 +412,10 @@ void tc_list(void)
     unsigned int *ptr_begin, *ptr_end;
     ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
     ptr_end = (unsigned int *)P_SECTION_END_ADDR(_tc_list_end);
-    for (unsigned int *ptr = ptr_begin; ptr < ptr_end;)
+    for (struct p_ex_fn *tc = ptr_begin; tc < ptr_end;)
     {
-        struct p_tc_fn *_obj = ptr;
-        printk("Get a testcase: %s\n", _obj->name);
-        ptr += (sizeof(struct p_tc_fn) / sizeof(unsigned int));
+        printk("Get a testcase: %s\n", tc->name);
+        tc ++;
     }
 }
 
@@ -425,13 +424,12 @@ void tc_runall(bool verbose)
     unsigned int *ptr_begin, *ptr_end;
     ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
     ptr_end = (unsigned int *)P_SECTION_END_ADDR(_tc_list_end);
-    for (unsigned int *ptr = ptr_begin; ptr < ptr_end;)
+    for (struct p_ex_fn *tc = ptr_begin; tc < ptr_end;)
     {
-        struct p_tc_fn *_obj = ptr;
-        printk("Start test: %s\n", _obj->name);
-        _obj->tc();
+        printk("Start test: %s\n", tc->name);
+        tc->func();
         printk("Test end\n");
-        ptr += (sizeof(struct p_tc_fn) / sizeof(unsigned int));
+        tc ++;
     }
 }
 static void print_help(void)

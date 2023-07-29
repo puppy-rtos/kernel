@@ -5,6 +5,7 @@
  */
 
 #include <puppy.h>
+#include <puppy/kobj.h>
 
 #define KLOG_TAG  "sched"
 #define KLOG_LVL   KLOG_WARNING

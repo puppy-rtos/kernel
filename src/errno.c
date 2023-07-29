@@ -5,6 +5,7 @@
  */
 
 #include <puppy.h>
+#include <puppy/kobj.h>
 
 static int _g_errno;
 

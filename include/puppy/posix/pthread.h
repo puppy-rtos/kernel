@@ -238,7 +238,7 @@ void pthread_yield(void);
 
 /* A thread may obtain a copy of its own thread handle. */
 
-#define pthread_self()            ((pthread_t)gettid())
+pthread_t pthread_self(void);
 #define pthread_gettid_np(thread) ((pid_t)(thread))
 
 /* Compare two thread IDs. */

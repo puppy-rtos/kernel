@@ -178,61 +178,6 @@ typedef struct timeout
     p_node_t         node;
 }p_timeout_t;
 
-p_align(P_ALIGN_SIZE)
-struct _thread_obj
-{
-    struct p_obj kobj;
-    uint8_t      state;
-    uint8_t      prio;
-    uint8_t      mode;
-    uint8_t      preved;
-    void        *stack_addr;
-    size_t       stack_size;
-    p_tick_t     slice_ticks;
-    p_node_t     tnode;
-
-    void        *entry;
-    void        *param;
-    int          errno;
-    void        *kernel_stack;
-
-    uint8_t      bindcpu;
-    uint8_t      reserved[3];
-    uint8_t      oncpu;
-
-    p_timeout_t  timeout;
-    /** arch-specifics: must always be at the end */
-    struct arch_thread *arch;
-};
-
-#define P_THREAD_DEFINE_SECT P_RAM_SECTION "P_DThread_OBJ"
-#define P_THREAD_DEFINE(dname, dentry, dparam, dstack_addr, dstack_size, dprio, dbindcpu)\
-    p_used const char _thread_##dname##_name[] = #dname;                                 \
-    p_used static struct _thread_obj _thread_##dname##_obj                               \
-    P_SECTION_DATA(P_THREAD_DEFINE_SECT) =                                               \
-    {                                                                                    \
-        .kobj.name = _thread_##dname##_name,                                             \
-        .entry = dentry,                                                                 \
-        .param = (dparam),                                                               \
-        .stack_addr = (dstack_addr),                                                     \
-        .stack_size = (dstack_size),                                                     \
-        .prio = (dprio),                                                                 \
-        .bindcpu = (uint8_t)(dbindcpu),                                                  \
-    }
-
-void p_thread_init(p_obj_t obj, const char *name,
-                                void (*entry)(void *param),
-                                void    *param,
-                                void    *stack_addr,
-                                uint32_t stack_size,
-                                uint8_t  prio,
-                                uint8_t  bindcpu);
-
-p_obj_t p_thread_create(const char *name,
-                        void (*entry)(void *parameter),
-                        void    *parameter,
-                        uint32_t stack_size,
-                        uint8_t  prio);
 int p_thread_start(p_obj_t obj);
 int p_thread_yield(void);
 int p_thread_block(p_obj_t obj);
@@ -242,6 +187,7 @@ int p_thread_control(p_obj_t obj, int cmd, void *argv);
 int p_thread_getattr(p_obj_t obj, p_thread_attr_t *attr);
 /* todo: int p_thread_delete(p_obj_t obj); */
 p_obj_t p_thread_self(void);
+p_obj_t p_thread_next(void);
 char *p_thread_self_name(void);
 int p_thread_abort(p_obj_t obj);
 void list_thread(void);
@@ -249,9 +195,13 @@ void list_thread(void);
 void thread_timeout_cb(p_base_t tick);     
 int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param);                     
 void p_thread_entry(void (*entry)(void *parameter), void *param);
-void arch_new_thread(struct _thread_obj *thread,
-                            void    *stack_addr,
-                            uint32_t stack_size);
+
+void *arch_new_thread(void         *entry,
+                      void        *param1,
+                      void        *param2,
+                      void    *stack_addr,
+                      uint32_t stack_size);
+void *p_thread_get_archdata(p_obj_t obj);
 /**
  * sched api
  */

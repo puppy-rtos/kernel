@@ -5,6 +5,7 @@
  */
 
 #include <puppy.h>
+#include <puppy/kobj.h>
 
 #define KLOG_TAG  "init"
 #define KLOG_LVL   KLOG_WARNING
@@ -22,24 +23,17 @@ static void idle_thread_entry(void *parm)
     }
 }
 
-P_SECTION_START_DEFINE(P_THREAD_DEFINE_SECT, _thread_start);
-P_SECTION_END_DEFINE(P_THREAD_DEFINE_SECT, _thread_end);
-static void _dthread_obj_init(void)
+P_SECTION_START_DEFINE(P_INIT_SECTION, _init_start);
+P_SECTION_END_DEFINE(P_INIT_SECTION, _init_end);
+static void _init_fn_run(void)
 {
     unsigned int *ptr_begin, *ptr_end;
-    ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_thread_start);
-    ptr_end = (unsigned int *)P_SECTION_END_ADDR(_thread_end);
-    for (unsigned int *ptr = ptr_begin; ptr < ptr_end;)
+    ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_init_start);
+    ptr_end = (unsigned int *)P_SECTION_END_ADDR(_init_end);
+    for (struct p_ex_fn *ptr = ptr_begin; ptr < ptr_end;)
     {
-        struct _thread_obj *_obj = ptr;
-        KLOG_D("dthread [%s] init...",  _obj->kobj.name);
-        p_thread_init(_obj, _obj->kobj.name, _obj->entry, _obj->param,
-                    _obj->stack_addr,
-                    _obj->stack_size,
-                    _obj->prio,
-                    _obj->bindcpu);
-        p_thread_start(_obj);
-        ptr += (sizeof(struct _thread_obj) / sizeof(unsigned int));
+        KLOG_D("init [%s] init...",  ptr->name);
+        (ptr ++)->func();
     }
 }
 
@@ -63,7 +57,7 @@ void puppy_init(void)
 {
     p_cpu_init();
     p_show_version();
-    _dthread_obj_init();
+    _init_fn_run();
     for (uint8_t i = 0; i < CPU_NR; i++)
     {
         p_thread_init(&_idle[i], "idle", idle_thread_entry, NULL,

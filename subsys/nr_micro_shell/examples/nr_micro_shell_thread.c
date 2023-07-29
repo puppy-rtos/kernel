@@ -32,14 +32,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "nr_micro_shell.h"
 #include <puppy.h>
+#include <puppy/posix/pthread.h>
 
-struct _thread_obj shell;
-__attribute__((aligned(4)))
-uint8_t shell_thread_stack[1024];
-
-void shell_thread_entry(void *parm)
+void *shell_thread_entry(void *parm)
 {
     shell_init();
+    pthread_setname_np(pthread_self(), "shell");
     while(1)
     {
         char c = p_hw_cons_getc();
@@ -49,9 +47,10 @@ void shell_thread_entry(void *parm)
         }
     }
 }
-P_THREAD_DEFINE(shell, shell_thread_entry, NULL,
-                shell_thread_stack,
-                sizeof(shell_thread_stack),
-                12, 0);
+static void shell_init_fn(void)
+{
+   pthread_create(NULL, NULL, shell_thread_entry, NULL);
+}
+P_INIT_FUNC(shell_init_fn);
 
 /******************* (C) COPYRIGHT 2019 Nrush *****END OF FILE*****************/

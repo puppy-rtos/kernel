@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <puppy.h>
+#include <puppy/kobj.h>
 
 #define KLOG_TAG  "sem"
 #define KLOG_LVL   KLOG_WARNING

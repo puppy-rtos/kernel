@@ -5,6 +5,7 @@
  */
 
 #include <puppy.h>
+#include <puppy/kobj.h>
 #include <string.h>
 
 #define KLOG_TAG  "thread"
@@ -17,6 +18,11 @@ static p_list_t thread_timeout_list = P_LIST_STATIC_INIT(&thread_timeout_list);
 static void timeout_insert(struct timeout *timeout);
 static int timeout_remove(struct timeout *timeout);
 
+void *p_thread_get_archdata(p_obj_t obj)
+{
+    struct _thread_obj *thread = obj;
+    return thread->arch_data;
+}
 void p_thread_entry(void (*entry)(void *parameter), void *param)
 {
     KLOG_D("p_thread_entry enter...");
@@ -59,12 +65,17 @@ void p_thread_init(p_obj_t obj, const char *name,
     
     memset(stack_addr,0x23, stack_size);
 
-    arch_new_thread(thread, stack_addr, stack_size);
+    thread->arch_data = arch_new_thread(p_thread_entry, entry, param, stack_addr, stack_size);
 }
 
 p_obj_t p_thread_self(void)
 {
     return p_cpu_self()->curr_thread;
+}
+
+p_obj_t p_thread_next(void)
+{
+    return p_cpu_self()->next_thread;
 }
 
 char *p_thread_self_name(void)

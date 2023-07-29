@@ -5,6 +5,7 @@
  */
 
 #include <puppy.h>
+#include <puppy/kobj.h>
 #include <string.h>
 
 #define KLOG_TAG  "obj"

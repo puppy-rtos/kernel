@@ -1,5 +1,6 @@
 
 #include <puppy.h>
+#include <puppy/kobj.h>
 #include <puppy/posix/unistd.h>
 #include <puppy/posix/pthread.h>
 #include <string.h>
@@ -98,7 +99,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     p_thread_init(&ptd->tid, "pth", (void (*)(void *))startroutine, arg,
                        stack, ptd->attr.stacksize,
                        ptd->attr.priority, CPU_NA);
-    *thread = ptd;
+    if(thread) *thread = ptd;
         /* start thread */
     if (p_thread_start(&ptd->tid) == 0)
         return 0;
@@ -153,6 +154,20 @@ void pthread_exit(pthread_addr_t value)
     _pthread_data_t *ptd;
     ptd = p_container_of(p_thread_self(), _pthread_data_t, tid);
     p_sem_post(&ptd->joinable_sem);
+}
+
+pthread_t pthread_self(void)
+{
+    _pthread_data_t *ptd;
+    ptd = p_container_of(p_thread_self(), _pthread_data_t, tid);
+    return ptd;
+}
+
+int pthread_setname_np(pthread_t thread, const char *name)
+{
+    _pthread_data_t *ptd = thread;
+    ptd->tid.kobj.name = name;
+    return 0;
 }
 
 unsigned sleep(unsigned int __seconds)

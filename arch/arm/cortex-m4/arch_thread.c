@@ -40,9 +40,11 @@ typedef struct stack_frame
     _esf_t esf;
 }_sf_t;
 
-void arch_new_thread(struct _thread_obj *thread,
-                            void    *stack_addr,
-                            uint32_t stack_size)
+void *arch_new_thread(void         *entry,
+                      void        *param1,
+                      void        *param2,
+                      void    *stack_addr,
+                      uint32_t stack_size)
 {
     int i;
     struct arch_thread *arch_data;
@@ -57,17 +59,17 @@ void arch_new_thread(struct _thread_obj *thread,
         ((uint32_t *)sf)[i] = 0xdeadbeef;
     }
     
-    sf->esf.r0 = (uint32_t)thread->entry;
-    sf->esf.r1 = (uint32_t)thread->param;
+    sf->esf.r0 = (uint32_t)param1;
+    sf->esf.r1 = (uint32_t)param2;
     sf->esf.r2 = 0;
     sf->esf.r3 = 0;
     sf->esf.r12 = 0;
     sf->esf.lr = 0;
-    sf->esf.pc = (uint32_t)p_thread_entry;
+    sf->esf.pc = (uint32_t)entry;
     sf->esf.psr = 0x01000000UL;
 
     arch_data->stack_ptr = ((uint32_t)sf);
-    thread->arch = arch_data;
+    return arch_data;
 }
 
 void arch_swap(unsigned int key)
@@ -89,15 +91,19 @@ void arch_swap(unsigned int key)
 
 void *arch_get_from_sp(void)
 {
-    if (!p_cpu_self()->curr_thread)
+    struct arch_thread *arch;
+    if (p_thread_self() == NULL)
         return NULL;
-    return &p_cpu_self()->curr_thread->arch->stack_ptr;
+    arch = p_thread_get_archdata(p_thread_self());
+    return &arch->stack_ptr;
 }
 void *arch_get_to_sp(void)
 {
-    if (!p_cpu_self()->next_thread)
+    struct arch_thread *arch;
+    if (p_thread_next() == NULL)
         return NULL;
-    return &p_cpu_self()->next_thread->arch->stack_ptr;
+    arch = p_thread_get_archdata(p_thread_next());
+    return &arch->stack_ptr;
 }
 
 __attribute__((naked)) void PendSV_Handler(void)

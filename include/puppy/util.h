@@ -24,16 +24,22 @@ int printk(const char *fmt, ...);
 #define P_TC_FAIL()         printk("Test Failed! at %s:%d\r\n", __FUNCTION__, __LINE__); 
 #define P_TC_LOG(...)   do {printk(__VA_ARGS__); printk("\r\n");} while (0);
 
-struct p_tc_fn
+struct p_ex_fn
 {
     const char *name;
-    void       (*tc)(void);
+    void      (*func)(void);
 };
 
 #define P_TC_SECTION P_ROM_SECTION "P_TC_LIST"
 #define P_TC_FUNC(fn, name)                         \
-    p_used const static struct p_tc_fn _p_tc_##fn   \
+    p_used const static struct p_ex_fn _p_tc_##fn   \
     P_SECTION_DATA(P_TC_SECTION) = { #name, fn}
+
+#define P_INIT_SECTION P_ROM_SECTION "P_INIT_LIST"
+#define P_INIT_FUNC(fn)                                     \
+    p_used const char _init_##fn##_name[] = #fn;            \
+    p_used const static struct p_ex_fn _init_##fn           \
+    P_SECTION_DATA(P_INIT_SECTION) = { _init_##fn##_name, fn}
 
 /**
  * p_container_of - return the start address of struct type, while ptr is the
