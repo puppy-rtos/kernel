@@ -23,6 +23,8 @@ int main( void )
 
 	// vSendString( "Hello Puppy!" );
 	board_init();
+	
+	printk("tick:%d\n", get_ticks());
 
     puppy_init();
     puppy_start();

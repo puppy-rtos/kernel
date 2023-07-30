@@ -1,7 +1,8 @@
 
 #include <puppy.h>
 #include "riscv-virt.h"
-#include "ns16550.h"
+// #include "ns16550.h"
+#include "drv_uart.h"
 
 /* USER CODE BEGIN PFP */
 char heap_buf[50*1024];
@@ -16,38 +17,43 @@ int _cons_init(void)
     {
         _inited = 1;
         p_rb_init(&cons_rb, buf, 128);
-        /* enable interrupt */
-        // __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
+        uart_init();
     }
 }
 
 int p_hw_cons_getc(void)
 {
-    uint8_t ch = -1;
+    int ch = -1;
     _cons_init();
-
 __retry:
-    if (p_rb_read(&cons_rb, &ch, 1) == false)
+    ch = uart_getc();
+    if (ch < 0)
     {
-        p_sem_wait(&cons_sem);
         goto __retry;
+	    // printk("tick:%d\n", get_ticks());
+        // p_thread_sleep(10);
     }
+
+
+// __retry:
+//     if (p_rb_read(&cons_rb, &ch, 1) == false)
+//     {
+//         p_sem_wait(&cons_sem);
+//         goto __retry;
+//     }
     return ch;
 }
 
 int p_hw_cons_output(const char *str, int len)
 {
-    struct device dev;
     size_t i;
-
-	dev.addr = NS16550_ADDR;
 
 	for (i = 0; i < len; i++) {
         if (str[i] == '\n')
         {
-	        vOutNS16550( &dev, '\r' );
+	        uart_putc('\r');
         }
-		vOutNS16550( &dev, str[i] );
+		uart_putc(str[i]);
 	}
     return 0;
 }
