@@ -1,60 +1,19 @@
-/*
- * FreeRTOS V202212.01
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * https://www.FreeRTOS.org
- * https://github.com/FreeRTOS
- *
- */
 
-/* FreeRTOS kernel includes. */
-// #include <FreeRTOS.h>
-// #include <task.h>
+#include <puppy.h>
+#include "riscv-virt.h"
 
-// /* Run a simple demo just prints 'Blink' */
-#define DEMO_BLINKY	1
 #define mainVECTOR_MODE_DIRECT	1
 
-// extern void freertos_risc_v_trap_handler( void );
-// extern void freertos_vector_table( void );
-
-// void vApplicationMallocFailedHook( void );
-// void vApplicationIdleHook( void );
-// void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
-// void vApplicationTickHook( void );
-
-int main_blinky( void );
-
-void freertos_risc_v_trap_handler()
-{
-	
-}
+void trap_handler(void);
 /*-----------------------------------------------------------*/
 
 int main( void )
 {
 	int ret;
 	// trap handler initialization
-		#if( mainVECTOR_MODE_DIRECT == 1 )
+	#if( mainVECTOR_MODE_DIRECT == 1 )
 	{
-		__asm__ volatile( "csrw mtvec, %0" :: "r"( freertos_risc_v_trap_handler ) );
+		__asm__ volatile( "csrw mtvec, %0" :: "r"( trap_handler ) );
 	}
 	#else
 	{
@@ -62,13 +21,18 @@ int main( void )
 	}
 	#endif
 
-#if defined(DEMO_BLINKY)
-	ret = main_blinky();
-#else
-#error "Please add or select demo."
-#endif
+	// vSendString( "Hello Puppy!" );
+	board_init();
 
-	return ret;
+    puppy_init();
+    puppy_start();
+	while (1)
+	{
+		/* code */
+	}
+	
+
+	return 0;
 }
 
 /*-----------------------------------------------------------*/

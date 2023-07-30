@@ -72,10 +72,10 @@
             "gdbPath": "D:\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin\\arm-none-eabi-gdb.exe",
         },
         {
-            "name": "riscv@qemu",
+            "name": "rv32@qemu",
             "type": "cppdbg",
             "request": "launch",
-            "program": "build/cross/riscv64/debug/puppy.elf",
+            "program": "build/cross/riscv32/debug/puppy.elf",
             "args": [],
             "stopAtEntry": true,
             "cwd": "${workspaceRoot}",

@@ -1,0 +1,44 @@
+/*
+ * Copyright (c) 2022-2023, The Puppy RTOS Authors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <puppy.h>
+
+__attribute__((always_inline)) inline p_base_t arch_irq_lock(void)
+{
+    p_base_t key;
+
+    __asm volatile("csrrci %0, mstatus, 8"
+        : "=r" (key)
+        :
+        : "memory");
+
+    return key;
+}
+
+__attribute__((always_inline)) inline void arch_irq_unlock(p_base_t key)
+{
+    __asm volatile(
+        "csrw mstatus, %0;"
+        : "=r" (key)
+        :
+        : "memory");
+}
+
+__attribute__((always_inline)) inline bool arch_irq_locked(p_base_t key)
+{
+    /* todo */
+    return key != 0U;
+}
+__attribute__((always_inline)) inline bool arch_in_irq(void)
+{
+    // volatile int tmp = 0;
+    // __asm volatile("mrs %0, IPSR;"
+    //     : "=r" (tmp)
+    //     :
+    //     : "memory");
+    // return (tmp & 0x1f) != 0U;      
+
+}

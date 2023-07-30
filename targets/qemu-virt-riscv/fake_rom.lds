@@ -22,6 +22,11 @@ SECTIONS
 		*(.text.startup .text.startup.*)
 		*(.text .text.*)
 		*(.gnu.linkonce.t.*)
+		
+        /* section information for shell */
+        . = ALIGN(4);
+        KEEP(*(SORT(puppy_rom_sym.*)))
+
 	} >rom AT>rom
 	
 	.fini :
@@ -77,6 +82,10 @@ SECTIONS
 		*(.srodata.cst4)
 		*(.srodata.cst2)
 		*(.srodata .srodata.*)
+		
+        /* section information for initial. */
+        . = ALIGN(4);
+        KEEP(*(SORT(puppy_ram_sym.*)))
 
 		. = ALIGN(4);
 		_edata = .;
