@@ -57,16 +57,17 @@ int p_hw_cons_output(const char *str, int len)
 	}
     return 0;
 }
-// void USART1_IRQHandler(void)
-// {
-//     char ch = -1;
-//     if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)
-//     {
-//         ch = huart1.Instance->DR & 0x00FFU;
-//         p_rb_write(&cons_rb, &ch, 1);
-//         p_sem_post(&cons_sem);
-//     }
-// }
+void uart_isr(void)
+{
+    char ch = -1;
+    ch = uart_getc();
+    // if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)
+    // {
+    //     ch = huart1.Instance->DR & 0x00FFU;
+        p_rb_write(&cons_rb, &ch, 1);
+        p_sem_post(&cons_sem);
+    // }
+}
 
 int board_init(void)
 {

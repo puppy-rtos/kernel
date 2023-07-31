@@ -200,6 +200,11 @@ __attribute__((naked)) void riscv_swap(p_ubase_t from, p_ubase_t to)
      * sp(i) -> x(i+2)
      */
     __asm ("switch_to_thread:");
+    __asm ("bnez a0, contun");
+    __asm ("la t0, _stack_top");
+    __asm ("csrw mscratch,t0");
+
+    __asm ("contun:");
     __asm ("lw sp,  (a1)");
 
     /* resw ra to mepc */
@@ -277,18 +282,18 @@ void dump_contex(struct stack_frame *context)
     printk("t6      : 0x%08x\n", context->t6);
 #endif
 }
-void trap_handler()
-{
-    uint32_t mscratch = read_csr(0x340);
-    // uint32_t irq_id = (mcause & 0x1F);
-    // uint32_t exception = !(mcause & 0x80000000);
-    // if(exception)
-    // {
-        dump_contex((struct stack_frame *)mscratch);
-    // }
-    // else
-    // {
-    //     rv32irq_table[irq_id].handler(irq_id, rv32irq_table[irq_id].param);
-    // }	
-}
+// void trap_handler()
+// {
+//     uint32_t mscratch = read_csr(0x340);
+//     // uint32_t irq_id = (mcause & 0x1F);
+//     // uint32_t exception = !(mcause & 0x80000000);
+//     // if(exception)
+//     // {
+//         dump_contex((struct stack_frame *)mscratch);
+//     // }
+//     // else
+//     // {
+//     //     rv32irq_table[irq_id].handler(irq_id, rv32irq_table[irq_id].param);
+//     // }	
+// }
 
