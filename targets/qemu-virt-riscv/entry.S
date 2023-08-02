@@ -10,8 +10,7 @@
 # which is a global value and would not be changed
 # during context-switch.
 .macro reg_save base
-	sw ra, 0(\base)
-	sw sp, 4(\base)
+	sw ra, 4(\base)
 	sw t0, 16(\base)
 	sw t1, 20(\base)
 	sw t2, 24(\base)
@@ -50,8 +49,7 @@
 # ra = base->ra;
 # ......
 .macro reg_restore base
-	lw ra, 0(\base)
-	lw sp, 4(\base)
+	lw ra, 4(\base)
 	lw t0, 16(\base)
 	lw t1, 20(\base)
 	lw t2, 24(\base)
@@ -97,13 +95,22 @@
 trap_vector:
 	# save context(registers).
 
-	csrrw	sp, mscratch, sp	# swap t6 and mscratch
-    addi sp, sp, -124
+    addi sp, sp, -128
 	reg_save sp
+	csrr a0, mstatus
+    andi a0, a0, 8
+    bnez a0, save_mpie
+    li   a0, 0x80
+save_mpie:
+    sw a0,   8(sp)
+	csrr	a0, mepc
+	sw a0,   0(sp)
+	csrrw	sp, mscratch, sp	# swap t6 and mscratch
 	# call the C trap handler in trap.c
 	#csrr	a0, mepc
 	#addi    a0, a0, 4
 
+    call arch_irq_enter
 	# call the C trap handler in trap.c
 	csrr	a0, mepc
 	csrr	a1, mcause
@@ -111,9 +118,35 @@ trap_vector:
 
 	# trap_handler will return the return address via a0.
 	csrw	mepc, a0
-	reg_restore sp
-	addi sp, sp, 124
+	call arch_irq_leave
+
+	call arch_need_swap
+	beqz a0, exit
+	call arch_need_swap_clean
+
+	call arch_get_to_sp
+	lw a1, (a0)
+	csrrw	a1, mscratch, a1  # swap to thread
+
+    mv t0, a1
+	call arch_get_from_sp
+	sw t0, (a0)
+	call p_sched_swap_out_cb
+    call p_sched_swap_in_cb
+
+exit:
 	csrrw	sp, mscratch, sp	# swap t6 and mscratch
+	li    t0, 0x1800
+
+    csrw  mstatus, t0
+    lw a0,   8(sp)
+    csrs mstatus, a0
+	
+    lw a0,   0(sp)
+	csrw	mepc, a0
+
+	reg_restore sp
+	addi sp, sp, 128
 
 	# return to whatever we were doing before trap.
 	mret

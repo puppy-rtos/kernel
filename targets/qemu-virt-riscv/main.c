@@ -23,8 +23,6 @@ int main( void )
 
 	// vSendString( "Hello Puppy!" );
 	board_init();
-	plic_init();
-	timer_init();
 	// trap_test();
 	
 	// printk("tick:%d\n", get_ticks());

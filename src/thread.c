@@ -267,7 +267,10 @@ static int timeout_remove(struct timeout *timeout)
 {
     p_base_t key = arch_irq_lock();
 
-    p_list_remove(&timeout->node);
+    if (timeout->node.next != NULL)
+    {
+        p_list_remove(&timeout->node);
+    }
 
     arch_irq_unlock(key);
     return 0;

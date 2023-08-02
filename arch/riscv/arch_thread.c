@@ -9,6 +9,8 @@
 
 // #if defined(__GNUC__) && !defined(__ASSEMBLER__)
 
+// uint32_t _g_need_swap_in_irq = 0
+
 #define read_csr(reg) ({ unsigned long __tmp;                               \
     asm volatile ("csrr %0, " #reg : "=r"(__tmp));                          \
         __tmp; })
@@ -36,9 +38,35 @@
 
 struct arch_thread
 {
+    uint32_t irq_flag;
+    uint32_t need_swap;
     uint32_t stack_ptr;
 };
+void arch_irq_enter(void)
+{
+    struct arch_thread *arch;
+    if (p_thread_self() == NULL)
+        return ;
+    arch = p_thread_get_archdata(p_thread_self());
+    arch->irq_flag ++;
 
+}
+void arch_irq_leave(void)
+{
+    struct arch_thread *arch;
+    if (p_thread_self() == NULL)
+        return ;
+    arch = p_thread_get_archdata(p_thread_self());
+    arch->irq_flag --;
+}
+__attribute__((always_inline)) inline bool arch_in_irq(void)
+{
+    struct arch_thread *arch;
+    if (p_thread_self() == NULL)
+        return true;
+    arch = p_thread_get_archdata(p_thread_self()); 
+    return (arch->irq_flag > 0);
+}
 typedef struct stack_frame
 {
     p_ubase_t epc;        /* epc - epc    - program counter                     */
@@ -103,6 +131,8 @@ void *arch_new_thread(void         *entry,
 
     sf->mstatus = 0x1880;
 
+    arch_data->irq_flag = 0;
+    arch_data->need_swap = 0;
     arch_data->stack_ptr = ((uint32_t)sf);
     return arch_data;
 }
@@ -124,9 +154,35 @@ void *arch_get_to_sp(void)
     arch = p_thread_get_archdata(p_thread_next());
     return &arch->stack_ptr;
 }
+int arch_need_swap(void)
+{
+    if (p_thread_self())
+    {
+        struct arch_thread *arch;
+        arch = p_thread_get_archdata(p_thread_self());
+        return arch->need_swap;
+    }
+    return 0;
+}
+void arch_need_swap_clean(void)
+{
+    if (p_thread_self())
+    {
+        struct arch_thread *arch;
+        arch = p_thread_get_archdata(p_thread_self());
+        arch->need_swap = 0;
+    }
+}
 void arch_swap(unsigned int key)
 {
     void *from, *to;
+    if (arch_in_irq() && p_thread_self())
+    {
+        struct arch_thread *arch;
+        arch = p_thread_get_archdata(p_thread_self());
+        arch->need_swap = 1;
+        return;
+    }
     from = arch_get_from_sp();
     to = arch_get_to_sp();
     if (p_thread_self())
@@ -159,7 +215,7 @@ __attribute__((naked)) void riscv_swap(p_ubase_t from, p_ubase_t to)
     __asm ("sw x1,   1 * 4(sp)");
     __asm ("csrr a0, mstatus");
     __asm ("andi a0, a0, 8");
-    __asm ("beqz a0, save_mpie");
+    __asm ("bnez a0, save_mpie");
     __asm ("li   a0, 0x80");
     __asm ("save_mpie:");
     __asm ("sw a0,   2 * 4(sp)");
@@ -203,6 +259,7 @@ __attribute__((naked)) void riscv_swap(p_ubase_t from, p_ubase_t to)
     __asm ("bnez a0, contun");
     __asm ("la t0, _stack_top");
     __asm ("csrw mscratch,t0");
+    __asm ("csrrsi t0, mstatus, 8");
 
     __asm ("contun:");
     __asm ("lw sp,  (a1)");

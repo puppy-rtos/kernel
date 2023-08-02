@@ -29,9 +29,9 @@ __retry:
     ch = uart_getc();
     if (ch < 0)
     {
-        goto __retry;
 	    // printk("tick:%d\n", get_ticks());
-        // p_thread_sleep(10);
+        p_thread_sleep(10);
+        goto __retry;
     }
 
 
@@ -71,6 +71,9 @@ void uart_isr(void)
 
 int board_init(void)
 {
+    arch_irq_lock();
+	plic_init();
+	timer_init();
     p_tick_init(100);
     p_sem_init(&cons_sem, "cons_sem", 0, 1);
     p_system_heap_init(heap_buf, sizeof(heap_buf));

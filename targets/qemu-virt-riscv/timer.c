@@ -28,7 +28,7 @@ void timer_init()
 	w_mie(r_mie() | MIE_MTIE);
 
 	/* enable machine-mode global interrupts. */
-	w_mstatus(r_mstatus() | MSTATUS_MIE);
+	// w_mstatus(r_mstatus() | MSTATUS_MIE);
 }
 
 void timer_handler() 

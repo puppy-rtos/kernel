@@ -29,19 +29,10 @@ __attribute__((always_inline)) inline void arch_irq_unlock(p_base_t key)
 
 __attribute__((always_inline)) inline bool arch_irq_locked(p_base_t key)
 {
-    /* todo */
-    return key != 0U;
+    return !(key & 0x08);
 }
-__attribute__((always_inline)) inline bool arch_in_irq(void)
-{
-    // volatile int tmp = 0;
-    // __asm volatile("mrs %0, IPSR;"
-    //     : "=r" (tmp)
-    //     :
-    //     : "memory");
-    // return (tmp & 0x1f) != 0U;      
 
-}
+
 #include "platform.h"
 #include "riscv.h"
 extern void trap_vector(void);
@@ -75,7 +66,10 @@ uint32_t trap_handler(uint32_t epc, uint32_t cause)
 {
 	uint32_t return_pc = epc;
 	uint32_t cause_code = cause & 0xfff;
-	
+	// if (arch_in_irq())
+	// {
+	// 	printk("in irq\n");
+	// }
 	if (cause & 0x80000000) {
 		/* Asynchronous trap - interrupt */
 		switch (cause_code) {
@@ -98,6 +92,7 @@ uint32_t trap_handler(uint32_t epc, uint32_t cause)
 		/* Synchronous trap - exception */
 		printk("Sync exceptions!, code = %d\n", cause_code);
 		printk("OOPS! What can I do!");
+		list_thread();
         while(1)
         {}
 		// return_pc += 2;
