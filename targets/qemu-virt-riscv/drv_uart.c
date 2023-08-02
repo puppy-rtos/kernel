@@ -39,8 +39,8 @@ void uart_init(void)
     write8_uart0(UART_LCR, UART_LCR_EIGHT_BITS);
 
     write8_uart0(UART_FCR, UART_FCR_FIFO_ENABLE | UART_FCR_FIFO_CLEAR);
-    // uint8_t value = read8_uart0(UART_IER);
-    // write8_uart0(UART_IER, value | UART_IER_RX_ENABLE);
+    uint8_t value = read8_uart0(UART_IER);
+    write8_uart0(UART_IER, value | UART_IER_RX_ENABLE);
     return;
 }
 
@@ -99,23 +99,3 @@ int uart_getc()
     }
     return ch;
 }
-
-static void rt_hw_uart_isr(int irqno, void *param)
-{
-
-}
-
-// /*
-//  * UART Initiation
-//  */
-// int rt_hw_uart_init(void)
-// {
-//     struct device_uart *uart;
-//     uart = &uart0;
-//     uart->hw_base = (p_ubase_t)uart0_base;
-//     uart->irqno = 0x0a;
-
-//     // rt_hw_interrupt_install(uart->irqno, rt_hw_uart_isr, serial, RT_CONSOLE_DEVICE_NAME);
-//     // rt_hw_interrupt_umask(uart->irqno);
-//     return 0;
-// }

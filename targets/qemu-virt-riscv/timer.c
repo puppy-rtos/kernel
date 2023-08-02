@@ -35,7 +35,6 @@ void timer_handler()
 {
 	_tick++;
 	p_tick_inc();
-	// printk("tick: %d\n", _tick);
 
 	timer_load(TIMER_INTERVAL);
 }

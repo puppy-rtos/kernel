@@ -61,7 +61,7 @@ void plic_init(void)
  */
 int plic_claim(void)
 {
-	int hart = r_tp();
+	int hart = 0;
 	int irq = *(uint32_t*)PLIC_MCLAIM(hart);
 	return irq;
 }
@@ -78,6 +78,6 @@ int plic_claim(void)
  */
 void plic_complete(int irq)
 {
-	int hart = r_tp();
+	int hart = 0;
 	*(uint32_t*)PLIC_MCOMPLETE(hart) = irq;
 }
