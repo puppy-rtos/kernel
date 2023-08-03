@@ -38,9 +38,6 @@
 	sw t4, 112(\base)
 	sw t5, 116(\base)
 	sw t6, 120(\base)
-	# we don't save t6 here, due to we have used
-	# it as base, we have to save t6 in an extra step
-	# outside of reg_save
 .endm
 
 # restore all General-Purpose(GP) registers from the context
