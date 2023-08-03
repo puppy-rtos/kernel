@@ -44,33 +44,6 @@ void uart_init(void)
     return;
 }
 
-
-// static rt_err_t _uart_control(struct rt_serial_device *serial, int cmd, void *arg)
-// {
-//     struct device_uart *uart = (struct device_uart*)serial->parent.user_data;
-
-//     switch (cmd)
-//     {
-//     case RT_DEVICE_CTRL_CLR_INT:
-//         if ((size_t)arg == RT_DEVICE_FLAG_INT_RX)
-//         {
-//             uint8_t value = read8_uart0(UART_IER);
-//             write8_uart0(UART_IER, value & ~UART_IER_RX_ENABLE);
-//         }
-//         break;
-
-//     case RT_DEVICE_CTRL_SET_INT:
-//         if ((size_t)arg == RT_DEVICE_FLAG_INT_RX)
-//         {
-//             uint8_t value = read8_uart0(UART_IER);
-//             write8_uart0(UART_IER, value | UART_IER_RX_ENABLE);
-//         }
-//         break;
-//     }
-
-//     return (RT_EOK);
-// }
-
 int uart_putc(char c)
 {
     struct device_uart *uart;

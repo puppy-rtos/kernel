@@ -56,6 +56,7 @@ p_weak void p_subcpu_start(void)
 
 void puppy_init(void)
 {
+    puppy_board_init();
     p_cpu_init();
     p_show_version();
     _init_fn_run();

@@ -12,5 +12,5 @@ includes("arch/xmake.lua")
 
 target("puppy")
     add_defines('PUPPY_RTOS')
-    add_files("src/*.c")
+    add_files("src/*.c", "apps/*c")
     add_includedirs("include")

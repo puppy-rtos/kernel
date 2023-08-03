@@ -24,8 +24,6 @@
  *
  */
 
-#include "riscv-virt.h"
-
 	.section .init
 	.globl _start
 	.type _start,@function
@@ -39,22 +37,22 @@ _start:
 
 	// Continue primary hart
 	csrr a0, mhartid
-	li   a1, PRIM_HART
+	li   a1, 0
 	bne  a0, a1, secondary
 
 	// Primary hart
 	la sp, _stack_top
 
-	// Load data section
+	// lw data section
 	la a0, _data_lma
 	la a1, _data
 	la a2, _edata
 	bgeu a1, a2, 2f
 1:
-	LOAD t0, (a0)
-	STOR t0, (a1)
-	addi a0, a0, REGSIZE
-	addi a1, a1, REGSIZE
+	lw t0, (a0)
+	sw t0, (a1)
+	addi a0, a0, 4
+	addi a1, a1, 4
 	bltu a1, a2, 1b
 2:
 
@@ -63,8 +61,8 @@ _start:
 	la a1, _ebss
 	bgeu a0, a1, 2f
 1:
-	STOR zero, (a0)
-	addi a0, a0, REGSIZE
+	sw zero, (a0)
+	addi a0, a0, 4
 	bltu a0, a1, 1b
 2:
 

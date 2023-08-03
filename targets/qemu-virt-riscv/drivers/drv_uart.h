@@ -10,8 +10,6 @@
 #ifndef __DRV_UART_H__
 #define __DRV_UART_H__
 
-// #include "riscv_io.h"
-
 /**
  * uart ns16550a
  * http://byterunner.com/16550.html

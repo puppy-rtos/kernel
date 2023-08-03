@@ -1,6 +1,5 @@
 
 #include <puppy.h>
-#include "riscv-virt.h"
 #include "drv_uart.h"
 
 /* USER CODE BEGIN PFP */
@@ -58,9 +57,10 @@ void uart_isr(void)
     }
 }
 
-int board_init(void)
+int puppy_board_init(void)
 {
     arch_irq_lock();
+    trap_init();
     plic_init();
     timer_init();
     p_tick_init(100);

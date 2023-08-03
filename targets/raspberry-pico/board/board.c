@@ -230,7 +230,7 @@ uint32_t systick_config(uint32_t ticks)
 }
 char heap_buf[50*1024];
 
-void arch_board_init()
+void puppy_board_init()
 {
     set_sys_clock_khz(PLL_SYS_KHZ, true);
 

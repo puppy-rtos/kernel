@@ -127,7 +127,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   * @brief  The application entry point.
   * @retval int
   */
-int board_init(void)
+int puppy_board_init(void)
 {
     /* USER CODE BEGIN 1 */
 
