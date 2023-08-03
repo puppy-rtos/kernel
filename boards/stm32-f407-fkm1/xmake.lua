@@ -4,7 +4,7 @@ target("puppy")
 
 if is_config("build_board", "stm32-f407-fkm1") then
     add_files("Core/Src/*.c", "Drivers/**.c")
-    add_defines("USE_HAL_DRIVER", "STM32F407xx", "_POSIX_C_SOURCE=199309L")
+    add_defines("USE_HAL_DRIVER", "STM32F407xx")
     add_includedirs("Drivers/STM32F4xx_HAL_Driver/Inc", 
                 "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy", 
                 "Core/Inc", 
@@ -28,6 +28,7 @@ if is_config("build_board", "stm32-f407-fkm1") then
             end
         end)
     elseif is_config("build_toolchian", "arm-none-eabi-gcc") then
+        add_defines("_POSIX_C_SOURCE=199309L")
         add_files("Drivers/CMSIS/Device/ST/STM32F4xx/gcc/startup_stm32f407xx.s")
         set_toolchains("cross")
         set_extension(".elf")

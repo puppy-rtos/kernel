@@ -47,6 +47,7 @@ typedef p_ubase_t         p_tick_t;
  */
 #define P_ALIGN_DOWN(size, align)      ((size) & ~((align) - 1))
 
+int puppy_board_init(void);
 void puppy_init(void);
 void puppy_start(void);
 
