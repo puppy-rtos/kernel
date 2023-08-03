@@ -1,4 +1,13 @@
-
+/**
+ * @file pthread.c
+ * @author Henson
+ * @brief pthread api
+ * @version 0.1
+ * @date 2023-08-03
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include <puppy.h>
 #include <puppy/kobj.h>
 #include <puppy/posix/unistd.h>
@@ -59,8 +68,38 @@ void _pthread_data_destroy(_pthread_data_t *ptd)
     p_free(ptd);
 }
 
+/**
+ * @brief Create a new thread
+ * 
+ *        The pthread_create() function starts a new thread in the calling
+ *        process.  The new thread starts execution by invoking
+ *        start_routine(); arg is passed as the sole argument of
+ *        start_routine().
+ * 
+ *        The new thread terminates in one of the following ways:
+ *        •  It calls pthread_exit(), specifying an exit status value that
+ *           is available to another thread in the same process that calls
+ *           pthread_join().
+ *        •  It returns from start_routine().  This is equivalent to
+ *           calling pthread_exit() with the value supplied in the return
+ *           statement.
+ * 
+ * @param thread Buffer to store new thread ID, this identifier is used to refer
+ *               to the thread in subsequent calls to other pthreads functions. 
+ * 
+ * @param attr   The attr argument points to a pthread_attr_t structure whose
+ *               contents are used at thread creation time to determine attributes
+ *               for the new thread; this structure is initialized using
+ *               pthread_attr_init() and related functions.  If attr is NULL,
+ *               then the thread is created with default attributes.
+ * 
+ * @param start_routine Function to run when the new thread executes.
+ * @param arg arg is passed as the sole argument of start_routine().
+ * @return On success, pthread_create() returns 0; on error, it returns an
+ *             error number, and the contents of *thread are undefined.
+ */
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
-                   pthread_startroutine_t startroutine, pthread_addr_t arg)
+                   pthread_startroutine_t start_routine, pthread_addr_t arg)
 {
     _pthread_data_t *ptd;
     void *stack;
@@ -82,7 +121,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         p_sem_init(&ptd->joinable_sem, "sem", 0, 1);
     }
      /* set parameter */
-    ptd->thread_entry = startroutine;
+    ptd->thread_entry = start_routine;
     ptd->thread_parameter = arg;
 
     /* stack */
@@ -96,7 +135,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         stack = (void *)(ptd->attr.stackaddr);
     }
     /* initial this pthread to system */
-    p_thread_init(&ptd->tid, "pth", (void (*)(void *))startroutine, arg,
+    p_thread_init(&ptd->tid, "pth", (void (*)(void *))start_routine, arg,
                        stack, ptd->attr.stacksize,
                        ptd->attr.priority, CPU_NA);
     if(thread) *thread = ptd;
@@ -106,8 +145,20 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 
     return 0;
 }
-
-int pthread_join(pthread_t thread, pthread_addr_t *value)
+/**
+ * @brief join with a terminated thread
+ * 
+ *        The pthread_join() function waits for the thread specified by
+ *        thread to terminate.  If that thread has already terminated, then
+ *        pthread_join() returns immediately.  The thread specified by
+ *        thread must be joinable.
+ * 
+ * @param thread Thread ID is created by pthread_create().
+ * @param value the value passed to pthread_exit() by the terminating thread. 
+ * @return On success, pthread_join() returns 0; on error, it returns a
+ *             error number.
+ */
+int pthread_join(pthread_t thread, void **value)
 {
     _pthread_data_t *ptd;
     int result;
@@ -149,13 +200,29 @@ int pthread_join(pthread_t thread, pthread_addr_t *value)
     return 0;
 }
 
-void pthread_exit(pthread_addr_t value)
+/**
+ * @brief terminate calling thread
+ * 
+ *        The pthread_exit() function terminates the calling thread and
+ *        returns a value via value.
+ * 
+ * @param value value passed to thread that calls pthread_join().
+ */
+void pthread_exit(void *value)
 {
     _pthread_data_t *ptd;
     ptd = p_container_of(p_thread_self(), _pthread_data_t, tid);
     p_sem_post(&ptd->joinable_sem);
 }
-
+/**
+ * @brief obtain ID of the calling thread
+ * 
+ *        The pthread_self() function returns the ID of the calling thread.
+ *        This is the same value that is returned in *thread in the
+ *        pthread_create() call that created this thread.
+ * 
+ * @return the calling thread's ID.
+ */
 pthread_t pthread_self(void)
 {
     _pthread_data_t *ptd;
@@ -163,6 +230,14 @@ pthread_t pthread_self(void)
     return ptd;
 }
 
+/**
+ * @brief set the name of a thread
+ * 
+ * @param thread argument specifies the thread whose name is to be changed.
+ * @param name name specifies the new name.
+ * @return On success, these functions return 0; on error, they return a
+ *             nonzero error number.
+ */
 int pthread_setname_np(pthread_t thread, const char *name)
 {
     _pthread_data_t *ptd = thread;
