@@ -230,7 +230,7 @@ uint32_t systick_config(uint32_t ticks)
 }
 char heap_buf[50*1024];
 
-void puppy_board_init()
+int puppy_board_init(void)
 {
     set_sys_clock_khz(PLL_SYS_KHZ, true);
 
@@ -238,11 +238,6 @@ void puppy_board_init()
     p_system_heap_init(heap_buf, sizeof(heap_buf));
 
     arch_spin_lock_init(&cons_lock);
-
-// #ifdef RT_USING_SMP
-//     extern arch_spinlock_t _cpus_lock;
-//     arch_spin_lock_init(&_cpus_lock);
-// #endif
 
     alarm_pool_init_default();
 
@@ -263,4 +258,5 @@ void puppy_board_init()
 
     stdio_init_all();
     arch_uart_init();
+    return 0;
 }
