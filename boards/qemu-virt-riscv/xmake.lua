@@ -1,7 +1,7 @@
 
 target("puppy")
 
-if is_config("build_target", "qemu-virt-riscv") then
+if is_config("build_board", "qemu-virt-riscv") then
     add_defines(
         "__riscv_float_abi_soft",
         "_POSIX_C_SOURCE=199309L"

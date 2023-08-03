@@ -1,4 +1,4 @@
-name: Puppy-RTOS Targets build check
+name: Puppy-RTOS Boards build check
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -21,18 +21,18 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: ${{ matrix.legs.Targets }}
+    name: ${{ matrix.legs.Boards }}
     strategy:
       fail-fast: false
       matrix:
        legs:
-         - {Targets: "stm32-f407-fkm1",   ARCH: "arm"}
-         - {Targets: "stm32-f412-nucleo", ARCH: "arm"}
-         - {Targets: "raspberry-pico",    ARCH: "arm"}
-         - {Targets: "qemu-virt-riscv",   ARCH: "riscv"}
+         - {Boards: "stm32-f407-fkm1",   ARCH: "arm"}
+         - {Boards: "stm32-f412-nucleo", ARCH: "arm"}
+         - {Boards: "raspberry-pico",    ARCH: "arm"}
+         - {Boards: "qemu-virt-riscv",   ARCH: "riscv"}
 
     env:
-      Targets: ${{ matrix.legs.Targets }}
+      Boards: ${{ matrix.legs.Boards }}
     steps:
       - uses: actions/checkout@v3
       - uses: xmake-io/github-action-setup-xmake@v1
@@ -47,7 +47,7 @@ jobs:
           sudo tar xjf gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2 -C /opt
           /opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc --version
           xmake --version
-          xmake f -p cross --sdk=/opt/gcc-arm-none-eabi-10-2020-q4-major --build_target=$Targets
+          xmake f -p cross --sdk=/opt/gcc-arm-none-eabi-10-2020-q4-major --build_board=$Boards
 
       - name: Install RISC-V ToolChains
         if: ${{ success() && matrix.legs.ARCH == 'riscv'}}
@@ -57,7 +57,7 @@ jobs:
           sudo tar zxf riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14.tar.gz -C /opt
           /opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc --version
           xmake --version
-          xmake f -p cross --sdk=/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14 --build_target=$Targets
+          xmake f -p cross --sdk=/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14 --build_board=$Boards
 
       - name: Xmake Build
         if: ${{ success() }}

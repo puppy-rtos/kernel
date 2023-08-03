@@ -5,11 +5,6 @@
  */
 
 #include <puppy.h>
-#include <puppy/target.h>
-
-// #if defined(__GNUC__) && !defined(__ASSEMBLER__)
-
-// uint32_t _g_need_swap_in_irq = 0
 
 #define read_csr(reg) ({ unsigned long __tmp;                               \
     asm volatile ("csrr %0, " #reg : "=r"(__tmp));                          \
@@ -34,7 +29,6 @@
     else                                                                    \
         asm volatile ("csrrc %0, " #reg ", %1" : "=r"(__tmp) : "r"(bit));   \
             __tmp; })
-// #endif /* end of __GNUC__ */
 
 struct arch_thread
 {

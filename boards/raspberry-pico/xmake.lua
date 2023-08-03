@@ -2,11 +2,9 @@
 
 target("puppy")
 
-if is_config("build_target", "raspberry-pico") then
+if is_config("build_board", "raspberry-pico") then
     add_files(
-        "applications/*.c",
-        "board/board.c",
-        -- "libcpu/context_gcc1.S",
+        "drivers/board.c",
         "libraries/pico-sdk/src/rp2_common/pico_float/float_math.c", 
         "libraries/pico-sdk/src/common/pico_time/time.c", 
         "libraries/pico-sdk/src/rp2_common/hardware_watchdog/watchdog.c", 
@@ -81,6 +79,7 @@ if is_config("build_target", "raspberry-pico") then
         "P_ARCH_CORTEX_M0",
         "CPU_NR=2")
     add_includedirs(
+        "drivers",
         "libraries/pico-sdk/src/rp2_common/hardware_flash/include",
         "libraries/pico-sdk/src/rp2_common/pico_multicore/include",
         "libraries/pico-sdk/src/common/pico_stdlib/include",

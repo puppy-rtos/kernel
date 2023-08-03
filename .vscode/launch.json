@@ -5,21 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "f411",
-            "cwd": "${workspaceFolder}",
-            "executable": "build/cross/cortex-m4/debug/puppy.elf",
-            "request": "launch",
-            "type": "cortex-debug",
-            "runToEntryPoint": "Reset_Handler",
-            "servertype": "stlink",
-            "armToolchainPath": "D:\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin",
-            "gdbPath": "D:\\RT-ThreadStudio\\repo\\Extract\\ToolChain_Support_Packages\\ARM\\GNU_Tools_for_ARM_Embedded_Processors\\10.2.1\\bin\\arm-none-eabi-gdb.exe",
-            "stlinkPath": "D:\\RT-ThreadStudio\\repo\\Extract\\Debugger_Support_Packages\\STMicroelectronics\\ST-LINK_Debugger\\1.6.0\\ST-LINK_gdbserver.exe",
-            "stm32cubeprogrammer": "D:\\RT-ThreadStudio\\repo\\Extract\\Debugger_Support_Packages\\STMicroelectronics\\ST-LINK_Debugger\\1.6.0\\tools\\bin",
-            "svdFile": "D:/Progrem/STM32/CubeProgrammer/SVD/STM32F412.svd"
-        },
-
-        {
             "name": "f407",
             "cwd": "${workspaceFolder}",
             "executable": "build/cross/cortex-m4/debug/puppy.elf",
@@ -50,7 +35,7 @@
                     "text": "cd ${workspaceRoot}"
                 },
                 {
-                    "text": "shell targets\\stm32-f407-fkm1\\qemu-dbg.bat"
+                    "text": "shell boards\\stm32-f407-fkm1\\qemu-dbg.bat"
                 }
             ],
             "MIMode": "gdb",
@@ -89,7 +74,7 @@
                     "text": "cd ${workspaceRoot}"
                 },
                 {
-                    "text": "shell targets\\qemu-virt-riscv\\qemu-dbg.bat"
+                    "text": "shell boards\\qemu-virt-riscv\\qemu-dbg.bat"
                 }
             ],
             "MIMode": "gdb",
