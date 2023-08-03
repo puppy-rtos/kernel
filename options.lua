@@ -1,7 +1,7 @@
 
 option("build_target")
-    set_default("stm32-f407-fkm1")
-    set_values("stm32-f407-fkm1", "stm32-f412-nucleo", "raspberry-pico", "qemu-virt-riscv")
+    set_default("raspberry-pico")
+    set_values("stm32-f407-fkm1", "raspberry-pico", "qemu-virt-riscv")
     set_description("Build target")
 
 option("build_toolchian")

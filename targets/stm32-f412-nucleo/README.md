@@ -1,1 +1,0 @@
-# target-stm32-f412-nucleo
