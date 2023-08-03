@@ -26,10 +26,13 @@ jobs:
       fail-fast: false
       matrix:
        legs:
-         -  Targets: "stm32-f407-fkm1"
-         -  Targets: "stm32-f412-nucleo"
-         -  Targets: "raspberry-pico"
+         - {Targets: "stm32-f407-fkm1",   ARCH: "arm"}
+         - {Targets: "stm32-f412-nucleo", ARCH: "arm"}
+         - {Targets: "raspberry-pico",    ARCH: "arm"}
+         - {Targets: "qemu-virt-riscv",   ARCH: "riscv"}
 
+    env:
+      Targets: ${{ matrix.legs.Targets }}
     steps:
       - uses: actions/checkout@v3
       - uses: xmake-io/github-action-setup-xmake@v1
@@ -37,19 +40,27 @@ jobs:
           xmake-version: latest
 
       - name: Install Arm ToolChains
-        if: ${{ success() }}
+        if: ${{ success() && matrix.legs.ARCH == 'arm'}}
         shell: bash
         run: |
           wget -q https://github.com/RT-Thread/toolchains-ci/releases/download/v1.3/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
           sudo tar xjf gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2 -C /opt
           /opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc --version
+          xmake --version
+          xmake f -p cross --sdk=/opt/gcc-arm-none-eabi-10-2020-q4-major --build_target=$Targets
+
+      - name: Install RISC-V ToolChains
+        if: ${{ success() && matrix.legs.ARCH == 'riscv'}}
+        shell: bash
+        run: |
+          wget -q https://github.com/RT-Thread/toolchains-ci/releases/download/v1.4/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14.tar.gz
+          sudo tar zxf riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14.tar.gz -C /opt
+          /opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc --version
+          xmake --version
+          xmake f -p cross --sdk=/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14 --build_target=$Targets
 
       - name: Xmake Build
         if: ${{ success() }}
         shell: bash
-        env:
-          Targets: ${{ matrix.legs.Targets }}
         run: |
-          xmake --version
-          xmake f -p cross --sdk=/opt/gcc-arm-none-eabi-10-2020-q4-major --build_target=$Targets
           xmake
