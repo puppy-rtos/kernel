@@ -27,7 +27,6 @@ jobs:
       matrix:
        legs:
          - {Boards: "stm32-f407-fkm1",   ARCH: "arm"}
-         - {Boards: "stm32-f412-nucleo", ARCH: "arm"}
          - {Boards: "raspberry-pico",    ARCH: "arm"}
          - {Boards: "qemu-virt-riscv",   ARCH: "riscv"}
 
