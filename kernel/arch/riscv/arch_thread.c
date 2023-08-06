@@ -6,6 +6,12 @@
 
 #include <puppy.h>
 
+
+#define KLOG_TAG  "arch.rv32"
+#define KLOG_LVL   KLOG_INFO
+#include <puppy/klog.h>
+
+
 #define read_csr(reg) ({ unsigned long __tmp;                               \
     asm volatile ("csrr %0, " #reg : "=r"(__tmp));                          \
         __tmp; })
@@ -251,7 +257,19 @@ __attribute__((naked)) void riscv_swap(p_ubase_t from, p_ubase_t to)
      */
     __asm ("switch_to_thread:");
     __asm ("bnez a0, contun");
+    __asm ("csrr a0, mhartid");
+    __asm ("li   a2, 0");
+    __asm ("bne  a0, a2, cpu1");
     __asm ("la t0, _stack_top");
+    __asm ("j cont");
+    __asm ("cpu1:");
+    __asm ("li   a2, 1");
+    __asm ("bne  a0, a2, cpu2");
+    __asm ("la t0, cpu1_stack");
+    __asm ("j cont");
+    __asm ("cpu2:");
+    __asm ("la t0, cpu2_stack");
+    __asm ("cont:");
     __asm ("csrw mscratch,t0");
     __asm ("csrrsi t0, mstatus, 8");
 

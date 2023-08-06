@@ -52,7 +52,7 @@ void external_interrupt_handler()
 	int irq = plic_claim();
 
 	if (irq == 10){
-      		uart_isr();
+		uart_isr();
 	} else if (irq) {
 		printk("unexpected interrupt irq = %d\n", irq);
 	}
@@ -74,7 +74,8 @@ uint32_t trap_handler(uint32_t epc, uint32_t cause)
 		/* Asynchronous trap - interrupt */
 		switch (cause_code) {
 		case 3:
-			printk("software interruption!\n");
+			// printk("software interruption!\n");
+			sfi_handler();
 			break;
 		case 7:
 			// printk("timer interruption!\n");

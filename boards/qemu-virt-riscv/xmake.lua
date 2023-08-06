@@ -19,7 +19,7 @@ if is_config("build_board", "qemu-virt-riscv") then
     set_arch("riscv32")
     add_cxflags(' -march=rv32imac -mabi=ilp32 -mcmodel=medany -Wall -fmessage-length=0 -ffunction-sections -fdata-sections -fno-builtin-printf')
     add_asflags(' -c -march=rv32imac -mabi=ilp32 -mcmodel=medany -Wall -fmessage-length=0 -ffunction-sections -fdata-sections -fno-builtin-printf')
-    add_ldflags(' -march=rv32imac -mabi=ilp32 -mcmodel=medany -nostartfiles -Xlinker --gc-sections -Xlinker --defsym=__stack_size=300 -Xlinker -Map=puppy.map ')
+    add_ldflags(' -march=rv32imac -mabi=ilp32 -mcmodel=medany -nostartfiles -Xlinker --gc-sections -Xlinker --defsym=__stack_size=1024 -Xlinker -Map=puppy.map ')
     add_ldflags(' -T ' .. os.scriptdir() .. '/link.lds')
     after_build(function (package)
         if is_mode('debug') then

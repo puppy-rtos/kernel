@@ -119,8 +119,12 @@ SECTIONS
 
 	.stack :
 	{
-		. = ALIGN(16);
+		. = ALIGN(64);
 		. += __stack_size;
 		_stack_top = .;
+		. += __stack_size;
+		cpu1_stack = .;
+		. += __stack_size;
+		cpu2_stack = .;
 	} >ram AT>ram
 }

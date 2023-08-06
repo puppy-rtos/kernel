@@ -2,6 +2,10 @@
 #include <puppy.h>
 #include "drv_uart.h"
 
+#define KLOG_TAG  "drv.board"
+#define KLOG_LVL   KLOG_INFO
+#include <puppy/klog.h>
+
 /* USER CODE BEGIN PFP */
 char heap_buf[50*1024];
 p_rb_t cons_rb;
@@ -69,3 +73,92 @@ int puppy_board_init(void)
 
     return 0;
 }
+
+#if CPU_NR > 1
+#include <platform.h>
+#include <riscv.h>
+#define read_csr(reg) ({ unsigned long __tmp;                               \
+    asm volatile ("csrr %0, " #reg : "=r"(__tmp));                          \
+        __tmp; })
+        
+#define set_csr(reg, bit) ({ unsigned long __tmp;                           \
+    if (__builtin_constant_p(bit) && (unsigned long)(bit) < 32)             \
+        asm volatile ("csrrs %0, " #reg ", %1" : "=r"(__tmp) : "i"(bit));   \
+    else                                                                    \
+        asm volatile ("csrrs %0, " #reg ", %1" : "=r"(__tmp) : "r"(bit));   \
+            __tmp; })
+
+volatile p_base_t _g_subcpu_start_flag = 0;
+
+#define IPI_MAGIC 0x5a5a
+uint8_t p_cpu_self_id()
+{
+    return r_mhartid();
+}
+
+int cpu1_entry(void)
+{
+    while(!_g_subcpu_start_flag)
+    {
+        // asm volatile ("wfi");
+    }
+    KLOG_I("I am core %d!", p_cpu_self_id());
+    arch_irq_lock();
+    // trap_init();
+    // plic_init();
+    // timer_init();
+    // set_csr(mie, (1<<3));
+    // w_mie(r_mie() | MIE_MSIE);
+    // w_mstatus(r_mstatus() | MSTATUS_MIE);
+    puppy_start();
+    while(1);
+}
+
+int cpu2_entry(void)
+{
+    while(!_g_subcpu_start_flag)
+    {
+        // asm volatile ("wfi");
+    }
+    KLOG_I("I am core %d!", p_cpu_self_id());
+    arch_irq_lock();
+    trap_init();
+    plic_init();
+    // timer_init();
+    // set_csr(mie, (1<<3));
+    w_mie(r_mie() | MIE_MSIE);
+    // w_mstatus(r_mstatus() | MSTATUS_MIE);
+    puppy_start();
+    // while(1);
+}
+
+void sfi_handler() 
+{
+    *(uint32_t*)CLINT_MSIP(p_cpu_self_id()) = 0;
+    p_sched();
+}
+
+void arch_ipi_send(uint8_t cpuid)
+{
+    *(uint32_t*)CLINT_MSIP(cpuid) = 1;
+}
+
+#include "nr_micro_shell.h"
+void shell_ipi_cmd(char argc, char *argv)
+{
+    w_mie(r_mie() | MIE_MSIE);
+    w_mstatus(r_mstatus() | MSTATUS_MIE);
+    // arch_ipi_send(0);
+    arch_ipi_send(1);
+    arch_ipi_send(2);
+    // w_mie(r_mie() | MIE_MSIE);
+    // w_mstatus(r_mstatus() | MSTATUS_MIE);
+}
+NR_SHELL_CMD_EXPORT(ipi, shell_ipi_cmd);
+
+void p_subcpu_start(void)
+{
+    w_mie(r_mie() | MIE_MSIE);
+    _g_subcpu_start_flag = 1;
+}
+#endif

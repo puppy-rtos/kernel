@@ -24,59 +24,80 @@
  *
  */
 
-	.section .init
-	.globl _start
-	.type _start,@function
+    .section .init
+    .globl _start
+    .type _start,@function
 _start:
-	.cfi_startproc
-	.cfi_undefined ra
+    .cfi_startproc
+    .cfi_undefined ra
 .option push
 .option norelax
-	la  gp, __global_pointer$
+    la  gp, __global_pointer$
 .option pop
 
-	// Continue primary hart
-	csrr a0, mhartid
-	li   a1, 0
-	bne  a0, a1, secondary
+    // Continue primary hart
+    csrr a0, mhartid
+    li   a1, 0
+    bne  a0, a1, secondary
 
-	// Primary hart
-	la sp, _stack_top
+    // Primary hart
+    la sp, _stack_top
 
-	// lw data section
-	la a0, _data_lma
-	la a1, _data
-	la a2, _edata
-	bgeu a1, a2, 2f
+    // lw data section
+    la a0, _data_lma
+    la a1, _data
+    la a2, _edata
+    bgeu a1, a2, 2f
 1:
-	lw t0, (a0)
-	sw t0, (a1)
-	addi a0, a0, 4
-	addi a1, a1, 4
-	bltu a1, a2, 1b
+    lw t0, (a0)
+    sw t0, (a1)
+    addi a0, a0, 4
+    addi a1, a1, 4
+    bltu a1, a2, 1b
 2:
 
-	// Clear bss section
-	la a0, _bss
-	la a1, _ebss
-	bgeu a0, a1, 2f
+    // Clear bss section
+    la a0, _bss
+    la a1, _ebss
+    bgeu a0, a1, 2f
 1:
-	sw zero, (a0)
-	addi a0, a0, 4
-	bltu a0, a1, 1b
+    sw zero, (a0)
+    addi a0, a0, 4
+    bltu a0, a1, 1b
 2:
 
-	// argc, argv, envp is 0
-	li  a0, 0
-	li  a1, 0
-	li  a2, 0
-	jal main
+    // argc, argv, envp is 0
+    li  a0, 0
+    li  a1, 0
+    li  a2, 0
+    jal main
 1:
-	wfi
-	j 1b
+    wfi
+    j 1b
 
 secondary:
-	// TODO: Multicore is not supported
-	wfi
-	j secondary
-	.cfi_endproc
+
+    csrr a0, mhartid
+    li   a1, 1
+    bne  a0, a1, cpu2
+    // cpu1 hart
+    la sp, cpu1_stack
+    jal cpu1_entry
+1:
+    wfi
+    j 1b
+cpu2:
+    csrr a0, mhartid
+    li   a1, 2
+    bne  a0, a1, cpuN
+    // cpu1 hart
+    la sp, cpu2_stack
+    jal cpu2_entry
+1:
+    wfi
+    j 1b
+cpuN:
+    // TODO: Multicore is not supported
+    wfi
+    j cpuN
+    .cfi_endproc

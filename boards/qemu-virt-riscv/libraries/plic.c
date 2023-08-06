@@ -4,7 +4,7 @@
 #define UART0_IRQ 10
 void plic_init(void)
 {
-	int hart = r_tp();
+	int hart = r_mhartid();
   
 	/* 
 	 * Set priority for UART0.
@@ -61,7 +61,7 @@ void plic_init(void)
  */
 int plic_claim(void)
 {
-	int hart = 0;
+	int hart = r_mhartid();
 	int irq = *(uint32_t*)PLIC_MCLAIM(hart);
 	return irq;
 }
@@ -78,6 +78,6 @@ int plic_claim(void)
  */
 void plic_complete(int irq)
 {
-	int hart = 0;
+	int hart = r_mhartid();
 	*(uint32_t*)PLIC_MCOMPLETE(hart) = irq;
 }
