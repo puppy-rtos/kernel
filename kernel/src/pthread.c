@@ -188,6 +188,7 @@ int pthread_join(pthread_t thread, void **value)
             p_free(ptd->alloc_stack);
         }
         p_obj_deinit(&ptd->tid);
+        p_obj_deinit(&ptd->joinable_sem);
 
         /* destroy this pthread */
         _pthread_data_destroy(ptd);

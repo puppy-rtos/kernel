@@ -19,7 +19,7 @@ void p_obj_init(p_obj_t obj, const char *name, uint8_t type, uint8_t ex_type)
     struct p_obj *object = obj;
     p_base_t key;
 
-    KLOG_D("p_obj_init --> [%s], type:%x, ex_type:%x...", name, type, ex_type);
+    KLOG_D("p_obj_init --> [%s]@0x%x, type:%x, ex_type:%x...", name, object, type, ex_type);
     object->name = name;
     type = type & (P_OBJ_TYPE_MASK | P_OBJ_TYPE_STATIC);
     object->type = (uint16_t)type | ((uint16_t)ex_type << 8);
@@ -45,7 +45,7 @@ void p_obj_deinit(p_obj_t obj)
 {
     struct p_obj *object = obj;
     p_base_t key;
-    KLOG_D("p_obj_deinit --> [%s]...", object->name);
+    KLOG_D("p_obj_deinit --> [%s]@0x%x, type:%x...", object->name, object, object->type);
     key = arch_irq_lock();
     if (object->type & P_OBJ_TYPE_STATIC)
     {

@@ -16,7 +16,7 @@ void p_sem_init(p_obj_t obj, const char *name,
 {
     struct _sem_obj *sem = obj;
     
-    p_obj_init(obj, name, P_OBJ_TYPE_IPC, P_OBJ_TYPE_IPC_SEM);
+    p_obj_init(obj, name, P_OBJ_TYPE_IPC | P_OBJ_TYPE_STATIC, P_OBJ_TYPE_IPC_SEM);
     
     sem->kobj.name = name;
     sem->value = init_value;
