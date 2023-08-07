@@ -74,13 +74,15 @@ int puppy_board_init(void)
     return 0;
 }
 
+/**
+ * smp support
+*/
 #if CPU_NR > 1
 #include <platform.h>
 #include <riscv.h>
 
 volatile p_base_t _g_subcpu_start_flag = 0;
 
-#define IPI_MAGIC 0x5a5a
 uint8_t p_cpu_self_id()
 {
     return r_mhartid();
@@ -98,7 +100,7 @@ void subcpu_entry(void)
     while(1);
 }
 
-void sfi_handler() 
+void sfi_handler(void) 
 {
     *(uint32_t*)CLINT_MSIP(p_cpu_self_id()) = 0;
     p_sched();
@@ -121,5 +123,14 @@ void p_subcpu_start(void)
 {
     w_mie(r_mie() | MIE_MSIE);
     _g_subcpu_start_flag = 1;
+}
+#else
+void sfi_handler(void) 
+{
+
+}
+void subcpu_entry(void)
+{
+    while(1);
 }
 #endif
