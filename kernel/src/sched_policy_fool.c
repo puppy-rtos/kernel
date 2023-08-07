@@ -66,12 +66,12 @@ int p_sched_ready_insert(p_obj_t thread)
         KLOG_D("need send ipi");
         need_send = cpuid_last;
     }
-    cpuid_last = (cpuid_last + 1) % CPU_NR;
+    cpuid_last = (cpuid_last + 1) % P_CPU_NR;
 
     arch_spin_unlock(&cpu);
     arch_irq_unlock(key);
     
-#if CPU_NR > 1  // todo
+#if P_CPU_NR > 1  // todo
     if(need_send != CPU_NA)
     {
         void arch_ipi_send(uint8_t cpuid);

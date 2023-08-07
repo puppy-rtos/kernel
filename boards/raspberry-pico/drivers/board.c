@@ -82,10 +82,10 @@ int arch_uart_init(void)
 void pico_uart_isr(void)
 {
     /* read interrupt status and clear it */
-    char ch = -1;
+    uint8_t ch;
     if (uart_is_readable(uart0))
     {
-        ch = uart_get_hw(uart0)->dr;
+        ch = uart_get_hw(uart0)->dr & 0xFF;
         p_rb_write(&cons_rb, &ch, 1);
         p_sem_post(&cons_sem);
     }
@@ -110,6 +110,7 @@ int _cons_init(void)
         // Now enable the UART to send interrupts - RX only
         uart_set_irq_enables(UART_ID, true, false);
     }
+    return 0;
 }
 
 int p_hw_cons_getc(void)
@@ -146,7 +147,7 @@ void isr_systick(void)
     p_tick_inc();
 }
 
-#if CPU_NR > 1
+#if P_CPU_NR > 1
 
 #include <pico/multicore.h>
 
@@ -235,9 +236,9 @@ int puppy_board_init(void)
     set_sys_clock_khz(PLL_SYS_KHZ, true);
 
     p_tick_init(100);
+    arch_spin_lock_init(&cons_lock);
     p_system_heap_init(heap_buf, sizeof(heap_buf));
 
-    arch_spin_lock_init(&cons_lock);
 
     alarm_pool_init_default();
 

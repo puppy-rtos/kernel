@@ -41,82 +41,79 @@ extern void timer_handler(void);
 
 void trap_init()
 {
-	/*
-	 * set the trap-vector base-address for machine-mode
-	 */
-	w_mtvec((uint32_t)trap_vector);
+    /*
+     * set the trap-vector base-address for machine-mode
+     */
+    w_mtvec((uint32_t)trap_vector);
 }
 
 void external_interrupt_handler()
 {
-	int irq = plic_claim();
+    int irq = plic_claim();
 
-	if (irq == 10){
-		uart_isr();
-	} else if (irq) {
-		printk("unexpected interrupt irq = %d\n", irq);
-	}
-	
-	if (irq) {
-		plic_complete(irq);
-	}
+    if (irq == 10){
+        uart_isr();
+    } else if (irq) {
+        printk("unexpected interrupt irq = %d\n", irq);
+    }
+    
+    if (irq) {
+        plic_complete(irq);
+    }
 }
 
 uint32_t trap_handler(uint32_t epc, uint32_t cause)
 {
-	uint32_t return_pc = epc;
-	uint32_t cause_code = cause & 0xfff;
-	// if (arch_in_irq())
-	// {
-	// 	printk("in irq\n");
-	// }
-	if (cause & 0x80000000) {
-		/* Asynchronous trap - interrupt */
-		switch (cause_code) {
-		case 3:
-			// printk("software interruption!\n");
-			sfi_handler();
-			break;
-		case 7:
-			// printk("timer interruption!\n");
-			timer_handler();
-			break;
-		case 11:
-			// printk("external interruption!\n");
-			external_interrupt_handler();
-			break;
-		default:
-			printk("unknown async exception!\n");
-			break;
-		}
-	} else {
-		/* Synchronous trap - exception */
-		printk("Sync exceptions!, code = %d\n", cause_code);
-		printk("OOPS! What can I do!");
-		list_thread();
+    uint32_t return_pc = epc;
+    uint32_t cause_code = cause & 0xfff;
+
+    if (cause & 0x80000000) {
+        /* Asynchronous trap - interrupt */
+        switch (cause_code) {
+        case 3:
+            // printk("software interruption!\n");
+            sfi_handler();
+            break;
+        case 7:
+            // printk("timer interruption!\n");
+            timer_handler();
+            break;
+        case 11:
+            // printk("external interruption!\n");
+            external_interrupt_handler();
+            break;
+        default:
+            printk("unknown async exception!\n");
+            break;
+        }
+    } else {
+        /* Synchronous trap - exception */
+        printk("Sync exceptions!, code = %d\n", cause_code);
+        printk("OOPS! What can I do!");
+        list_thread();
         while(1)
         {}
-		// return_pc += 2;
-	}
+        // return_pc += 2;
+    }
 
-	return return_pc;
+    return return_pc;
 }
 
 void trap_test()
 {
-	/*
-	 * Synchronous exception code = 7
-	 * Store/AMO access fault
-	 */
-	*(int *)0x00000000 = 100;
+    /*
+     * Synchronous exception code = 7
+     * Store/AMO access fault
+     */
+    *(int *)0x00000000 = 100;
 
-	/*
-	 * Synchronous exception code = 5
-	 * Load access fault
-	 */
-	//int a = *(int *)0x00000000;
+    /*
+     * Synchronous exception code = 5
+     * Load access fault
+     */
+    //int a = *(int *)0x00000000;
 
-	printk("Yeah! I'm return back from trap!\n");
+    printk("Yeah! I'm return back from trap!\n");
 }
 #include "nr_micro_shell.h"
 NR_SHELL_CMD_EXPORT(trap_test, trap_test);

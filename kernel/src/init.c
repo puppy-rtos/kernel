@@ -11,9 +11,9 @@
 #define KLOG_LVL   KLOG_WARNING
 #include <puppy/klog.h>
 
-static struct _thread_obj _idle[CPU_NR];
+static struct _thread_obj _idle[P_CPU_NR];
 p_align(P_ALIGN_SIZE)
-static uint8_t _idle_thread_stack[CPU_NR][P_IDLE_THREAD_STACK_SIZE];
+static uint8_t _idle_thread_stack[P_CPU_NR][P_IDLE_THREAD_STACK_SIZE];
 
 static void idle_thread_entry(void *parm)
 {
@@ -60,7 +60,7 @@ void puppy_init(void)
     p_cpu_init();
     p_show_version();
     _init_fn_run();
-    for (uint8_t i = 0; i < CPU_NR; i++)
+    for (uint8_t i = 0; i < P_CPU_NR; i++)
     {
         p_thread_init(&_idle[i], "idle", idle_thread_entry, NULL,
                     _idle_thread_stack[i], P_IDLE_THREAD_STACK_SIZE,

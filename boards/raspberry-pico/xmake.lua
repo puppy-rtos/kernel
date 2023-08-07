@@ -77,7 +77,7 @@ if is_config("build_board", "raspberry-pico") then
         "PICO_USE_BLOCKED_RAM=0",
         "_POSIX_C_SOURCE=1",
         "P_ARCH_CORTEX_M0",
-        "CPU_NR=2")
+        "P_CPU_NR=2")
     add_includedirs(
         "drivers",
         "libraries/pico-sdk/src/rp2_common/hardware_flash/include",
@@ -142,7 +142,7 @@ if is_config("build_board", "raspberry-pico") then
         set_extension(".elf")
         set_arch("cortex-m0plus")
         add_links("c", "m", "nosys");
-        add_cxflags("-march=armv6-m -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -Dgcc -Wall --specs=nosys.specs")
+        add_cxflags("-march=armv6-m -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -Dgcc -Wall -O1 --specs=nosys.specs")
         add_ldflags("-march=armv6-m -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -Wl,--gc-sections,-Map=puppy.map,-cref,-u,Reset_Handler --specs=nosys.specs")
         add_asflags("-c -march=armv6-m -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -x assembler-with-cpp -Wa,-mimplicit-it=thumb --specs=nosys.specs")
         add_asflags('-ILibraries/pico-sdk/src/common/pico_stdlib/include -ILibraries/pico-sdk/src/rp2_common/hardware_gpio/include -ILibraries/pico-sdk/src/common/pico_base/include -ILibraries/generated/pico_base -ILibraries/pico-sdk/src/boards/include -ILibraries/pico-sdk/src/rp2_common/pico_platform/include -ILibraries/pico-sdk/src/rp2040/hardware_regs/include -ILibraries/pico-sdk/src/rp2_common/hardware_base/include -ILibraries/pico-sdk/src/rp2040/hardware_structs/include -ILibraries/pico-sdk/src/rp2_common/hardware_claim/include -ILibraries/pico-sdk/src/rp2_common/hardware_sync/include -ILibraries/pico-sdk/src/rp2_common/hardware_uart/include -ILibraries/pico-sdk/src/rp2_common/hardware_divider/include -ILibraries/pico-sdk/src/common/pico_time/include -ILibraries/pico-sdk/src/rp2_common/hardware_timer/include -ILibraries/pico-sdk/src/common/pico_sync/include -ILibraries/pico-sdk/src/common/pico_util/include -ILibraries/pico-sdk/src/rp2_common/pico_runtime/include -ILibraries/pico-sdk/src/rp2_common/hardware_clocks/include -ILibraries/pico-sdk/src/rp2_common/hardware_resets/include -ILibraries/pico-sdk/src/rp2_common/hardware_watchdog/include -ILibraries/pico-sdk/src/rp2_common/hardware_xosc/include -ILibraries/pico-sdk/src/rp2_common/hardware_pll/include -ILibraries/pico-sdk/src/rp2_common/hardware_vreg/include -ILibraries/pico-sdk/src/rp2_common/hardware_irq/include -ILibraries/pico-sdk/src/rp2_common/pico_printf/include -ILibraries/pico-sdk/src/rp2_common/pico_bootrom/include -ILibraries/pico-sdk/src/common/pico_bit_ops/include -ILibraries/pico-sdk/src/common/pico_divider/include -ILibraries/pico-sdk/src/rp2_common/pico_double/include -ILibraries/pico-sdk/src/rp2_common/pico_int64_ops/include -ILibraries/pico-sdk/src/rp2_common/pico_float/include -ILibraries/pico-sdk/src/common/pico_binary_info/include -ILibraries/pico-sdk/src/rp2_common/pico_stdio/include -ILibraries/pico-sdk/src/rp2_common/pico_stdio_uart/include -gdwarf-2')

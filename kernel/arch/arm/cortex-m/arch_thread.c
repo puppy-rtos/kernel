@@ -98,7 +98,6 @@ void arch_swap(unsigned int key)
 	/* set pending bit to make sure we will take a PendSV exception */
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 
-
 	/* clear mask or enable all irqs to take a pendsv */
 	arch_irq_unlock(0);
     if (arch_irq_locked(key))

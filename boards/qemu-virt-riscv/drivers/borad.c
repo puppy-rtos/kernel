@@ -77,7 +77,7 @@ int puppy_board_init(void)
 /**
  * smp support
 */
-#if CPU_NR > 1
+#if P_CPU_NR > 1
 #include <platform.h>
 #include <riscv.h>
 

@@ -76,7 +76,6 @@ _start:
     j 1b
 
 secondary:
-
     csrr a0, mhartid
     li   a1, 1
     bne  a0, a1, cpu2
@@ -97,7 +96,6 @@ cpu2:
     wfi
     j 1b
 cpuN:
-    // TODO: Multicore is not supported
     wfi
     j cpuN
     .cfi_endproc
