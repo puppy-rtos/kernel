@@ -433,6 +433,23 @@ void tc_runall(bool verbose)
         tc ++;
     }
 }
+
+void tc_run(char *name)
+{
+    unsigned int *ptr_begin, *ptr_end;
+    ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
+    ptr_end = (unsigned int *)P_SECTION_END_ADDR(_tc_list_end);
+    for (struct p_ex_fn *tc = ptr_begin; tc < ptr_end;)
+    {
+        if (!strcmp(tc->name, name))
+        {
+            printk("Start test: %s\n", tc->name);
+            tc->func();
+            printk("Test end\n");
+        }
+        tc ++;
+    }
+}
 static void print_help(void)
 {
     printk("useage: tc [options]\r\n");
@@ -440,6 +457,7 @@ static void print_help(void)
     printk("\t -h \t: show help\r\n");
     printk("\t -v \t: verbose mode\r\n");
     printk("\t list \t: show all testcase\r\n");
+    printk("\t run <tcname> \t: run testcase\r\n");
     printk("\t runall \t: run all testcase\r\n");
 }
 void shell_tc_cmd(char argc, char *argv)
@@ -454,6 +472,10 @@ void shell_tc_cmd(char argc, char *argv)
         else if (!strcmp("runall", &argv[argv[1]]))
         {
             tc_runall(true);
+        }
+        else if (!strcmp("run", &argv[argv[1]]))
+        {
+            tc_run(&argv[argv[2]]);
         }
         else if (!strcmp("-v", &argv[argv[1]]))
         {

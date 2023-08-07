@@ -104,11 +104,11 @@ int cpu1_entry(void)
     }
     KLOG_I("I am core %d!", p_cpu_self_id());
     arch_irq_lock();
-    // trap_init();
-    // plic_init();
+    trap_init();
+    plic_init();
     // timer_init();
     // set_csr(mie, (1<<3));
-    // w_mie(r_mie() | MIE_MSIE);
+    w_mie(r_mie() | MIE_MSIE);
     // w_mstatus(r_mstatus() | MSTATUS_MIE);
     puppy_start();
     while(1);
