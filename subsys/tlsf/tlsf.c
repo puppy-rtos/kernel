@@ -796,6 +796,7 @@ static void* block_prepare_used(control_t* control, block_header_t* block, size_
 		block_trim_free(control, block, size);
 		block_mark_as_used(block);
 		p = block_to_ptr(block);
+		kasan_unpoison(p, size);
 	}
 	return p;
 }
@@ -1103,6 +1104,7 @@ tlsf_t tlsf_create(void* mem)
 
 tlsf_t tlsf_create_with_pool(void* mem, size_t bytes)
 {
+	kasan_register(mem, &bytes);
 	tlsf_t tlsf = tlsf_create(mem);
 	tlsf_add_pool(tlsf, (char*)mem + tlsf_size(), bytes - tlsf_size());
 	return tlsf;
@@ -1193,6 +1195,7 @@ void tlsf_free(tlsf_t tlsf, void* ptr)
 		block_header_t* block = block_from_ptr(ptr);
 		tlsf_assert(!block_is_free(block) && "block already marked as free");
 		block_mark_as_free(block);
+		kasan_poison(ptr, block_size(block));
 		block = block_merge_prev(control, block);
 		block = block_merge_next(control, block);
 		block_insert(control, block);

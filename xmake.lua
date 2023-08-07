@@ -11,4 +11,5 @@ includes("boards/**/xmake.lua")
 includes("kernel/xmake.lua")
 
 target("puppy")
+    add_cxflags(' -fsanitize=kernel-address')
     add_files("apps/*c")
