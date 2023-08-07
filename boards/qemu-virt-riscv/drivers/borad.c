@@ -77,16 +77,6 @@ int puppy_board_init(void)
 #if CPU_NR > 1
 #include <platform.h>
 #include <riscv.h>
-#define read_csr(reg) ({ unsigned long __tmp;                               \
-    asm volatile ("csrr %0, " #reg : "=r"(__tmp));                          \
-        __tmp; })
-        
-#define set_csr(reg, bit) ({ unsigned long __tmp;                           \
-    if (__builtin_constant_p(bit) && (unsigned long)(bit) < 32)             \
-        asm volatile ("csrrs %0, " #reg ", %1" : "=r"(__tmp) : "i"(bit));   \
-    else                                                                    \
-        asm volatile ("csrrs %0, " #reg ", %1" : "=r"(__tmp) : "r"(bit));   \
-            __tmp; })
 
 volatile p_base_t _g_subcpu_start_flag = 0;
 
@@ -96,40 +86,16 @@ uint8_t p_cpu_self_id()
     return r_mhartid();
 }
 
-int cpu1_entry(void)
+void subcpu_entry(void)
 {
-    while(!_g_subcpu_start_flag)
-    {
-        // asm volatile ("wfi");
-    }
+    while(!_g_subcpu_start_flag);
     KLOG_I("I am core %d!", p_cpu_self_id());
     arch_irq_lock();
     trap_init();
     plic_init();
-    // timer_init();
-    // set_csr(mie, (1<<3));
     w_mie(r_mie() | MIE_MSIE);
-    // w_mstatus(r_mstatus() | MSTATUS_MIE);
     puppy_start();
     while(1);
-}
-
-int cpu2_entry(void)
-{
-    while(!_g_subcpu_start_flag)
-    {
-        // asm volatile ("wfi");
-    }
-    KLOG_I("I am core %d!", p_cpu_self_id());
-    arch_irq_lock();
-    trap_init();
-    plic_init();
-    // timer_init();
-    // set_csr(mie, (1<<3));
-    w_mie(r_mie() | MIE_MSIE);
-    // w_mstatus(r_mstatus() | MSTATUS_MIE);
-    puppy_start();
-    // while(1);
 }
 
 void sfi_handler() 
@@ -146,13 +112,8 @@ void arch_ipi_send(uint8_t cpuid)
 #include "nr_micro_shell.h"
 void shell_ipi_cmd(char argc, char *argv)
 {
-    w_mie(r_mie() | MIE_MSIE);
-    w_mstatus(r_mstatus() | MSTATUS_MIE);
-    // arch_ipi_send(0);
     arch_ipi_send(1);
     arch_ipi_send(2);
-    // w_mie(r_mie() | MIE_MSIE);
-    // w_mstatus(r_mstatus() | MSTATUS_MIE);
 }
 NR_SHELL_CMD_EXPORT(ipi, shell_ipi_cmd);
 

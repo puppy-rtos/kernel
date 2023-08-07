@@ -82,7 +82,7 @@ secondary:
     bne  a0, a1, cpu2
     // cpu1 hart
     la sp, cpu1_stack
-    jal cpu1_entry
+    jal subcpu_entry
 1:
     wfi
     j 1b
@@ -92,7 +92,7 @@ cpu2:
     bne  a0, a1, cpuN
     // cpu1 hart
     la sp, cpu2_stack
-    jal cpu2_entry
+    jal subcpu_entry
 1:
     wfi
     j 1b
