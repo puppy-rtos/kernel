@@ -7,10 +7,9 @@ if is_config("build_board", "qemu-virt-riscv") then
         "_POSIX_C_SOURCE=199309L",
         "P_CPU_NR=3"
     )
-    add_files(
-        "**.c",
-        "**.S"
-    )
+    add_files("drivers/*.c")
+    add_files("libraries/*.c", {cxflags = "-fno-sanitize=kernel-address"})
+    add_files("**.S")
     add_includedirs(
         "drivers",
         "libraries"
