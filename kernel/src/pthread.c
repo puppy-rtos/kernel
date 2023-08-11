@@ -74,6 +74,15 @@ static void _pthread_cleanup(p_obj_t obj)
     ptd = p_container_of(obj, _pthread_data_t, tid);
     p_sem_post(&ptd->joinable_sem);
 }
+
+int pthread_attr_init(pthread_attr_t *attr)
+{
+    *attr = pthread_default_attr;
+}
+int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
+{
+    attr->stacksize = stacksize;
+}
 /**
  * @brief Create a new thread
  * 

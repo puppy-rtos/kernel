@@ -49,7 +49,10 @@ void *shell_thread_entry(void *parm)
 }
 static void shell_init_fn(void)
 {
-   pthread_create(NULL, NULL, shell_thread_entry, NULL);
+   pthread_attr_t attr;
+   pthread_attr_init(&attr);
+   pthread_attr_setstacksize(&attr, 2048);
+   pthread_create(NULL, &attr, shell_thread_entry, NULL);
 }
 P_INIT_FUNC(shell_init_fn);
 
