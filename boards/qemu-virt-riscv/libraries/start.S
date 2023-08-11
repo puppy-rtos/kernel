@@ -42,6 +42,7 @@ _start:
 
     // Primary hart
     la sp, _stack_top
+    csrw mscratch,sp
 
     // lw data section
     la a0, _data_lma
@@ -81,6 +82,7 @@ secondary:
     bne  a0, a1, cpu2
     // cpu1 hart
     la sp, cpu1_stack
+    csrw mscratch,sp
     jal subcpu_entry
 1:
     wfi
@@ -91,6 +93,7 @@ cpu2:
     bne  a0, a1, cpuN
     // cpu1 hart
     la sp, cpu2_stack
+    csrw mscratch,sp
     jal subcpu_entry
 1:
     wfi

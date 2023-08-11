@@ -183,98 +183,23 @@ void arch_swap(unsigned int key)
         arch->need_swap = 1;
         return;
     }
-    from = arch_get_from_sp();
-    to = arch_get_to_sp();
-    if (p_thread_self())
+    else if (p_thread_self())
     {
-        p_sched_swap_out_cb(p_thread_self());
+        arch_ipi_send(p_cpu_self_id());
     }
-    p_sched_swap_in_cb(p_thread_next()); /* todo: 执行时的上下文不对 */
-    riscv_swap(from, to);
+    else
+    {
+        riscv_swap_to(arch_get_to_sp());
+    }
 }
 
-__attribute__((naked)) void riscv_swap(p_ubase_t from, p_ubase_t to)
+__attribute__((naked)) void riscv_swap_to(p_ubase_t to)
 {
-    /* saved from thread context
-     *     x1/ra       -> sp(0)
-     *     x1/ra       -> sp(1)
-     *     mstatus.mie -> sp(2)
-     *     x(i)        -> sp(i-4)
-     */
+    __asm ("lw sp,  (a0)");
 
-    __asm ("beqz a0, switch_to_thread");
-#ifndef __riscv_32e
-    __asm ("addi  sp,  sp, -32 * 4");
-#else
-    __asm ("addi  sp,  sp, -16 * 4");
-#endif
-
-    __asm ("sw sp,  (a0)");
-
-    __asm ("sw x1,   0 * 4(sp)");
-    __asm ("sw x1,   1 * 4(sp)");
-    __asm ("csrr a0, mstatus");
-    __asm ("andi a0, a0, 8");
-    __asm ("bnez a0, save_mpie");
-    __asm ("li   a0, 0x80");
-    __asm ("save_mpie:");
-    __asm ("sw a0,   2 * 4(sp)");
-
-    __asm ("sw x4,   4 * 4(sp)");
-    __asm ("sw x5,   5 * 4(sp)");
-    __asm ("sw x6,   6 * 4(sp)");
-    __asm ("sw x7,   7 * 4(sp)");
-    __asm ("sw x8,   8 * 4(sp)");
-    __asm ("sw x9,   9 * 4(sp)");
-    __asm ("sw x10, 10 * 4(sp)");
-    __asm ("sw x11, 11 * 4(sp)");
-    __asm ("sw x12, 12 * 4(sp)");
-    __asm ("sw x13, 13 * 4(sp)");
-    __asm ("sw x14, 14 * 4(sp)");
-    __asm ("sw x15, 15 * 4(sp)");
-#ifndef __riscv_32e
-    __asm ("sw x16, 16 * 4(sp)");
-    __asm ("sw x17, 17 * 4(sp)");
-    __asm ("sw x18, 18 * 4(sp)");
-    __asm ("sw x19, 19 * 4(sp)");
-    __asm ("sw x20, 20 * 4(sp)");
-    __asm ("sw x21, 21 * 4(sp)");
-    __asm ("sw x22, 22 * 4(sp)");
-    __asm ("sw x23, 23 * 4(sp)");
-    __asm ("sw x24, 24 * 4(sp)");
-    __asm ("sw x25, 25 * 4(sp)");
-    __asm ("sw x26, 26 * 4(sp)");
-    __asm ("sw x27, 27 * 4(sp)");
-    __asm ("sw x28, 28 * 4(sp)");
-    __asm ("sw x29, 29 * 4(sp)");
-    __asm ("sw x30, 30 * 4(sp)");
-    __asm ("sw x31, 31 * 4(sp)");
-#endif
-    /* resw to thread context
-     * sp(0) -> epc;
-     * sp(1) -> ra;
-     * sp(i) -> x(i+2)
-     */
-    __asm ("switch_to_thread:");
-    __asm ("bnez a0, contun");
-    __asm ("csrr a0, mhartid");
-    __asm ("li   a2, 0");
-    __asm ("bne  a0, a2, cpu1");
-    __asm ("la t0, _stack_top");
-    __asm ("j cont");
-    __asm ("cpu1:");
-    __asm ("li   a2, 1");
-    __asm ("bne  a0, a2, cpu2");
-    __asm ("la t0, cpu1_stack");
-    __asm ("j cont");
-    __asm ("cpu2:");
-    __asm ("la t0, cpu2_stack");
-    __asm ("cont:");
-    __asm ("csrw mscratch,t0");
-    __asm ("csrrsi t0, mstatus, 8");
-
-    __asm ("contun:");
-    __asm ("lw sp,  (a1)");
+	__asm ("csrrw	sp, mscratch, sp");
+	__asm ("call p_sched_swap_in_cb");
+	__asm ("csrrw	sp, mscratch, sp");
 
     /* resw ra to mepc */
     __asm ("lw a0,   0 * 4(sp)");
@@ -324,8 +249,6 @@ __attribute__((naked)) void riscv_swap(p_ubase_t from, p_ubase_t to)
 #endif
 
     __asm ("mret");
-
-
 }
 
 void dump_contex(struct stack_frame *context)
