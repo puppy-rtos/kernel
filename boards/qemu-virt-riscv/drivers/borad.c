@@ -106,6 +106,10 @@ void sfi_handler(void)
     p_sched();
 }
 
+void arch_irq_enable()
+{
+    w_mstatus(r_mstatus() | MSTATUS_MIE);
+}
 void arch_ipi_send(uint8_t cpuid)
 {
     *(uint32_t*)CLINT_MSIP(cpuid) = 1;

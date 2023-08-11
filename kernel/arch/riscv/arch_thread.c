@@ -186,11 +186,17 @@ void arch_swap(unsigned int key)
     else if (p_thread_self())
     {
         arch_ipi_send(p_cpu_self_id());
+        arch_irq_enable();
+        if (arch_irq_locked(key))
+        {
+            arch_irq_lock();
+        }
     }
     else
     {
         riscv_swap_to(arch_get_to_sp());
     }
+    
 }
 
 __attribute__((naked)) void riscv_swap_to(p_ubase_t to)
