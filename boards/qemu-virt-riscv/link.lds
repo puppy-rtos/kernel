@@ -126,5 +126,7 @@ SECTIONS
 		cpu1_stack = .;
 		. += __stack_size;
 		cpu2_stack = .;
+		. += __stack_size;
+		cpu3_stack = .;
 	} >ram AT>ram
 }

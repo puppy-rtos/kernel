@@ -76,29 +76,19 @@ _start:
     wfi
     j 1b
 
-secondary:
-    csrr a0, mhartid
-    li   a1, 1
-    bne  a0, a1, cpu2
-    // cpu1 hart
-    la sp, cpu1_stack
+secondary:            // a0 id
+    la   sp, _stack_top
+    la   a3, __stack_size  // stack_size
+    li   a2, 0        // i = 0
+loop:
+    bgeu a2, a0, end  // if i >= id then end
+    addi a2, a2, 1    // i ++
+    add  sp, sp, a3
+    j loop
+end:
     csrw mscratch,sp
     jal subcpu_entry
 1:
     wfi
     j 1b
-cpu2:
-    csrr a0, mhartid
-    li   a1, 2
-    bne  a0, a1, cpuN
-    // cpu1 hart
-    la sp, cpu2_stack
-    csrw mscratch,sp
-    jal subcpu_entry
-1:
-    wfi
-    j 1b
-cpuN:
-    wfi
-    j cpuN
     .cfi_endproc
