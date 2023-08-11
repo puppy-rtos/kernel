@@ -41,7 +41,6 @@ int p_sched(void)
             KLOG_D("next thread:%s", _cpu->next_thread->kobj.name);
             if (_cpu->curr_thread && _cpu->curr_thread->state == P_THREAD_STATE_RUN)
             {
-                _cpu->curr_thread->state = P_THREAD_STATE_READY;
                 p_sched_ready_insert(_cpu->curr_thread);
             }
         }

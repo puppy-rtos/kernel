@@ -169,12 +169,13 @@ typedef struct p_thread_attr
     uint8_t     reserved[3];
 } p_thread_attr_t;
 
-typedef void (*p_timeout_func) (p_obj_t obj, void *param);
+typedef void (*p_cleanup_fn) (p_obj_t obj);
+typedef void (*p_timeout_fn) (p_obj_t obj, void *param);
 
 typedef struct timeout
 {
     p_base_t         tick;
-    p_timeout_func   func;
+    p_timeout_fn     func;
     void            *param;
     p_node_t         node;
 }p_timeout_t;
@@ -194,7 +195,7 @@ int p_thread_abort(p_obj_t obj);
 void list_thread(void);
 
 void thread_timeout_cb(p_base_t tick);     
-int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param);                     
+int p_thread_set_timeout(p_tick_t timeout, p_timeout_fn func, void *param);                     
 void p_thread_entry(void (*entry)(void *parameter), void *param);
 
 void *arch_new_thread(void         *entry,

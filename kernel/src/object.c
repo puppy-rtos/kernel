@@ -29,6 +29,11 @@ void p_obj_init(p_obj_t obj, const char *name, uint8_t type, uint8_t ex_type)
     KLOG_D("done");
 }
 
+bool p_obj_is_static(p_obj_t obj)
+{
+    struct p_obj *object = obj;
+    return (object->type & P_OBJ_TYPE_STATIC == P_OBJ_TYPE_STATIC);
+}
 uint8_t p_obj_get_type(p_obj_t obj)
 {
     struct p_obj *object = obj;
@@ -47,10 +52,7 @@ void p_obj_deinit(p_obj_t obj)
     p_base_t key;
     KLOG_D("p_obj_deinit --> [%s]@0x%x, type:%x...", object->name, object, object->type);
     key = arch_irq_lock();
-    if (object->type & P_OBJ_TYPE_STATIC)
-    {
-        p_list_remove(&object->node);
-    }
+    p_list_remove(&object->node);
     arch_irq_unlock(key);
     KLOG_D("done");
 }

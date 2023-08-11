@@ -15,11 +15,13 @@ static struct _thread_obj _idle[P_CPU_NR];
 p_align(P_ALIGN_SIZE)
 static uint8_t _idle_thread_stack[P_CPU_NR][P_IDLE_THREAD_STACK_SIZE];
 
+
 static void idle_thread_entry(void *parm)
 {
+    uint8_t cpu_id = p_cpu_self_id();
     while(1)
     {
-
+        p_thread_dead_clean(cpu_id);
     }
 }
 

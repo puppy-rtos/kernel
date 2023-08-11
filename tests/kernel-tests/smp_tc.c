@@ -25,10 +25,10 @@ void *thread_func(void *arg)
     KLOG_D("Thread %d is running on core %d", thread_id, sched_getcpu());
     // Do some computation here
     
-    // KLOG_D("Thread %d begin sleep on core %d", thread_id, sched_getcpu());
-    // sleep(1);
+    KLOG_D("Thread %d begin sleep on core %d", thread_id, sched_getcpu());
+    sleep(1);
     
-    // KLOG_D("Thread %d end sleep on core %d", thread_id, sched_getcpu());
+    KLOG_D("Thread %d end sleep on core %d", thread_id, sched_getcpu());
     pthread_exit(0);
     return NULL;
 }

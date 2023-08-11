@@ -35,7 +35,12 @@ void p_thread_entry(void (*entry)(void *parameter), void *param)
     p_thread_abort(p_thread_self());
     while (1);
 }
-
+static void _p_thread_cleanup(p_obj_t obj)
+{
+    struct _thread_obj *thread = obj;
+    p_free(thread->stack_addr);
+    p_obj_deinit(thread);
+}
 void p_thread_init(p_obj_t obj, const char *name,
                                 void (*entry)(void *param),
                                 void    *param,
@@ -56,6 +61,7 @@ void p_thread_init(p_obj_t obj, const char *name,
     thread->slice_ticks = P_THREAD_SLICE_DEFAULT;
     thread->state = P_THREAD_STATE_INIT;
     thread->mode = 0;
+    thread->cleanup = _p_thread_cleanup;
     thread->kernel_stack = 0;
     thread->bindcpu = bindcpu;
     thread->oncpu = CPU_NA;
@@ -93,6 +99,7 @@ int p_thread_abort(p_obj_t obj)
 
     _thread->state = P_THREAD_STATE_DEAD;
     timeout_remove(&_thread->timeout);
+    p_thread_dead_add(_thread);
     p_sched();
     
     arch_irq_unlock(key);
@@ -115,7 +122,7 @@ int p_thread_yield(void)
     return 0;
 }
 
-void sleep_timeout_func(p_obj_t obj, void *param)
+void sleep_timeout_fn(p_obj_t obj, void *param)
 {
     struct _thread_obj *_thread = obj;
     _thread->errno = P_ETIMEOUT;
@@ -124,7 +131,7 @@ void sleep_timeout_func(p_obj_t obj, void *param)
     p_sched();
 }
 
-int p_thread_set_timeout(p_tick_t timeout, p_timeout_func func, void *param)
+int p_thread_set_timeout(p_tick_t timeout, p_timeout_fn func, void *param)
 {
     struct _thread_obj *_thread = p_cpu_self()->curr_thread;
     
@@ -154,7 +161,7 @@ int p_thread_sleep(p_tick_t tick)
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
     
-    p_thread_set_timeout(tick, sleep_timeout_func, NULL);
+    p_thread_set_timeout(tick, sleep_timeout_fn, NULL);
 
     _thread->state = P_THREAD_STATE_SLEEP;
 
@@ -297,4 +304,44 @@ _next:
         }
         goto _next;
     }
+}
+
+static volatile p_list_t _g_dead_thread[P_CPU_NR] = {0};
+
+static inline void _dead_thread_init(uint8_t cpu_id)
+{
+    if(!_g_dead_thread[cpu_id].head)
+    {
+        p_list_init(&_g_dead_thread[cpu_id]);
+    }
+}
+
+void p_thread_dead_add(p_obj_t tid)
+{
+    struct _thread_obj *th = tid;
+    p_base_t key = arch_irq_lock();
+    uint8_t cpu_id = p_cpu_self_id();
+    _dead_thread_init(cpu_id);
+    p_list_append(&_g_dead_thread[cpu_id], &th->tnode);
+    arch_irq_unlock(key);
+}
+
+void p_thread_dead_clean(uint8_t cpu_id)
+{
+    p_node_t *node, *node_s;
+    p_base_t key = arch_irq_lock();
+    _dead_thread_init(cpu_id);
+    p_list_for_each_node_safe(&_g_dead_thread[cpu_id], node, node_s)
+    {
+        struct _thread_obj *_thread = p_list_entry(node, struct _thread_obj, tnode);
+        p_list_remove(node);
+        arch_irq_unlock(key);
+        
+        if (_thread->cleanup)
+        {
+            _thread->cleanup(_thread); /* todo: if other thread blocked in free func */
+        }
+        key = arch_irq_lock();
+    }
+    arch_irq_unlock(key);
 }

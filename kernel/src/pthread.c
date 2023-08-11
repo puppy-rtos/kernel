@@ -68,6 +68,12 @@ void _pthread_data_destroy(_pthread_data_t *ptd)
     p_free(ptd);
 }
 
+static void _pthread_cleanup(p_obj_t obj)
+{
+    _pthread_data_t *ptd;
+    ptd = p_container_of(obj, _pthread_data_t, tid);
+    p_sem_post(&ptd->joinable_sem);
+}
 /**
  * @brief Create a new thread
  * 
@@ -138,6 +144,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     p_thread_init(&ptd->tid, "pth", (void (*)(void *))start_routine, arg,
                        stack, ptd->attr.stacksize,
                        ptd->attr.priority, CPU_NA);
+    ptd->tid.cleanup = _pthread_cleanup;
     if(thread) *thread = ptd;
         /* start thread */
     if (p_thread_start(&ptd->tid) == 0)
@@ -182,7 +189,6 @@ int pthread_join(pthread_t thread, void **value)
         if (value != NULL)
             *value = ptd->return_value;
 
-        p_thread_abort(&ptd->tid);
         if (ptd->alloc_stack)
         {
             p_free(ptd->alloc_stack);
@@ -213,7 +219,7 @@ void pthread_exit(void *value)
 {
     _pthread_data_t *ptd;
     ptd = p_container_of(p_thread_self(), _pthread_data_t, tid);
-    p_sem_post(&ptd->joinable_sem);
+    ptd->return_value = value;
 }
 /**
  * @brief obtain ID of the calling thread
