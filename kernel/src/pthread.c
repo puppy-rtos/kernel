@@ -116,11 +116,17 @@ int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                    pthread_startroutine_t start_routine, pthread_addr_t arg)
 {
+    int ret = 0;
     _pthread_data_t *ptd;
     void *stack;
     static uint16_t pthread_number = 0;
     /* allocate posix thread data */
     ptd = _pthread_data_create();
+    if (ptd == NULL)
+    {
+        ret = -P_ENOMEM;
+        goto _exit;
+    }
 
     if (attr != NULL)
     {
@@ -143,6 +149,12 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     if (ptd->attr.stackaddr == 0)
     {
         stack = (void *)p_malloc(ptd->attr.stacksize);
+        if (stack == NULL)
+        {
+            ret = -P_ENOMEM;
+            goto _exit;
+        }
+
         ptd->alloc_stack = stack;
     }
     else
@@ -158,8 +170,9 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         /* start thread */
     if (p_thread_start(&ptd->tid) == 0)
         return 0;
+_exit:
 
-    return 0;
+    return ret;
 }
 /**
  * @brief join with a terminated thread

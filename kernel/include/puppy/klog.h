@@ -107,7 +107,6 @@ extern arch_spinlock_t cons_lock;
                 __FUNCTION__, __LINE__);                    \
         _KLOG_LOG_X_END;                                    \
         list_thread();                                      \
-        _KLOG_LOG_UNLOCK;                                   \
         while(1);                                           \
     }
 

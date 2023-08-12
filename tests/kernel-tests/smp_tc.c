@@ -42,7 +42,7 @@ int smp_testcase(void)
         thread_ids[i] = i;
         rc = pthread_create(&threads[i], NULL, thread_func, &thread_ids[i]);
         if (rc) {
-            KLOG_D("Error creating thread %d", i);
+            KLOG_E("Error creating thread %d", i);
             return -1;
         }
     }
@@ -51,7 +51,7 @@ int smp_testcase(void)
     for (i = 0; i < NUM_THREADS; i++) {
         rc = pthread_join(threads[i], NULL);
         if (rc) {
-            KLOG_D("Error joining thread %d", i);
+            KLOG_E("Error joining thread %d", i);
             return -1;
         }
     }
