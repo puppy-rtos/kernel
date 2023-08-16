@@ -118,9 +118,6 @@ static void mem_info(void *ptr, size_t size, int used, void *user)
 
 void list_mem(void)
 {
-    uint8_t i = 0;
-    uint8_t len = 0;
-
     used_mem = 0;
     total_mem = 0;
 

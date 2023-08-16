@@ -50,7 +50,6 @@ typedef struct _pthread_data _pthread_data_t;
 
 pthread_t _pthread_data_create(void)
 {
-    int index;
     _pthread_data_t *ptd = NULL;
 
     ptd = (_pthread_data_t*)p_malloc(sizeof(_pthread_data_t));
@@ -78,10 +77,12 @@ static void _pthread_cleanup(p_obj_t obj)
 int pthread_attr_init(pthread_attr_t *attr)
 {
     *attr = pthread_default_attr;
+    return 0;
 }
 int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
 {
     attr->stacksize = stacksize;
+    return 0;
 }
 /**
  * @brief Create a new thread
@@ -119,7 +120,6 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     int ret = 0;
     _pthread_data_t *ptd;
     void *stack;
-    static uint16_t pthread_number = 0;
     /* allocate posix thread data */
     ptd = _pthread_data_create();
     if (ptd == NULL)
@@ -277,4 +277,5 @@ int pthread_setname_np(pthread_t thread, const char *name)
 unsigned sleep(unsigned int __seconds)
 {   
     p_thread_sleep(p_tick_persec() * __seconds);
+    return 0;
 }

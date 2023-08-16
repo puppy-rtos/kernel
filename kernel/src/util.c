@@ -409,10 +409,10 @@ const P_SECTION_START_DEFINE(P_TC_SECTION, _tc_list_start);
 const P_SECTION_END_DEFINE(P_TC_SECTION, _tc_list_end);
 void tc_list(void)
 {
-    unsigned int *ptr_begin, *ptr_end;
+    struct p_ex_fn *ptr_begin, *ptr_end;
     volatile struct p_ex_fn *tc;
-    ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
-    ptr_end = (unsigned int *)P_SECTION_END_ADDR(_tc_list_end);
+    ptr_begin = (struct p_ex_fn *)P_SECTION_START_ADDR(_tc_list_start);
+    ptr_end = (struct p_ex_fn *)P_SECTION_END_ADDR(_tc_list_end);
     for (tc = ptr_begin; tc < ptr_end;)
     {
         printk("Get a testcase: %s\n", tc->name);
@@ -422,9 +422,9 @@ void tc_list(void)
 
 void tc_runall(bool verbose)
 {
-    unsigned int *ptr_begin, *ptr_end;
-    ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
-    ptr_end = (unsigned int *)P_SECTION_END_ADDR(_tc_list_end);
+    struct p_ex_fn *ptr_begin, *ptr_end;
+    ptr_begin = (struct p_ex_fn *)P_SECTION_START_ADDR(_tc_list_start);
+    ptr_end = (struct p_ex_fn *)P_SECTION_END_ADDR(_tc_list_end);
     for (struct p_ex_fn *tc = ptr_begin; tc < ptr_end;)
     {
         printk("Start test: %s\n", tc->name);
@@ -436,9 +436,9 @@ void tc_runall(bool verbose)
 
 void tc_run(char *name)
 {
-    unsigned int *ptr_begin, *ptr_end;
-    ptr_begin = (unsigned int *)P_SECTION_START_ADDR(_tc_list_start);
-    ptr_end = (unsigned int *)P_SECTION_END_ADDR(_tc_list_end);
+    struct p_ex_fn *ptr_begin, *ptr_end;
+    ptr_begin = (struct p_ex_fn *)P_SECTION_START_ADDR(_tc_list_start);
+    ptr_end = (struct p_ex_fn *)P_SECTION_END_ADDR(_tc_list_end);
     for (struct p_ex_fn *tc = ptr_begin; tc < ptr_end;)
     {
         if (!strcmp(tc->name, name))
@@ -462,26 +462,25 @@ static void print_help(void)
 }
 void shell_tc_cmd(char argc, char *argv)
 {
-    unsigned int i = 0;
     if (argc > 1)
     {
-        if (!strcmp("list", &argv[argv[1]]))
+        if (!strcmp("list", &argv[(uint16_t)argv[1]]))
         {
             tc_list();
         }
-        else if (!strcmp("runall", &argv[argv[1]]))
+        else if (!strcmp("runall", &argv[(uint16_t)argv[1]]))
         {
             tc_runall(true);
         }
-        else if (!strcmp("run", &argv[argv[1]]))
+        else if (!strcmp("run", &argv[(uint16_t)argv[1]]))
         {
-            tc_run(&argv[argv[2]]);
+            tc_run(&argv[(uint16_t)argv[2]]);
         }
-        else if (!strcmp("-v", &argv[argv[1]]))
+        else if (!strcmp("-v", &argv[(uint16_t)argv[1]]))
         {
             printk("verbose mode not support\r\n");
         }
-        else if (!strcmp("-h", &argv[argv[1]]))
+        else if (!strcmp("-h", &argv[(uint8_t)argv[1]]))
         {
             print_help();
         }

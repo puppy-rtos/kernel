@@ -14,7 +14,6 @@
 int p_sched_ready_insert(p_obj_t thread)
 {
     static uint8_t cpuid_last = 0;
-    uint8_t need_send = CPU_NA;
     struct _thread_obj *old_thread = NULL, *temp_thread = NULL,*_thread = thread;
     p_base_t key = arch_irq_lock();
     arch_spin_lock(&cpu);
@@ -26,6 +25,8 @@ int p_sched_ready_insert(p_obj_t thread)
 
     KLOG_D("p_sched_ready_insert:thread:%x,key:%x,bindcpu:%d", _thread, key, _thread->bindcpu);
     
+#if P_CPU_NR > 1  // todo
+    uint8_t need_send = CPU_NA;
     if (_thread->oncpu != CPU_NA)
     {
         cpuid_last = _thread->oncpu;
@@ -34,7 +35,7 @@ int p_sched_ready_insert(p_obj_t thread)
     {
         cpuid_last = _thread->bindcpu;
     }
-    
+#endif
     _ready_queue = &p_cpu_index(cpuid_last)->ready_queue;
 
     p_list_for_each_node(_ready_queue, node)
@@ -61,12 +62,14 @@ int p_sched_ready_insert(p_obj_t thread)
     
     KLOG_D("p_sched_ready_insert done:_ready_queue->head:%x", _ready_queue->head);
 
+#if P_CPU_NR > 1  // todo
     if(cpuid_last != p_cpu_self_id())
     {
         KLOG_D("need send ipi");
         need_send = cpuid_last;
     }
     cpuid_last = (cpuid_last + 1) % P_CPU_NR;
+#endif
 
     arch_spin_unlock(&cpu);
     arch_irq_unlock(key);

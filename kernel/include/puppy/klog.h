@@ -108,6 +108,7 @@ extern arch_spinlock_t cons_lock;
         _KLOG_LOG_X_END;                                    \
         list_thread();                                      \
         while(1);                                           \
+        _KLOG_LOG_UNLOCK;                                   \
     }
 
 #define klog_raw(...)         printk(__VA_ARGS__);

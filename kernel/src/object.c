@@ -32,7 +32,7 @@ void p_obj_init(p_obj_t obj, const char *name, uint8_t type, uint8_t ex_type)
 bool p_obj_is_static(p_obj_t obj)
 {
     struct p_obj *object = obj;
-    return (object->type & P_OBJ_TYPE_STATIC == P_OBJ_TYPE_STATIC);
+    return ((object->type & P_OBJ_TYPE_STATIC) == P_OBJ_TYPE_STATIC);
 }
 uint8_t p_obj_get_type(p_obj_t obj)
 {

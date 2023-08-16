@@ -190,7 +190,7 @@ int p_thread_getattr(p_obj_t obj, p_thread_attr_t *attr);
 /* todo: int p_thread_delete(p_obj_t obj); */
 p_obj_t p_thread_self(void);
 p_obj_t p_thread_next(void);
-char *p_thread_self_name(void);
+const char *p_thread_self_name(void);
 int p_thread_abort(p_obj_t obj);
 void list_thread(void);
 

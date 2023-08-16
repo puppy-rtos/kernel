@@ -51,7 +51,7 @@ void p_thread_init(p_obj_t obj, const char *name,
 {
     struct _thread_obj *thread = obj;
 
-    p_obj_init(&thread->kobj, name, P_OBJ_TYPE_THREAD | P_OBJ_TYPE_STATIC, NULL);
+    p_obj_init(&thread->kobj, name, P_OBJ_TYPE_THREAD | P_OBJ_TYPE_STATIC, 0);
     
     thread->entry = entry;
     thread->param = param;
@@ -84,7 +84,7 @@ p_obj_t p_thread_next(void)
     return p_cpu_self()->next_thread;
 }
 
-char *p_thread_self_name(void)
+const char *p_thread_self_name(void)
 {
     KLOG_ASSERT(p_cpu_self()->curr_thread != NULL);
     KLOG_ASSERT(p_obj_get_type(p_cpu_self()->curr_thread) == P_OBJ_TYPE_THREAD);
@@ -172,7 +172,6 @@ int p_thread_sleep(p_tick_t tick)
         p_set_errno(err);
     }
 
-_exit:
     arch_irq_unlock(key);
     return err;
 }
@@ -187,7 +186,6 @@ int p_thread_wakeup(p_obj_t obj)
 
     p_sched_ready_insert(_thread);
 
-_exit:
     arch_irq_unlock(key);
     return err;
 }
@@ -306,7 +304,7 @@ _next:
     }
 }
 
-static volatile p_list_t _g_dead_thread[P_CPU_NR] = {0};
+static p_list_t _g_dead_thread[P_CPU_NR] = {0};
 
 static inline void _dead_thread_init(uint8_t cpu_id)
 {
