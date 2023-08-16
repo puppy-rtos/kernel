@@ -20,7 +20,7 @@ option("tlsf")
     set_description("Enable or disable tlsf")
 
 option("kasan")
-    set_default(true)
+    set_default(false)
     set_category("SubSystem")
     set_description("Enable or disable kasan")
 
