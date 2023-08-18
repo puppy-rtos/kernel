@@ -304,32 +304,19 @@ _next:
     }
 }
 
-static p_list_t _g_dead_thread[P_CPU_NR] = {0};
-
-static inline void _dead_thread_init(uint8_t cpu_id)
-{
-    if(!_g_dead_thread[cpu_id].head)
-    {
-        p_list_init(&_g_dead_thread[cpu_id]);
-    }
-}
-
 void p_thread_dead_add(p_obj_t tid)
 {
     struct _thread_obj *th = tid;
     p_base_t key = arch_irq_lock();
-    uint8_t cpu_id = p_cpu_self_id();
-    _dead_thread_init(cpu_id);
-    p_list_append(&_g_dead_thread[cpu_id], &th->tnode);
+    p_list_append(&p_cpu_self()->dead_queue, &th->tnode);
     arch_irq_unlock(key);
 }
 
-void p_thread_dead_clean(uint8_t cpu_id)
+void p_thread_dead_clean(void)
 {
     p_node_t *node, *node_s;
     p_base_t key = arch_irq_lock();
-    _dead_thread_init(cpu_id);
-    p_list_for_each_node_safe(&_g_dead_thread[cpu_id], node, node_s)
+    p_list_for_each_node_safe(&p_cpu_self()->dead_queue, node, node_s)
     {
         struct _thread_obj *_thread = p_list_entry(node, struct _thread_obj, tnode);
         p_list_remove(node);

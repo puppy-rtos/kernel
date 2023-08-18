@@ -127,6 +127,7 @@ void arch_spin_unlock(arch_spinlock_t *lock);
 struct p_cpu
 {
     p_list_t ready_queue;
+    p_list_t dead_queue;
     struct _thread_obj *curr_thread;
     struct _thread_obj *next_thread;
     atomic_int sched_lock;

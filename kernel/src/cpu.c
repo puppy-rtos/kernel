@@ -17,12 +17,12 @@ p_weak uint8_t p_cpu_self_id(void)
     return 0;
 }
 
-struct p_cpu *p_cpu_self(void)
+inline struct p_cpu *p_cpu_self(void)
 {
     return &_g_cpu[p_cpu_self_id()];
 }
 
-struct p_cpu *p_cpu_index(uint8_t cpuid)
+inline struct p_cpu *p_cpu_index(uint8_t cpuid)
 {
     if (cpuid >= P_CPU_NR)
         return NULL;
@@ -36,6 +36,7 @@ void p_cpu_init(void)
     for (int i = 0; i < P_CPU_NR; i++)
     {
         p_list_init(&_g_cpu[i].ready_queue);
+        p_list_init(&_g_cpu[i].dead_queue);
         _g_cpu[i].sched_lock = 1;
     }
 }

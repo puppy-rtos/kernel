@@ -21,7 +21,10 @@ static void idle_thread_entry(void *parm)
     uint8_t cpu_id = p_cpu_self_id();
     while(1)
     {
-        p_thread_dead_clean(cpu_id);
+        if (!p_list_is_empty(&p_cpu_index(cpu_id)->dead_queue))
+        {
+            p_thread_dead_clean();
+        }
     }
 }
 
