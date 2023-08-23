@@ -35,7 +35,7 @@ if is_config("build_board", "stm32-f407-fkm1") then
         set_arch("cortex-m4")
         add_links("c", "m", "nosys");
         add_cxflags('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Dgcc -Wall --specs=nosys.specs')
-        add_ldflags('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Wl,--gc-sections,-Map=puppy.map,-cref,-u,Reset_Handler --specs=nosys.specs')
+        add_ldflags('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Wl,--gc-sections,-Map=puppy.map,-cref,-u,Reset_Handler --specs=nosys.specs --coverage',{force = true})
         add_asflags('-c -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -x assembler-with-cpp -Wa,-mimplicit-it=thumb')
         add_ldflags(' -T ' .. os.scriptdir() .. '/link.lds')
         after_build(function (package)

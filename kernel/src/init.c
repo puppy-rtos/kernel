@@ -25,6 +25,10 @@ static void idle_thread_entry(void *parm)
         {
             p_thread_dead_clean();
         }
+        else
+        {
+            __asm("wfi");
+        }
     }
 }
 

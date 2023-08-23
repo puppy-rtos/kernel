@@ -166,9 +166,11 @@ SECTIONS
         . = ALIGN(4);
         /* init data */
         PROVIDE_HIDDEN (__init_array_start = .);
+        PROVIDE_HIDDEN (__ctors_start__ = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
+        PROVIDE_HIDDEN (`__ctors_end__ = .);
 
         . = ALIGN(4);
         /* finit data */

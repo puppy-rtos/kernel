@@ -247,6 +247,12 @@ int puppy_board_init(void)
     extern void (*__init_array_start)();
     extern void (*__init_array_end)();
 
+    /* Configure the SysTick */
+    systick_config(clock_get_hz(clk_sys)/100);
+
+    stdio_init_all();
+    arch_uart_init();
+    
     // Call each function in the list.
     // We have to take the address of the symbols, as __init_array_start *is*
     // the first function pointer, not the address of it.
@@ -254,10 +260,5 @@ int puppy_board_init(void)
         (*p)();
     }
 
-    /* Configure the SysTick */
-    systick_config(clock_get_hz(clk_sys)/100);
-
-    stdio_init_all();
-    arch_uart_init();
     return 0;
 }

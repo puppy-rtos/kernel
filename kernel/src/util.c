@@ -420,6 +420,9 @@ void tc_list(void)
     }
 }
 
+#ifdef ENABLE_GCOV
+#include "gcov_public.h"
+#endif
 void tc_runall(bool verbose)
 {
     struct p_ex_fn *ptr_begin, *ptr_end;
@@ -432,6 +435,9 @@ void tc_runall(bool verbose)
         printk("Test end\n");
         tc ++;
     }
+#ifdef ENABLE_GCOV
+    __gcov_exit();
+#endif
 }
 
 void tc_run(char *name)

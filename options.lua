@@ -24,6 +24,11 @@ option("kasan")
     set_category("SubSystem")
     set_description("Enable or disable kasan")
 
+option("gcov")
+    set_default(false)
+    set_category("SubSystem")
+    set_description("Enable or disable gcov")
+
 option("p_stdlib_h")
     set_default(true)
     set_category("SubSystem")

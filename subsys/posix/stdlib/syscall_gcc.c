@@ -72,6 +72,11 @@ int *__errno(void)
 }
 #endif
 
+int _getpid_r(struct _reent *ptr)
+{
+    return 0;
+}
+
 /* for exit() and abort() */
 __attribute__ ((noreturn)) void _exit (int status)
 {
@@ -89,6 +94,41 @@ _off_t _lseek_r(struct _reent *ptr, int fd, _off_t pos, int whence)
     ptr->_errno = ENOTSUP;
     return -1;
 }
+
+_ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
+{
+    ptr->_errno = ENOTSUP;
+    return -1;
+}
+
+_ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t nbytes)
+{
+    ptr->_errno = ENOTSUP;
+    return -1;
+}
+
+int _kill_r(struct _reent *ptr, int pid, int sig)
+{
+    ptr->_errno = ENOTSUP;
+    return -1;
+}
+int _fstat_r(struct _reent *ptr, int fd, struct stat *pstat)
+{
+    ptr->_errno = ENOTSUP;
+    return -1;
+}
+int _isatty_r(struct _reent *ptr, int fd)
+{
+    if (fd >=0 && fd < 3)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 #ifdef P_ARCH_CORTEX_M0
 unsigned __atomic_fetch_add_4(volatile void *d, unsigned val, int mem)
 {

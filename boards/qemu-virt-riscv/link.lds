@@ -56,6 +56,14 @@ SECTIONS
 		_erodata = .;
 	} >rom AT>rom
 
+	.ctors : {
+        __ctors_start__ = . ;
+        KEEP (*(SORT(.init_array.*)))
+        KEEP (*(.init_array))
+        __ctors_end__ = . ;
+        . = ALIGN(16);
+	} > ram
+	
 	.data.align :
 	{
 		. = ALIGN(4);
