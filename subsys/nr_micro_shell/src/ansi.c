@@ -162,6 +162,9 @@ char ansi_get_char(char x, ansi_st *ansi)
         ansi->combine_state = ANSI_NO_CTRL_CHAR;
     }
 
+    if (x == '\r') x = '\n';
+    else if (x == '\r\n') x = '\n';
+
     return x;
 }
 

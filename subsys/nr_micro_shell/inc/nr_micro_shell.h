@@ -97,28 +97,14 @@ extern "C"
         _shell_init(&nr_shell); \
     }
 
-#if NR_SHELL_END_OF_LINE == 1
-#define NR_SHELL_END_CHAR '\r'
-#else
 #define NR_SHELL_END_CHAR '\n'
-#endif
-	
-#if NR_SHELL_END_OF_LINE == 0
 #define NR_SHELL_NEXT_LINE "\n"
-#endif
-
-#if NR_SHELL_END_OF_LINE == 1
-#define NR_SHELL_NEXT_LINE "\r\n"
-#endif
-	
-#if NR_SHELL_END_OF_LINE == 2
-#define NR_SHELL_NEXT_LINE "\r\n"
-#endif
 
 #define shell(c)                                             \
     {                                                        \
         if (ansi_get_char(c, &nr_ansi) == NR_SHELL_END_CHAR) \
         {                                                    \
+            shell_printf(NR_SHELL_NEXT_LINE);                \
             shell_parser(&nr_shell, nr_ansi.current_line);   \
             ansi_clear_current_line(&nr_ansi);               \
         }                                                    \

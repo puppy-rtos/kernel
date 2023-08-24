@@ -73,13 +73,6 @@ static inline int _putchar(char ch)
 /* The user's name. */
 #define NR_SHELL_USER_NAME "puppy:"
 
-/*
-0: \n
-1: \r
-2: \r\n
-*/
-#define NR_SHELL_END_OF_LINE 1
-
 /* Weather the terminal support all ANSI codes. */
 #define NR_SHLL_FULL_ANSI 1
 
