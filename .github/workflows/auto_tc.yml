@@ -18,14 +18,20 @@ on:
       - '**/README_zh.md'
 
 permissions:
-  contents: read # to fetch code (actions/checkout)
+  contents: read    # to fetch code (actions/checkout)
+  pages: write      # to deploy to Pages
+  id-token: write   # to verify the deployment originates from an appropriate source
 
 jobs:
-  test:
+  auto-test:
     runs-on: ubuntu-latest
-    name: AutoTestCI
+    name: ${{ matrix.legs.TC }}
     strategy:
       fail-fast: false
+      matrix:
+       legs:
+         - {TC: "kernel"}
+         - {TC: "coverage"}
     env:
       TEST_QEMU_ARCH: "riscv32"
       TEST_QEMU_MACHINE: "virt"
@@ -50,7 +56,14 @@ jobs:
         sudo tar zxf riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14.tar.gz -C /opt
         /opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc --version
         xmake --version
-        xmake f -p cross --sdk=/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14 --build_board=$TEST_BOARD -m debug
+        xmake f -p cross --sdk=/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14 --build_board=$TEST_BOARD -m debug --export=conf.txt
+
+
+    - name: Gcov Config
+      if: ${{ success() && matrix.legs.TC == 'coverage' }}
+      shell: bash
+      run: |
+        xmake f --gcov=ture --import=conf.txt
 
     - name: Build
       if: ${{ success() }}
@@ -64,6 +77,34 @@ jobs:
         git clone https://github.com/Guozhanxin/UtestRunner.git
         pushd UtestRunner
         git checkout -b puppy origin/puppy
-        python3 qemu_runner.py --system $TEST_QEMU_ARCH --machine $TEST_QEMU_MACHINE --elf ../puppy.bin --extend='-bios none -smp 4'
+        if [ ${{ matrix.legs.TC }} != "coverage" ]; then
+          python3 qemu_runner.py --system $TEST_QEMU_ARCH --machine $TEST_QEMU_MACHINE --elf ../puppy.bin --extend='-bios none -smp 4'
+        else
+          python3 qemu_runner.py --system $TEST_QEMU_ARCH --machine $TEST_QEMU_MACHINE --elf ../puppy.bin --extend='-bios none -smp 4' --coverage
+        fi
         cat rtt_console.log
         popd
+
+    - name: Gcov Report
+      if: ${{ success() && matrix.legs.TC == 'coverage' }}
+      shell: bash
+      run: |
+        mv UtestRunner/rtt_console.log log.txt
+        python3 ./subsys/embedded-gcov/scripts/log2gcda.py
+        pip3 install -U gcovr
+        mkdir -p CoverageGcovr
+        gcovr --html --html-details -o CoverageGcovr/index.html  --gcov-executable /opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcov build
+
+    - name: Setup Pages
+      if: ${{ success() && matrix.legs.TC == 'coverage' }}
+      uses: actions/configure-pages@v3
+    - name: Upload artifact
+      if: ${{ success() && matrix.legs.TC == 'coverage' }}
+      uses: actions/upload-pages-artifact@v1
+      with:
+        # Upload entire repository
+        path: 'CoverageGcovr'
+    - name: Deploy to GitHub Pages
+      if: ${{ success() && matrix.legs.TC == 'coverage' }}
+      id: deployment
+      uses: actions/deploy-pages@v2

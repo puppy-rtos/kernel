@@ -420,9 +420,6 @@ void tc_list(void)
     }
 }
 
-#ifdef ENABLE_GCOV
-#include "gcov_public.h"
-#endif
 void tc_runall(bool verbose)
 {
     struct p_ex_fn *ptr_begin, *ptr_end;
@@ -435,9 +432,6 @@ void tc_runall(bool verbose)
         printk("Test end\n");
         tc ++;
     }
-#ifdef ENABLE_GCOV
-    __gcov_exit();
-#endif
 }
 
 void tc_run(char *name)
@@ -499,4 +493,14 @@ void shell_tc_cmd(char argc, char *argv)
 #ifdef ENABLE_NR_SHELL
 #include <nr_micro_shell.h>
 NR_SHELL_CMD_EXPORT(tc, shell_tc_cmd);
+#endif
+
+#if defined(ENABLE_GCOV) && defined(ENABLE_NR_SHELL)
+#include "gcov_public.h"
+#include <nr_micro_shell.h>
+void shell_gcov_exit_cmd(char argc, char *argv)
+{
+    __gcov_exit();
+}
+NR_SHELL_CMD_EXPORT(gcov_exit, shell_gcov_exit_cmd);
 #endif
