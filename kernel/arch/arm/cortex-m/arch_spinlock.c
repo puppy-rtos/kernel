@@ -13,14 +13,14 @@ p_weak void arch_spin_lock_init(arch_spinlock_t *lock)
     atomic_flag_clear(&lock->flag);
 }
 
-p_weak __attribute__((always_inline)) inline void arch_spin_lock(arch_spinlock_t *lock)
+p_weak void arch_spin_lock(arch_spinlock_t *lock)
 {
     while (atomic_flag_test_and_set(&lock->flag)) {
         /* busy-wait */
     }
 }
 
-p_weak __attribute__((always_inline)) inline void arch_spin_unlock(arch_spinlock_t *lock)
+p_weak void arch_spin_unlock(arch_spinlock_t *lock)
 {
     atomic_flag_clear(&lock->flag);
 }

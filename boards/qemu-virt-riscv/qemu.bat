@@ -1,0 +1,1 @@
+qemu-system-riscv32 -nographic -M virt -kernel puppy.bin -bios none -smp 4

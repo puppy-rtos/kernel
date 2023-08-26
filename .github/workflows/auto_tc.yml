@@ -74,26 +74,21 @@ jobs:
     - name: Start run Test
       if: ${{success() }}
       run: |
-        git clone https://github.com/Guozhanxin/UtestRunner.git
-        pushd UtestRunner
-        git checkout -b puppy origin/puppy
         if [ ${{ matrix.legs.TC }} != "coverage" ]; then
-          python3 qemu_runner.py --system $TEST_QEMU_ARCH --machine $TEST_QEMU_MACHINE --elf ../puppy.bin --extend='-bios none -smp 4'
+          python3 ./tools/TestsRunner/qemu_runner.py --system $TEST_QEMU_ARCH --machine $TEST_QEMU_MACHINE --elf puppy.bin --extend='-bios none -smp 4'
         else
-          python3 qemu_runner.py --system $TEST_QEMU_ARCH --machine $TEST_QEMU_MACHINE --elf ../puppy.bin --extend='-bios none -smp 4' --coverage
+          python3 ./tools/TestsRunner/qemu_runner.py --system $TEST_QEMU_ARCH --machine $TEST_QEMU_MACHINE --elf puppy.bin --extend='-bios none -smp 4' --coverage
         fi
-        cat rtt_console.log
-        popd
+        cat console.log
 
     - name: Gcov Report
       if: ${{ success() && matrix.legs.TC == 'coverage' }}
       shell: bash
       run: |
-        mv UtestRunner/rtt_console.log log.txt
-        python3 ./subsys/embedded-gcov/scripts/log2gcda.py
+        python3 ./subsys/embedded-gcov/scripts/log2gcda.py console.log
         pip3 install -U gcovr
-        mkdir -p CoverageGcovr
-        gcovr --html --html-details -o CoverageGcovr/index.html  --gcov-executable /opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcov build
+        mkdir -p coverage
+        gcovr --html --html-details -o coverage/index.html  --gcov-executable /opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcov build
 
     - name: Setup Pages
       if: ${{ success() && matrix.legs.TC == 'coverage' }}
@@ -103,7 +98,7 @@ jobs:
       uses: actions/upload-pages-artifact@v1
       with:
         # Upload entire repository
-        path: 'CoverageGcovr'
+        path: 'coverage'
     - name: Deploy to GitHub Pages
       if: ${{ success() && matrix.legs.TC == 'coverage' }}
       id: deployment
