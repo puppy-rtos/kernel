@@ -1,8 +1,8 @@
 import re
 import os
-
+import sys
 # Read the log file
-with open("log.txt", "r") as f:
+with open(sys.argv[1], "r") as f:
     log_data = f.read()
 
 # split each file hexdump section
@@ -38,5 +38,3 @@ for split_data in log_data.split(r":Emitting"):
         with open(file_name, "ab") as f:
             f.write(bytes_data)
 
-# E:/MyWorkspace/lcov-1.15/bin/lcov  -c -d . --rc lcov_branch_coverage=1 -o build/test.coverage --gcov-tool D:/Progrem/env-windows/tools/gnu_gcc/arm_gcc/mingw/bin/arm-none-eabi-gcov
-# E:/MyWorkspace/lcov-1.15/bin/genhtml --branch-coverage build/test.coverage -o build/lcov
