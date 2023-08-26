@@ -147,7 +147,7 @@ int puppy_board_init(void)
 
     /* USER CODE BEGIN SysInit */
     HAL_SetTickFreq(HAL_TICK_FREQ_100HZ);
-    p_tick_init(100);
+    p_tick_init(100, HAL_RCC_GetHCLKFreq() / 1000000);
     p_sem_init(&cons_sem, "cons_sem", 0, 1);
     p_system_heap_init(heap_buf, sizeof(heap_buf));
 

@@ -141,8 +141,8 @@ void p_cpu_init(void);
 /**
  * tick api
  */
-void p_tick_init(int tick_persec);
-void p_tick_inc(void);
+void p_tick_init(int tick_persec, int latency_perus);
+void p_tick_inc(int tick, int latency);
 p_tick_t p_tick_get(void);
 int p_tick_persec(void);
 

@@ -67,7 +67,7 @@ int puppy_board_init(void)
     trap_init();
     plic_init();
     timer_init();
-    p_tick_init(100);
+    p_tick_init(100, 10);
     p_sem_init(&cons_sem, "cons_sem", 0, 1);
     p_system_heap_init(heap_buf, sizeof(heap_buf));
 
