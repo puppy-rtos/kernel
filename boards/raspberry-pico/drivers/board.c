@@ -144,7 +144,7 @@ int p_hw_cons_output(const char *str, int len)
 }
 void isr_systick(void)
 {
-    p_tick_inc();
+    p_tick_inc(1, (uint32_t)mpu_hw->rvr - (uint32_t)mpu_hw->cvr);
 }
 
 #if P_CPU_NR > 1
@@ -235,7 +235,7 @@ int puppy_board_init(void)
 {
     set_sys_clock_khz(PLL_SYS_KHZ, true);
 
-    p_tick_init(100);
+    p_tick_init(100, clock_get_hz(clk_sys)/1000000);
     arch_spin_lock_init(&cons_lock);
     p_system_heap_init(heap_buf, sizeof(heap_buf));
 
