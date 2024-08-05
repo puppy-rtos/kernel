@@ -1,18 +1,12 @@
 
 #include <puppy.h>
 
-#ifdef ENABLE_GCOV 
-#include "gcov_public.h"
-static void pkg_gcov_init(void){
-#ifndef PICO_BIT_OPS_PICO
-    __gcov_call_constructors();
-#endif
+static void say_hello(void) {
+    printk("hello! puppy-rtos!\n");
 }
-P_INIT_FUNC(pkg_gcov_init);
-#endif
+P_INIT_FUNC(say_hello);
 
-int main( void )
-{
+int main( void ) {
     puppy_init();
     puppy_start();
 	return 0;

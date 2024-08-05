@@ -5,14 +5,8 @@ includes("options.lua")
 
 add_rules("mode.debug", "mode.release")
 
-includes("subsys/**/xmake.lua")
-includes("tests/**/xmake.lua")
 includes("boards/**/xmake.lua")
 includes("kernel/xmake.lua")
 
 target("puppy")
     add_files("apps/*c")
-
-if has_config("kasan") then
-    add_cxflags(' -fsanitize=kernel-address')
-end

@@ -69,7 +69,7 @@ int puppy_board_init(void)
     timer_init();
     p_tick_init(100, 10);
     p_sem_init(&cons_sem, "cons_sem", 0, 1);
-    p_system_heap_init(heap_buf, sizeof(heap_buf));
+    // p_system_heap_init(heap_buf, sizeof(heap_buf));
 
     return 0;
 }
@@ -100,7 +100,7 @@ void subcpu_entry(void)
     while(1);
 }
 
-void sfi_handler(void) 
+void sfi_handler(void)
 {
     *(uint32_t*)CLINT_MSIP(p_cpu_self_id()) = 0;
     p_sched();
@@ -115,21 +115,13 @@ void arch_ipi_send(uint8_t cpuid)
     *(uint32_t*)CLINT_MSIP(cpuid) = 1;
 }
 
-#include "nr_micro_shell.h"
-void shell_ipi_cmd(char argc, char *argv)
-{
-    arch_ipi_send(1);
-    arch_ipi_send(2);
-}
-NR_SHELL_CMD_EXPORT(ipi, shell_ipi_cmd);
-
 void p_subcpu_start(void)
 {
     w_mie(r_mie() | MIE_MSIE);
     _g_subcpu_start_flag = 1;
 }
 #else
-void sfi_handler(void) 
+void sfi_handler(void)
 {
 
 }

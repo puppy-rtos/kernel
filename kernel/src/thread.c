@@ -30,7 +30,7 @@ void p_thread_entry(void (*entry)(void *parameter), void *param)
     {
         entry(param);
     }
-    
+
     KLOG_D("p_thread_entry exit...");
     p_thread_abort(p_thread_self());
     while (1);
@@ -38,7 +38,7 @@ void p_thread_entry(void (*entry)(void *parameter), void *param)
 static void _p_thread_cleanup(p_obj_t obj)
 {
     struct _thread_obj *thread = obj;
-    p_free(thread->stack_addr);
+    // p_free(thread->stack_addr);
     p_obj_deinit(thread);
 }
 void p_thread_init(p_obj_t obj, const char *name,
@@ -52,7 +52,7 @@ void p_thread_init(p_obj_t obj, const char *name,
     struct _thread_obj *thread = obj;
 
     p_obj_init(&thread->kobj, name, P_OBJ_TYPE_THREAD | P_OBJ_TYPE_STATIC, 0);
-    
+
     thread->entry = entry;
     thread->param = param;
     thread->stack_addr = stack_addr;
@@ -65,10 +65,10 @@ void p_thread_init(p_obj_t obj, const char *name,
     thread->kernel_stack = 0;
     thread->bindcpu = bindcpu;
     thread->oncpu = CPU_NA;
-    
+
     KLOG_D("thread_init -->[%s], entry:0x%x, stack_addr:0x%x, stack_size:%d ",
                                name, entry, stack_addr, stack_size);
-    
+
     memset(stack_addr,0x23, stack_size);
 
     thread->arch_data = arch_new_thread(p_thread_entry, entry, param, stack_addr, stack_size);
@@ -101,7 +101,7 @@ int p_thread_abort(p_obj_t obj)
     timeout_remove(&_thread->timeout);
     p_thread_dead_add(_thread);
     p_sched();
-    
+
     arch_irq_unlock(key);
     return 0;
 }
@@ -110,14 +110,14 @@ int p_thread_yield(void)
 {
     struct _thread_obj *_thread = p_cpu_self()->curr_thread;
     p_base_t key = arch_irq_lock();
-    
+
     KLOG_ASSERT(p_cpu_self()->curr_thread != NULL);
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
 
     p_sched_ready_insert(_thread);
     p_sched();
-    
+
     arch_irq_unlock(key);
     return 0;
 }
@@ -134,11 +134,11 @@ void sleep_timeout_fn(p_obj_t obj, void *param)
 int p_thread_set_timeout(p_tick_t timeout, p_timeout_fn func, void *param)
 {
     struct _thread_obj *_thread = p_cpu_self()->curr_thread;
-    
+
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
     KLOG_ASSERT(p_node_is_linked(&_thread->timeout.node) == false);
-    
+
     /* check timeout node */
     if(p_node_is_linked(&_thread->timeout.node))
     {
@@ -160,7 +160,7 @@ int p_thread_sleep(p_tick_t tick)
 
     KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
     KLOG_ASSERT(_thread->state == P_THREAD_STATE_RUN);
-    
+
     p_thread_set_timeout(tick, sleep_timeout_fn, NULL);
 
     _thread->state = P_THREAD_STATE_SLEEP;
@@ -214,7 +214,7 @@ int p_thread_start(p_obj_t obj)
 {
     KLOG_ASSERT(obj != NULL);
     KLOG_ASSERT(p_obj_get_type(obj) == P_OBJ_TYPE_THREAD);
-    
+
     p_sched_ready_insert(obj);
     p_sched();
     return 0;
@@ -245,7 +245,7 @@ static void timeout_insert(struct timeout *timeout)
     struct timeout *_timeout = NULL, *temp_timeout;
     p_base_t key = arch_irq_lock();
     p_node_t *node;
-    
+
     p_list_for_each_node(&thread_timeout_list, node)
     {
         temp_timeout = p_list_entry(node, struct timeout, node);
@@ -291,7 +291,7 @@ _next:
     {
         _thread = p_list_entry(timeout,
                             struct _thread_obj, timeout);
-        
+
         KLOG_ASSERT(p_obj_get_type(_thread) == P_OBJ_TYPE_THREAD);
         /* timeout ok */
         p_list_remove(&timeout->node);
@@ -321,7 +321,7 @@ void p_thread_dead_clean(void)
         struct _thread_obj *_thread = p_list_entry(node, struct _thread_obj, tnode);
         p_list_remove(node);
         arch_irq_unlock(key);
-        
+
         if (_thread->cleanup)
         {
             _thread->cleanup(_thread); /* todo: if other thread blocked in free func */

@@ -56,7 +56,7 @@ void external_interrupt_handler()
     } else if (irq) {
         printk("unexpected interrupt irq = %d\n", irq);
     }
-    
+
     if (irq) {
         plic_complete(irq);
     }
@@ -115,5 +115,5 @@ void trap_test()
 
     printk("Yeah! I'm return back from trap!\n");
 }
-#include "nr_micro_shell.h"
-NR_SHELL_CMD_EXPORT(trap_test, trap_test);
+// #include "nr_micro_shell.h"
+// NR_SHELL_CMD_EXPORT(trap_test, trap_test);
