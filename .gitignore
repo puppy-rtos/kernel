@@ -2,3 +2,4 @@
 /.xmake
 *.bin
 *.map
+doxyfile

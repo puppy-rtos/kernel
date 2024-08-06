@@ -14,6 +14,11 @@
 #include <stdbool.h>         /* C99 boolean types */
 #include <time.h>            /* Needed for struct timespec */
 
+/**
+ * @addtogroup pthread pthread API
+ * @{
+ */
+
 #ifndef _POSIX_THREADS
 #define _POSIX_THREADS
 #endif
@@ -257,5 +262,8 @@ int pthread_atfork(void (*prepare)(void),
 #ifdef __cplusplus
 }
 #endif
+
+
+/**@}*/
 
 #endif 

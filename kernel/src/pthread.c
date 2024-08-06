@@ -14,6 +14,11 @@
 #include <puppy/posix/pthread.h>
 #include <string.h>
 
+/**
+ * @addtogroup pthread pthread API
+ * @{
+ */
+
 const pthread_attr_t pthread_default_attr =
 {
     P_SCHED_PRIO_DEFAULT,
@@ -279,3 +284,5 @@ unsigned sleep(unsigned int __seconds)
     p_thread_sleep(p_tick_persec() * __seconds);
     return 0;
 }
+
+/**@}*/
