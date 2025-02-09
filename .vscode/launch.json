@@ -78,7 +78,7 @@
                 }
             ],
             "MIMode": "gdb",
-            "miDebuggerPath": "d:/progrem/env-windows/tools/gnu_gcc/arm_gcc/mingw/bin/riscv64-unknown-elf-gdb.exe",
+            "miDebuggerPath": "d:/progrem/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-w64-mingw32/bin/riscv64-unknown-elf-gdb.exe",
             "customLaunchSetupCommands": [],
             "launchCompleteCommand": "exec-run",
         },

@@ -5,7 +5,9 @@ if is_config("build_board", "qemu-virt-riscv") then
     add_defines(
         "__riscv_float_abi_soft",
         "_POSIX_C_SOURCE=199309L",
-        "PUP_CPU_NR=1"
+        "PUP_ARCH_RISCV",
+        "PUP_CPU_NR=4",
+        "PUP_GET_CPU_ID=pup_cpu_self_id"
     )
     add_files(
         "**.c",
