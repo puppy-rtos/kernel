@@ -39,6 +39,29 @@ int _cons_init(void)
 //     return ch;
 // }
 
+#ifdef __GNUC__
+
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
+void vprint(const char *fmt, va_list argp)
+{
+    char string[200];
+    if(vsprintf(string, fmt, argp) > 0) // build string
+    {
+        pup_hw_cons_output(string, strlen(string));
+    }
+}
+
+void my_printf(const char *fmt, ...) // custom printf() function
+{
+    va_list argp;
+    va_start(argp, fmt);
+    vprint(fmt, argp);
+    va_end(argp);
+}
+#endif
+
 int pup_hw_cons_output(const char *str, int len)
 {
     size_t i;
