@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "puppy_core.h": "c",
+        "stdint.h": "c"
+    },
+    "C_Cpp.default.compilerPath": "/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc"
+}

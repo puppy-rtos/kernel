@@ -9,7 +9,7 @@
  */
 
 #include <puppy_core.h>
-
+#include <stdint.h>
 // #include <encoding.h>
 // #include "sbi.h"
 

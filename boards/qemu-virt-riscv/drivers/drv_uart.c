@@ -8,6 +8,8 @@
  */
 
 #include <puppy_core.h>
+#include <stdint.h>
+
 #include "drv_uart.h"
 
 #include <stdio.h>

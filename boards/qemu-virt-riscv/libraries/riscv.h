@@ -1,8 +1,8 @@
 #ifndef __RISCV_H__
 #define __RISCV_H__
 
-#include "types.h"
 
+typedef uint32_t reg_t;
 /*
  * ref: https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/riscv.h
  */

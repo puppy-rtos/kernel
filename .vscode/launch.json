@@ -74,11 +74,11 @@
                     "text": "cd ${workspaceRoot}"
                 },
                 {
-                    "text": "shell boards\\qemu-virt-riscv\\qemu-dbg.bat"
+                    "text": "shell ./boards/qemu-virt-riscv/qemu-dbg.sh"
                 }
             ],
             "MIMode": "gdb",
-            "miDebuggerPath": "d:/progrem/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-w64-mingw32/bin/riscv64-unknown-elf-gdb.exe",
+            "miDebuggerPath": "/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gdb",
             "customLaunchSetupCommands": [],
             "launchCompleteCommand": "exec-run",
         },

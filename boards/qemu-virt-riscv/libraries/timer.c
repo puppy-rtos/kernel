@@ -1,6 +1,9 @@
 #include <puppy_core.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "platform.h"
 #include "riscv.h"
+
 
 /* interval ~= 1s */
 #define TIMER_INTERVAL CLINT_TIMEBASE_FREQ / 100

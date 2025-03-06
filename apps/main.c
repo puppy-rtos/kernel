@@ -1,6 +1,9 @@
 
 #include <puppy_core.h>
 
+#include <stdint.h>
+#include <stddef.h>
+
 int main( void )
 {
     int puppy_board_init(void);

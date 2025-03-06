@@ -1,0 +1,56 @@
+[
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-c", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/boards/qemu-virt-riscv/libraries/start.S.o", "boards/qemu-virt-riscv/libraries/start.S"],
+  "file": "boards/qemu-virt-riscv/libraries/start.S"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-c", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/boards/qemu-virt-riscv/libraries/entry.S.o", "boards/qemu-virt-riscv/libraries/entry.S"],
+  "file": "boards/qemu-virt-riscv/libraries/entry.S"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/boards/qemu-virt-riscv/drivers/drv_uart.c.o", "boards/qemu-virt-riscv/drivers/drv_uart.c"],
+  "file": "boards/qemu-virt-riscv/drivers/drv_uart.c"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/boards/qemu-virt-riscv/drivers/borad.c.o", "boards/qemu-virt-riscv/drivers/borad.c"],
+  "file": "boards/qemu-virt-riscv/drivers/borad.c"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/boards/qemu-virt-riscv/libraries/plic.c.o", "boards/qemu-virt-riscv/libraries/plic.c"],
+  "file": "boards/qemu-virt-riscv/libraries/plic.c"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/boards/qemu-virt-riscv/libraries/tick.c.o", "boards/qemu-virt-riscv/libraries/tick.c"],
+  "file": "boards/qemu-virt-riscv/libraries/tick.c"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/boards/qemu-virt-riscv/libraries/timer.c.o", "boards/qemu-virt-riscv/libraries/timer.c"],
+  "file": "boards/qemu-virt-riscv/libraries/timer.c"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/apps/main.c.o", "apps/main.c"],
+  "file": "apps/main.c"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/core/puppy_core.c.o", "core/puppy_core.c"],
+  "file": "core/puppy_core.c"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/core/arch/arch_cortex-m.c.o", "core/arch/arch_cortex-m.c"],
+  "file": "core/arch/arch_cortex-m.c"
+},
+{
+  "directory": "/home/henson/puppy-project/kernel",
+  "arguments": ["/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin/riscv64-unknown-elf-gcc", "-c", "-g", "-O0", "-Iboards/qemu-virt-riscv/drivers", "-Iboards/qemu-virt-riscv/libraries", "-Icore", "-D__riscv_float_abi_soft", "-D_POSIX_C_SOURCE=199309L", "-DPUP_ARCH_RISCV", "-DPUP_CPU_NR=4", "-DPUP_GET_CPU_ID=pup_cpu_self_id", "-march=rv32imac", "-mabi=ilp32", "-mcmodel=medany", "-Wall", "-fmessage-length=0", "-ffunction-sections", "-fdata-sections", "-fno-builtin-printf", "-o", "build/.objs/puppy/cross/riscv32/debug/core/arch/arch_riscv.c.o", "core/arch/arch_riscv.c"],
+  "file": "core/arch/arch_riscv.c"
+}]

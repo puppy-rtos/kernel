@@ -1,6 +1,11 @@
 #include <puppy_core.h>
+
+#include <stdint.h>
+#include <stddef.h>
+
 #include "platform.h"
 #include "riscv.h"
+
 #define UART0_IRQ 10
 void plic_init(void)
 {
@@ -80,4 +85,87 @@ void plic_complete(int irq)
 {
 	int hart = r_mhartid();
 	*(uint32_t*)PLIC_MCOMPLETE(hart) = irq;
+}
+
+#include "platform.h"
+#include "riscv.h"
+extern void trap_vector(void);
+extern void uart_isr(void);
+extern void timer_handler(void);
+
+void trap_init()
+{
+	/*
+	 * set the trap-vector base-address for machine-mode
+	 */
+	w_mtvec((uint32_t)trap_vector);
+}
+
+void external_interrupt_handler()
+{
+	int irq = plic_claim();
+
+	if (irq == 10){
+		uart_isr();
+	} else if (irq) {
+		PUP_PRINTK("unexpected interrupt irq = %d\n", irq);
+	}
+
+	if (irq) {
+		plic_complete(irq);
+	}
+}
+
+uint32_t trap_handler(uint32_t epc, uint32_t cause)
+{
+	uint32_t return_pc = epc;
+	uint32_t cause_code = cause & 0xfff;
+
+	if (cause & 0x80000000) {
+		/* Asynchronous trap - interrupt */
+		switch (cause_code) {
+		case 3:
+			// PUP_PRINTK("software interruption!\n");
+			sfi_handler();
+			break;
+		case 7:
+			// PUP_PRINTK("timer interruption!\n");
+			timer_handler();
+			break;
+		case 11:
+			// PUP_PRINTK("external interruption!\n");
+			external_interrupt_handler();
+			break;
+		default:
+			PUP_PRINTK("unknown async exception!\n");
+			break;
+		}
+	} else {
+		/* Synchronous trap - exception */
+		PUP_PRINTK("Sync exceptions!, code = %d\n", cause_code);
+		PUP_PRINTK("OOPS! What can I do!");
+		// list_thread();
+		while(1)
+		{}
+		// return_pc += 2;
+	}
+
+	return return_pc;
+}
+
+void trap_test()
+{
+	/*
+	 * Synchronous exception code = 7
+	 * Store/AMO access fault
+	 */
+	*(int *)0x00000000 = 100;
+
+	/*
+	 * Synchronous exception code = 5
+	 * Load access fault
+	 */
+	//int a = *(int *)0x00000000;
+
+	PUP_PRINTK("Yeah! I'm return back from trap!\n");
 }
